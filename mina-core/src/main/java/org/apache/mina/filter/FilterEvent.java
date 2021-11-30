@@ -20,6 +20,8 @@
 package org.apache.mina.filter;
 
 /**
+ * 一个空接口，每个要发送特定事件的Filter都必须实现这个接口。
+ *
  * An empty interface that each Filter that is going to send a specific event must implement.
  *   
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

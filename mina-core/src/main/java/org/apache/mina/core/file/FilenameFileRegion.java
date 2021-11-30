@@ -23,6 +23,8 @@ import java.io.File;
 import java.nio.channels.FileChannel;
 
 /**
+ * 管理要发送到远程主机的文件。我们跟踪当前位置和已经写入的字节数。
+ *
  * Manage a File to be sent to a remote host. We keep a track on the current
  * position, and the number of already written bytes.
  * 
@@ -34,6 +36,8 @@ public class FilenameFileRegion extends DefaultFileRegion {
     private final File file;
 
     /**
+     * 创建一个新的FilenameFileRegion实例
+     *
      * Create a new FilenameFileRegion instance
      * 
      * @param file The file to manage
@@ -44,6 +48,8 @@ public class FilenameFileRegion extends DefaultFileRegion {
     }
 
     /**
+     * 创建一个新的filenamefilereregion实例
+     *
      * Create a new FilenameFileRegion instance
      * 
      * @param file The file to manage
@@ -53,11 +59,9 @@ public class FilenameFileRegion extends DefaultFileRegion {
      */
     public FilenameFileRegion(File file, FileChannel channel, long position, long remainingBytes) {
         super(channel, position, remainingBytes);
-
         if (file == null) {
             throw new IllegalArgumentException("file can not be null");
         }
-        
         this.file = file;
     }
 

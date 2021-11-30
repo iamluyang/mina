@@ -21,7 +21,7 @@ package org.apache.mina.example.gettingstarted.timeserver;
 
 import java.util.Date;
 
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 

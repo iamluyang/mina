@@ -29,7 +29,7 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.IoServiceListener;
 import org.apache.mina.core.service.IoServiceListenerSupport;

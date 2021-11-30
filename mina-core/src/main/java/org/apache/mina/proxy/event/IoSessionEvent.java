@@ -26,30 +26,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 入队事件的包装类。
+ *
  * IoSessionEvent.java - Wrapper Class for enqueued events.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  * @since MINA 2.0.0-M3
  */
 public class IoSessionEvent {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IoSessionEvent.class);
 
     /**
+     * 链中的下一个过滤器
+     *
      * The next filter in the chain.
      */
     private final NextFilter nextFilter;
 
     /**
+     * 会话
+     *
      * The session.
      */
     private final IoSession session;
 
     /**
+     * 事件类型
+     *
      * The event type.
      */
     private final IoSessionEventType type;
 
     /**
+     * 当type值为IoSessionEventType时为空闲状态。空闲的,否则无效。
+     *
      * The idle status if type value is {@link IoSessionEventType#IDLE},
      * null otherwise.
      */

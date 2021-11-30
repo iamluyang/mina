@@ -22,6 +22,8 @@ package org.apache.mina.core.file;
 import java.nio.channels.FileChannel;
 
 /**
+ * 指定要发送到远程主机的文件所在的区域。
+ *
  * Indicates the region of a file to be sent to the remote host.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -29,6 +31,8 @@ import java.nio.channels.FileChannel;
 public interface FileRegion {
 
     /**
+     * 打开的FileChannel，从中读取数据并将其发送到远程主机。
+     *
      * The open <tt>FileChannel</tt> from which data will be read to send to
      * remote host.
      *
@@ -37,6 +41,8 @@ public interface FileRegion {
     FileChannel getFileChannel();
 
     /**
+     * 将从其中读取数据的当前文件位置。
+     *
      * The current file position from which data will be read.
      *
      * @return  The current file position.
@@ -44,6 +50,9 @@ public interface FileRegion {
     long getPosition();
 
     /**
+     * 根据指定的数量更新当前文件位置。这将使getPosition()和getWrittenBytes()返回的值增加给定的数量，
+     * 并使getRemainingBytes()返回的值减少给定的数量。
+     *
      * Updates the current file position based on the specified amount. This
      * increases the value returned by {@link #getPosition()} and
      * {@link #getWrittenBytes()} by the given amount and decreases the value
@@ -54,6 +63,8 @@ public interface FileRegion {
     void update(long amount);
 
     /**
+     * 要从文件写到远程主机的剩余字节数。
+     *
      * The number of bytes remaining to be written from the file to the remote
      * host.
      *
@@ -62,6 +73,8 @@ public interface FileRegion {
     long getRemainingBytes();
 
     /**
+     * 已写入的总字节数。
+     *
      * The total number of bytes already written.
      *
      * @return  The total number of bytes already written.
@@ -69,6 +82,8 @@ public interface FileRegion {
     long getWrittenBytes();
 
     /**
+     * 提供底层FileChannel的绝对文件名。
+     *
      * Provides an absolute filename for the underlying FileChannel.
      * 
      * @return  the absolute filename, or <tt>null</tt> if the FileRegion

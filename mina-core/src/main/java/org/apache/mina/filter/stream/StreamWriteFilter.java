@@ -24,6 +24,7 @@ import java.io.InputStream;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.handler.IoHandler;
 
 /**
  * Filter implementation which makes it possible to write {@link InputStream}
@@ -40,9 +41,9 @@ import org.apache.mina.core.session.IoSession;
  * instances. Such messages will be passed to the next filter directly.
  * <p>
  * NOTE: this filter does not close the stream after all data from stream
- * has been written. The {@link org.apache.mina.core.service.IoHandler} should take
+ * has been written. The {@link IoHandler} should take
  * care of that in its
- * {@link org.apache.mina.core.service.IoHandler#messageSent(IoSession,Object)}
+ * {@link IoHandler#messageSent(IoSession,Object)}
  * callback.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

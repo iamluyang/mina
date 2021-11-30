@@ -25,15 +25,21 @@ import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * {@link WriteFuture} 的默认实现。
+ *
  * A default implementation of {@link WriteFuture}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
+
+    // 会话关闭时使用的静态对象
     /** A static object used when the session is closed */
     private static final Object CLOSED = new Object();
 
     /**
+     * 创建一个新实例。
+     *
      * Creates a new instance.
      * 
      * @param session The associated session
@@ -42,35 +48,9 @@ public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
         super(session);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getMessage() {
-        if (isDone()) {
-            Object v = getValue();
-            
-            if (v == CLOSED) {
-                return null;
-            }
-
-            if (v instanceof RuntimeException) {
-                throw (RuntimeException) v;
-            }
-            
-            if (v instanceof Error) {
-                throw (Error) v;
-            }
-            
-            if (v instanceof IOException || v instanceof Exception) {
-                throw new RuntimeIoException((Exception) v);
-            }
-
-            return v;
-        }
-
-        return null;
-    }
+    // --------------------------------------------------
+    // setValue：isRead
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -78,48 +58,38 @@ public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
     @Override
     public boolean isRead() {
         if (isDone()) {
-            Object v = getValue();
-            
-            return v != CLOSED && !(v instanceof Throwable);
+            Object value = getValue();
+            return value != CLOSED && !(value instanceof Throwable);
         }
-        
         return false;
     }
+
+    // --------------------------------------------------
+    // setValue：message
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isClosed() {
+    public Object getMessage() {
         if (isDone()) {
-            return getValue() == CLOSED;
-        }
-        
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Throwable getException() {
-        if (isDone()) {
-            Object v = getValue();
-            
-            if (v instanceof Throwable) {
-                return (Throwable)v;
+            Object value = getValue();
+            if (value == CLOSED) {
+                return null;
             }
+            if (value instanceof RuntimeException) {
+                throw (RuntimeException) value;
+            }
+            if (value instanceof Error) {
+                throw (Error) value;
+            }
+            if (value instanceof IOException || value instanceof Exception) {
+                throw new RuntimeIoException((Exception) value);
+            }
+            return value;
         }
-        
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setClosed() {
-        setValue(CLOSED);
     }
 
     /**
@@ -130,8 +100,49 @@ public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
         if (message == null) {
             throw new IllegalArgumentException("message");
         }
-        
+
         setValue(message);
+    }
+
+    // --------------------------------------------------
+    // setValue：CLOSED
+    // --------------------------------------------------
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isClosed() {
+        if (isDone()) {
+            return getValue() == CLOSED;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setClosed() {
+        setValue(CLOSED);
+    }
+
+    // --------------------------------------------------
+    // setValue：exception
+    // --------------------------------------------------
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Throwable getException() {
+        if (isDone()) {
+            Object value = getValue();
+            if (value instanceof Throwable) {
+                return (Throwable)value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -142,9 +153,12 @@ public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
         if (exception == null) {
             throw new IllegalArgumentException("exception");
         }
-
         setValue(exception);
     }
+
+    // --------------------------------------------------
+    // await
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -161,6 +175,10 @@ public class DefaultReadFuture extends DefaultIoFuture implements ReadFuture {
     public ReadFuture awaitUninterruptibly() {
         return (ReadFuture) super.awaitUninterruptibly();
     }
+
+    // --------------------------------------------------
+    // listener
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}

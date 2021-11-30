@@ -19,7 +19,7 @@
  */
 package org.apache.mina.handler.multiton;
 
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -81,7 +81,7 @@ public class SingleSessionIoHandlerDelegate implements IoHandler {
      * this class.  The created handler is stored as a session
      * attribute named {@link #HANDLER}.
      * 
-     * @see org.apache.mina.core.service.IoHandler#sessionCreated(org.apache.mina.core.session.IoSession)
+     * @see IoHandler#sessionCreated(org.apache.mina.core.session.IoSession)
      */
     @Override
     public void sessionCreated(IoSession session) throws Exception {

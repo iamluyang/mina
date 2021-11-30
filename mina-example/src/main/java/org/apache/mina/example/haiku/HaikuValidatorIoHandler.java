@@ -18,7 +18,7 @@
  */
 package org.apache.mina.example.haiku;
 
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**

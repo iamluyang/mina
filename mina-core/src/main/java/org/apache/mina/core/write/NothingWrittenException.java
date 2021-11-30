@@ -22,6 +22,8 @@ package org.apache.mina.core.write;
 import java.util.Collection;
 
 /**
+ * 当一个或多个写请求没有导致实际的写操作时引发的异常。
+ *
  * An exception which is thrown when one or more write requests resulted
  * in no actual write operation.
  * 
@@ -33,18 +35,16 @@ public class NothingWrittenException extends WriteException {
 
     /**
      * Create a new NothingWrittenException instance
-     * 
-     * @param requests The {@link WriteRequest}s that haven't been written
-     * @param message The error message
-     * @param cause The original exception
+     *
+     * @param requests The {@link WriteRequest} that haven't been written
      */
-    public NothingWrittenException(Collection<WriteRequest> requests, String message, Throwable cause) {
-        super(requests, message, cause);
+    public NothingWrittenException(Collection<WriteRequest> requests) {
+        super(requests);
     }
 
     /**
      * Create a new NothingWrittenException instance
-     * 
+     *
      * @param requests The {@link WriteRequest}s that haven't been written
      * @param message The error message
      */
@@ -64,22 +64,22 @@ public class NothingWrittenException extends WriteException {
 
     /**
      * Create a new NothingWrittenException instance
-     * 
-     * @param requests The {@link WriteRequest} that haven't been written
+     *
+     * @param requests The {@link WriteRequest}s that haven't been written
+     * @param message The error message
+     * @param cause The original exception
      */
-    public NothingWrittenException(Collection<WriteRequest> requests) {
-        super(requests);
+    public NothingWrittenException(Collection<WriteRequest> requests, String message, Throwable cause) {
+        super(requests, message, cause);
     }
 
     /**
      * Create a new NothingWrittenException instance
-     * 
+     *
      * @param request The {@link WriteRequest} that hasn't been written
-     * @param message The error message
-     * @param cause The original exception
      */
-    public NothingWrittenException(WriteRequest request, String message, Throwable cause) {
-        super(request, message, cause);
+    public NothingWrittenException(WriteRequest request) {
+        super(request);
     }
 
     /**
@@ -104,10 +104,13 @@ public class NothingWrittenException extends WriteException {
 
     /**
      * Create a new NothingWrittenException instance
-     * 
+     *
      * @param request The {@link WriteRequest} that hasn't been written
+     * @param message The error message
+     * @param cause The original exception
      */
-    public NothingWrittenException(WriteRequest request) {
-        super(request);
+    public NothingWrittenException(WriteRequest request, String message, Throwable cause) {
+        super(request, message, cause);
     }
+
 }

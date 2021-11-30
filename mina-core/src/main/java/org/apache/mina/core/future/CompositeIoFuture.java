@@ -24,6 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.IoUtil;
 
 /**
+ * 合成模式
+ *
+ * 当您希望在所有IoFutures完成时得到通知时，它是有用的。
+ * 如果您只是想等待所有的IoFuture，不建议使用CompositeIoFuture。在这种情况下，请使用IoUtil.await(Iterable)以获得更好的性能。
+ *
  * An {@link IoFuture} of {@link IoFuture}s.  It is useful when you want to
  * get notified when all {@link IoFuture}s are complete.  It is not recommended
  * to use {@link CompositeIoFuture} if you just want to wait for all futures.
@@ -35,13 +40,22 @@ import org.apache.mina.core.IoUtil;
  * @param <E> the type of the child futures.
  */
 public class CompositeIoFuture<E extends IoFuture> extends DefaultIoFuture {
-    /** A listener */
+
+    /**
+     * A listener
+     */
     private final NotifyingListener listener = new NotifyingListener();
 
-    /** A thread safe counter that is used to keep a track of the notified futures */
+    /**
+     * 线程安全计数器，用于跟踪需要通知的futures个数
+     * A thread safe counter that is used to keep a track of the notified futures *
+     */
     private final AtomicInteger unnotified = new AtomicInteger();
 
-    /** A flag set to TRUE when all the future have been added to the list */
+    /**
+     * 当所有的future都被添加到列表中时，设置为TRUE的标志
+     * A flag set to TRUE when all the future have been added to the list
+     */
     private volatile boolean constructionFinished;
 
     /**
@@ -58,7 +72,8 @@ public class CompositeIoFuture<E extends IoFuture> extends DefaultIoFuture {
         }
 
         constructionFinished = true;
-        
+
+        // 如果unnotified为空，则直接设置结束
         if (unnotified.get() == 0) {
             setValue(true);
         }
@@ -70,6 +85,7 @@ public class CompositeIoFuture<E extends IoFuture> extends DefaultIoFuture {
          */
         @Override
         public void operationComplete(IoFuture future) {
+            // 检测最后一个future是否完成
             if (unnotified.decrementAndGet() == 0 && constructionFinished) {
                 setValue(true);
             }

@@ -22,11 +22,14 @@ package org.apache.mina.core.future;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * CloseFuture的默认实现。
+ *
  * A default implementation of {@link CloseFuture}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultCloseFuture extends DefaultIoFuture implements CloseFuture {
+
     /**
      * Creates a new instance.
      * 
@@ -35,6 +38,10 @@ public class DefaultCloseFuture extends DefaultIoFuture implements CloseFuture {
     public DefaultCloseFuture(IoSession session) {
         super(session);
     }
+
+    // --------------------------------------------------
+    // Close
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -56,6 +63,10 @@ public class DefaultCloseFuture extends DefaultIoFuture implements CloseFuture {
         setValue(Boolean.TRUE);
     }
 
+    // --------------------------------------------------
+    // await
+    // --------------------------------------------------
+
     /**
      * {@inheritDoc}
      */
@@ -71,6 +82,10 @@ public class DefaultCloseFuture extends DefaultIoFuture implements CloseFuture {
     public CloseFuture awaitUninterruptibly() {
         return (CloseFuture) super.awaitUninterruptibly();
     }
+
+    // --------------------------------------------------
+    // listener
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}

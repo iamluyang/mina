@@ -28,14 +28,19 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * WriteRequest的默认实现
+ *
  * The default implementation of {@link WriteRequest}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultWriteRequest implements WriteRequest {
+
+    // 一条空消息
     /** An empty message */
     public static final byte[] EMPTY_MESSAGE = new byte[] {};
 
+    // 无用的FUTURE
     /** An empty FUTURE */
     private static final WriteFuture UNUSED_FUTURE = new WriteFuture() {
         /**
@@ -60,22 +65,6 @@ public class DefaultWriteRequest implements WriteRequest {
         @Override
         public IoSession getSession() {
             return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void join() {
-            // Do nothing
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean join(long timeoutInMillis) {
-            return true;
         }
 
         /**
@@ -138,7 +127,7 @@ public class DefaultWriteRequest implements WriteRequest {
          * {@inheritDoc}
          */
         @Override
-        public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
+        public boolean awaitUninterruptibly(long timeoutMillis) {
             return true;
         }
 
@@ -146,7 +135,7 @@ public class DefaultWriteRequest implements WriteRequest {
          * {@inheritDoc}
          */
         @Override
-        public boolean awaitUninterruptibly(long timeoutMillis) {
+        public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
             return true;
         }
 
@@ -165,24 +154,51 @@ public class DefaultWriteRequest implements WriteRequest {
         public void setException(Throwable cause) {
             // Do nothing
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void join() {
+            // Do nothing
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean join(long timeoutInMillis) {
+            return true;
+        }
     };
 
-    /** 
+    // 最终将写入远程对等方的消息
+    /** The message that will ultimately be written to the remote peer */
+    private Object message;
+
+    /**
+     * 由 IoHandler 编写的原始消息。 它将在 messageSent 事件中发回
+     *
      * The original message as it was written by the IoHandler. It will be sent back
      * in the messageSent event 
      */ 
     private final Object originalMessage;
 
-    /** The message that will ultimately be written to the remote peer */ 
-    private Object message;
-
+    // 相关的future
     /** The associated Future */
     private final WriteFuture future;
 
+    // 对等目标（没用？？？）
     /** The peer destination (useless ???) */
     private final SocketAddress destination;
 
+    // --------------------------------------------------
+    // DefaultWriteRequest
+    // --------------------------------------------------
     /**
+     * 创建一个没有WriteFuture的新实例。 即你调用了这个构造函数，
+     * 你也会得到一个WriteFuture的实例，因为getFuture()会返回一个虚假的未来。
+     *
      * Creates a new instance without {@link WriteFuture}.  You'll get
      * an instance of {@link WriteFuture} even if you called this constructor
      * because {@link #getFuture()} will return a bogus future.
@@ -194,6 +210,8 @@ public class DefaultWriteRequest implements WriteRequest {
     }
 
     /**
+     * 使用WriteFuture创建一个新实例。
+     *
      * Creates a new instance with {@link WriteFuture}.
      * 
      * @param message The message that will be written
@@ -204,12 +222,14 @@ public class DefaultWriteRequest implements WriteRequest {
     }
 
     /**
+     * 创建一个新实例
+     *
      * Creates a new instance.
      *
-     * @param message a message to write
-     * @param future a future that needs to be notified when an operation is finished
+     * @param message a message to write 要写的消息
+     * @param future a future that needs to be notified when an operation is finished 操作完成时需要通知的future
      * @param destination the destination of the message.  This property will be
-     *                    ignored unless the transport supports it.
+     *                    ignored unless the transport supports it. 消息的目的地。除非传输支持，否则将忽略此属性。
      */
     public DefaultWriteRequest(Object message, WriteFuture future, SocketAddress destination) {
         if (message == null) {
@@ -226,10 +246,10 @@ public class DefaultWriteRequest implements WriteRequest {
         if (message instanceof IoBuffer) {
             // duplicate it, so that any modification made on it
             // won't change the original message
+            // 复制它，这样对其进行的任何修改都不会改变原始消息
             this.message = ((IoBuffer)message).duplicate();
         }
 
-        
         this.future = future;
         this.destination = destination;
     }
@@ -289,8 +309,9 @@ public class DefaultWriteRequest implements WriteRequest {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
         sb.append("WriteRequest: ");
+
+        // CLOSE_REQUEST writeRequest 的特殊情况：它只携带一个本地对象实例
 
         // Special case for the CLOSE_REQUEST writeRequest : it just
         // carries a native Object instance
@@ -298,13 +319,11 @@ public class DefaultWriteRequest implements WriteRequest {
             sb.append("CLOSE_REQUEST");
         } else {
             sb.append(originalMessage);
-
             if (getDestination() != null) {
                 sb.append(" => ");
                 sb.append(getDestination());
             }
         }
-
         return sb.toString();
     }
 

@@ -20,7 +20,6 @@
 package org.apache.mina.example.proxy.telnet;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 

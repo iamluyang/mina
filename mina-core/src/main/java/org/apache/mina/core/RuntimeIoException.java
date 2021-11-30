@@ -22,6 +22,9 @@ package org.apache.mina.core;
 import java.io.IOException;
 
 /**
+ * 未经检查的IOException版本。
+ * 请注意， RuntimeIoException与IOException不同之处在于它不会触发强制会话关闭，而IOException强制断开连接。
+ *
  * A unchecked version of {@link IOException}.
  * <p>
  * Please note that {@link RuntimeIoException} is different from
@@ -31,6 +34,7 @@ import java.io.IOException;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class RuntimeIoException extends RuntimeException {
+
     private static final long serialVersionUID = 9029092241311939548L;
 
     /**
@@ -51,20 +55,20 @@ public class RuntimeIoException extends RuntimeException {
 
     /**
      * Create a new RuntimeIoException instance
+     *
+     * @param cause The original exception
+     */
+    public RuntimeIoException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * Create a new RuntimeIoException instance
      * 
      * @param message The error message
      * @param cause The original exception
      */
     public RuntimeIoException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * Create a new RuntimeIoException instance
-     * 
-     * @param cause The original exception
-     */
-    public RuntimeIoException(Throwable cause) {
-        super(cause);
     }
 }

@@ -22,13 +22,35 @@ package org.apache.mina.core.session;
 import java.util.concurrent.BlockingQueue;
 
 /**
+ * IoSession的配置。
+ *
  * The configuration of {@link IoSession}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoSessionConfig {
 
+    // --------------------------------------------------
+    // IoSessionConfig
+    // --------------------------------------------------
+
     /**
+     * 设置从指定的config检索的所有配置属性。
+     * Sets all configuration properties retrieved from the specified
+     * <tt>config</tt>.
+     *
+     * @param config The configuration to use
+     */
+    void setAll(IoSessionConfig config);
+
+    // --------------------------------------------------
+    // ReadBufferSize
+    // --------------------------------------------------
+
+    /**
+     * I/O 处理器为每次读取分配的读取缓冲区的大小。
+     * 调整此属性并不常见，因为它通常由 I/O 处理器自动调整。
+     *
      * @return the size of the read buffer that I/O processor allocates
      * per each read.  It's unusual to adjust this property because
      * it's often adjusted automatically by the I/O processor.
@@ -36,6 +58,9 @@ public interface IoSessionConfig {
     int getReadBufferSize();
 
     /**
+     * 设置 I/O 处理器为每次读取分配的读取缓冲区的大小。
+     * 调整此属性并不常见，因为它通常由 I/O 处理器自动调整。
+     *
      * Sets the size of the read buffer that I/O processor allocates
      * per each read.  It's unusual to adjust this property because
      * it's often adjusted automatically by the I/O processor.
@@ -45,6 +70,9 @@ public interface IoSessionConfig {
     void setReadBufferSize(int readBufferSize);
 
     /**
+     * I/O 处理器每次读取分配的读取缓冲区的最小大小。
+     * I/O 处理器不会将读取缓冲区大小减小到小于该属性值的值。
+     *
      * @return the minimum size of the read buffer that I/O processor
      * allocates per each read.  I/O processor will not decrease the
      * read buffer size to the smaller value than this property value.
@@ -52,6 +80,9 @@ public interface IoSessionConfig {
     int getMinReadBufferSize();
 
     /**
+     * 设置 I/O 处理器每次读取分配的读取缓冲区的最小大小。
+     * I/O 处理器不会将读取缓冲区大小减小到小于该属性值的值。
+     *
      * Sets the minimum size of the read buffer that I/O processor
      * allocates per each read.  I/O processor will not decrease the
      * read buffer size to the smaller value than this property value.
@@ -61,6 +92,9 @@ public interface IoSessionConfig {
     void setMinReadBufferSize(int minReadBufferSize);
 
     /**
+     * I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
+     *
      * @return the maximum size of the read buffer that I/O processor
      * allocates per each read.  I/O processor will not increase the
      * read buffer size to the greater value than this property value.
@@ -68,6 +102,9 @@ public interface IoSessionConfig {
     int getMaxReadBufferSize();
 
     /**
+     * 设置 I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
+     *
      * Sets the maximum size of the read buffer that I/O processor
      * allocates per each read.  I/O processor will not increase the
      * read buffer size to the greater value than this property value.
@@ -76,19 +113,29 @@ public interface IoSessionConfig {
      */
     void setMaxReadBufferSize(int maxReadBufferSize);
 
+    // --------------------------------------------------
+    // throughput
+    // --------------------------------------------------
+
     /**
+     * 每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
+     *
      * @return the interval (seconds) between each throughput calculation.
      * The default value is <tt>3</tt> seconds.
      */
     int getThroughputCalculationInterval();
 
     /**
+     * 每次吞吐量计算之间的间隔（毫秒）。 默认值为3秒。
+     *
      * @return the interval (milliseconds) between each throughput calculation.
      * The default value is <tt>3</tt> seconds.
      */
     long getThroughputCalculationIntervalInMillis();
 
     /**
+     * 设置每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
+     *
      * Sets the interval (seconds) between each throughput calculation.  The
      * default value is <tt>3</tt> seconds.
      * 
@@ -96,23 +143,13 @@ public interface IoSessionConfig {
      */
     void setThroughputCalculationInterval(int throughputCalculationInterval);
 
-    /**
-     * @return idle time for the specified type of idleness in seconds.
-     * 
-     * @param status The status for which we want the idle time (One of READER_IDLE,
-     * WRITER_IDLE or BOTH_IDLE)
-     */
-    int getIdleTime(IdleStatus status);
+    // --------------------------------------------------
+    // IdleTime
+    // --------------------------------------------------
 
     /**
-     * @return idle time for the specified type of idleness in milliseconds.
-     * 
-     * @param status The status for which we want the idle time (One of READER_IDLE,
-     * WRITER_IDLE or BOTH_IDLE)
-     */
-    long getIdleTimeInMillis(IdleStatus status);
-
-    /**
+     * 以秒为单位设置指定类型空闲的空闲时间。
+     *
      * Sets idle time for the specified type of idleness in seconds.
      * @param status The status for which we want to set the idle time (One of READER_IDLE,
      * WRITER_IDLE or BOTH_IDLE)
@@ -121,16 +158,40 @@ public interface IoSessionConfig {
     void setIdleTime(IdleStatus status, int idleTime);
 
     /**
+     * status – 我们想要空闲时间的状态（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
+     *
+     * @return idle time for the specified type of idleness in seconds.
+     * 
+     * @param status The status for which we want the idle time (One of READER_IDLE,
+     * WRITER_IDLE or BOTH_IDLE)
+     */
+    int getIdleTime(IdleStatus status);
+
+    /**
+     * status – 我们想要空闲时间的状态（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
+     *
+     * @return idle time for the specified type of idleness in milliseconds.
+     * 
+     * @param status The status for which we want the idle time (One of READER_IDLE,
+     * WRITER_IDLE or BOTH_IDLE)
+     */
+    long getIdleTimeInMillis(IdleStatus status);
+
+    /**
+     * IdleStatus.READER_IDLE空闲时间（以秒为单位）。
+     *
      * @return idle time for {@link IdleStatus#READER_IDLE} in seconds.
      */
     int getReaderIdleTime();
 
     /**
+     * IdleStatus.READER_IDLE空闲时间（以毫秒为单位）
      * @return idle time for {@link IdleStatus#READER_IDLE} in milliseconds.
      */
     long getReaderIdleTimeInMillis();
 
     /**
+     * 以秒为IdleStatus.READER_IDLE设置IdleStatus.READER_IDLE空闲时间。
      * Sets idle time for {@link IdleStatus#READER_IDLE} in seconds.
      * 
      * @param idleTime The time to set
@@ -138,16 +199,19 @@ public interface IoSessionConfig {
     void setReaderIdleTime(int idleTime);
 
     /**
+     * IdleStatus.WRITER_IDLE空闲时间（以秒为单位）。
      * @return idle time for {@link IdleStatus#WRITER_IDLE} in seconds.
      */
     int getWriterIdleTime();
 
     /**
+     * IdleStatus.WRITER_IDLE空闲时间（以毫秒为单位）。
      * @return idle time for {@link IdleStatus#WRITER_IDLE} in milliseconds.
      */
     long getWriterIdleTimeInMillis();
 
     /**
+     * 以秒为IdleStatus.WRITER_IDLE设置IdleStatus.WRITER_IDLE空闲时间。
      * Sets idle time for {@link IdleStatus#WRITER_IDLE} in seconds.
      * 
      * @param idleTime The time to set
@@ -155,40 +219,64 @@ public interface IoSessionConfig {
     void setWriterIdleTime(int idleTime);
 
     /**
+     * IdleStatus.BOTH_IDLE空闲时间（以秒为单位）。
      * @return idle time for {@link IdleStatus#BOTH_IDLE} in seconds.
      */
     int getBothIdleTime();
 
     /**
+     * IdleStatus.BOTH_IDLE空闲时间（以毫秒为单位）。
      * @return idle time for {@link IdleStatus#BOTH_IDLE} in milliseconds.
      */
     long getBothIdleTimeInMillis();
 
     /**
+     * 以秒为IdleStatus.WRITER_IDLE设置IdleStatus.WRITER_IDLE空闲时间。
      * Sets idle time for {@link IdleStatus#WRITER_IDLE} in seconds.
      * 
      * @param idleTime The time to set
      */
     void setBothIdleTime(int idleTime);
 
+    // --------------------------------------------------
+    // write timeout
+    // --------------------------------------------------
+
     /**
+     * 以秒为单位的写入超时。
+     *
      * @return write timeout in seconds.
      */
     int getWriteTimeout();
 
     /**
+     * 以毫秒为单位的写入超时。
+     *
      * @return write timeout in milliseconds.
      */
     long getWriteTimeoutInMillis();
 
     /**
+     * 以秒为单位设置写入超时。
+     *
      * Sets write timeout in seconds.
      * 
      * @param writeTimeout The timeout to set
      */
     void setWriteTimeout(int writeTimeout);
 
+    // --------------------------------------------------
+    // write timeout
+    // --------------------------------------------------
+
     /**
+     * 当且仅当IoSession.read()操作被启用时为true 。
+     * 如果启用，所有收到的消息都存储在内部BlockingQueue以便您可以更方便地为客户端应用程序读取收到的消息。
+     *
+     *
+     * 启用此选项对服务器应用程序没有用，可能会导致意外的内存泄漏，因此默认情况下它是禁用的。
+     *
+     *
      * @return <tt>true</tt> if and only if {@link IoSession#read()} operation
      * is enabled.  If enabled, all received messages are stored in an internal
      * {@link BlockingQueue} so you can read received messages in more
@@ -199,6 +287,13 @@ public interface IoSessionConfig {
     boolean isUseReadOperation();
 
     /**
+     * 启用或禁用IoSession.read()操作。
+     * 如果启用，所有收到的消息都存储在内部BlockingQueue以便您可以更方便地为客户端应用程序读取收到的消息。
+     *
+     *
+     * 启用此选项对服务器应用程序没有用，可能会导致意外的内存泄漏，因此默认情况下它是禁用的。
+     *
+     *
      * Enables or disabled {@link IoSession#read()} operation.  If enabled, all
      * received messages are stored in an internal {@link BlockingQueue} so you
      * can read received messages in more convenient way for client
@@ -210,11 +305,4 @@ public interface IoSessionConfig {
      */
     void setUseReadOperation(boolean useReadOperation);
 
-    /**
-     * Sets all configuration properties retrieved from the specified
-     * <tt>config</tt>.
-     * 
-     * @param config The configuration to use
-     */
-    void setAll(IoSessionConfig config);
 }

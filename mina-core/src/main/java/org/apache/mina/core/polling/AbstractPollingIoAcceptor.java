@@ -42,7 +42,7 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.AbstractIoAcceptor;
 import org.apache.mina.core.service.AbstractIoService;
 import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.session.AbstractIoSession;

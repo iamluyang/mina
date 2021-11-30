@@ -30,7 +30,7 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
 import org.apache.mina.core.service.AbstractIoConnector;
 import org.apache.mina.core.service.DefaultTransportMetadata;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;

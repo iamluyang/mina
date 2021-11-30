@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.AvailablePortFinder;

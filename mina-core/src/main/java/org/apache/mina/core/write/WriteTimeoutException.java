@@ -25,23 +25,24 @@ import org.apache.mina.core.session.IoSessionConfig;
 
 
 /**
+ * 当IoSessionConfig.getWriteTimeout()秒未刷新写入缓冲区时抛出的异常。
+ *
  * An exception which is thrown when write buffer is not flushed for
  * {@link IoSessionConfig#getWriteTimeout()} seconds.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class WriteTimeoutException extends WriteException {
+
     private static final long serialVersionUID = 3906931157944579121L;
 
     /**
      * Create a new WriteTimeoutException instance
-     * 
+     *
      * @param requests The {@link WriteRequest}s for which we have had a timeout
-     * @param message The error message
-     * @param cause The original exception
      */
-    public WriteTimeoutException(Collection<WriteRequest> requests, String message, Throwable cause) {
-        super(requests, message, cause);
+    public WriteTimeoutException(Collection<WriteRequest> requests) {
+        super(requests);
     }
 
     /**
@@ -66,22 +67,13 @@ public class WriteTimeoutException extends WriteException {
 
     /**
      * Create a new WriteTimeoutException instance
-     * 
+     *
      * @param requests The {@link WriteRequest}s for which we have had a timeout
-     */
-    public WriteTimeoutException(Collection<WriteRequest> requests) {
-        super(requests);
-    }
-
-    /**
-     * Create a new WriteTimeoutException instance
-     * 
-     * @param request The {@link WriteRequest} for which we have had a timeout
      * @param message The error message
      * @param cause The original exception
      */
-    public WriteTimeoutException(WriteRequest request, String message, Throwable cause) {
-        super(request, message, cause);
+    public WriteTimeoutException(Collection<WriteRequest> requests, String message, Throwable cause) {
+        super(requests, message, cause);
     }
 
     /**
@@ -98,6 +90,15 @@ public class WriteTimeoutException extends WriteException {
      * Create a new WriteTimeoutException instance
      * 
      * @param request The {@link WriteRequest} for which we have had a timeout
+     */
+    public WriteTimeoutException(WriteRequest request) {
+        super(request);
+    }
+
+    /**
+     * Create a new WriteTimeoutException instance
+     *
+     * @param request The {@link WriteRequest} for which we have had a timeout
      * @param cause The original exception
      */
     public WriteTimeoutException(WriteRequest request, Throwable cause) {
@@ -106,10 +107,12 @@ public class WriteTimeoutException extends WriteException {
 
     /**
      * Create a new WriteTimeoutException instance
-     * 
+     *
      * @param request The {@link WriteRequest} for which we have had a timeout
+     * @param message The error message
+     * @param cause The original exception
      */
-    public WriteTimeoutException(WriteRequest request) {
-        super(request);
+    public WriteTimeoutException(WriteRequest request, String message, Throwable cause) {
+        super(request, message, cause);
     }
 }

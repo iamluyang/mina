@@ -20,6 +20,8 @@
 package org.apache.mina.core.session;
 
 /**
+ * 表示I/O事件和请求类型的Enum。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
+ *
  * An {@link Enum} that represents the type of I/O events and requests.
  * Most users won't need to use this class.  It is usually used by internal
  * components to store I/O events.
@@ -27,6 +29,8 @@ package org.apache.mina.core.session;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public enum IoEventType {
+
+    // --------------------------------------------------
     /** The session has been created */
     SESSION_CREATED,
     
@@ -35,28 +39,34 @@ public enum IoEventType {
     
     /** The session has been closed */
     SESSION_CLOSED, 
-    
+
+    // --------------------------------------------------
     /** A message has been received */
     MESSAGE_RECEIVED, 
     
     /** A message has been sent */
-    MESSAGE_SENT, 
-    
+    MESSAGE_SENT,
+
+    // --------------------------------------------------
     /** The session is idle */
-    SESSION_IDLE, 
-    
+    SESSION_IDLE,
+
+    // --------------------------------------------------
     /** An exception has been caught */ 
-    EXCEPTION_CAUGHT, 
-    
+    EXCEPTION_CAUGHT,
+
+    // --------------------------------------------------
     /** A write has pccired */
-    WRITE, 
-    
+    WRITE,
+
+    // --------------------------------------------------
     /** A close has occured */
     CLOSE,
-    
+
     /** The Input part of the socket has been closed */
     INPUT_CLOSED,
-    
+
+    // --------------------------------------------------
     /** A generic event has been generated */
     EVENT
 }

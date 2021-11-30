@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 一个I/O事件或I/O请求，由MINA提供给ifilters。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
+ *
  * An I/O event or an I/O request that MINA provides for {@link IoFilter}s.
  * Most users won't need to use this class.  It is usually used by internal
  * components to store I/O events.
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoFilterEvent extends IoEvent {
+
     /** A logger for this class */
     private static final Logger LOGGER = LoggerFactory.getLogger(IoFilterEvent.class);
 
@@ -47,6 +50,8 @@ public class IoFilterEvent extends IoEvent {
     private final NextFilter nextFilter;
 
     /**
+     * 创建一个新的ifilterevent实例
+     *
      * Creates a new IoFilterEvent instance
      * 
      * @param nextFilter The next Filter
@@ -56,11 +61,9 @@ public class IoFilterEvent extends IoEvent {
      */
     public IoFilterEvent(NextFilter nextFilter, IoEventType type, IoSession session, Object parameter) {
         super(type, session, parameter);
-
         if (nextFilter == null) {
             throw new IllegalArgumentException("nextFilter must not be null");
         }
-
         this.nextFilter = nextFilter;
     }
 

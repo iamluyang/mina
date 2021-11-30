@@ -22,6 +22,8 @@ package org.apache.mina.core.write;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 存储writerequest队列到一个IoSession
+ *
  * Stores {@link WriteRequest}s which are queued to an {@link IoSession}.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -29,6 +31,8 @@ import org.apache.mina.core.session.IoSession;
 public interface WriteRequestQueue {
 
     /**
+     * 获取会话队列中可用的第一个请求。
+     *
      * Get the first request available in the queue for a session.
      * @param session The session
      * @return The first available request, if any.
@@ -36,6 +40,8 @@ public interface WriteRequestQueue {
     WriteRequest poll(IoSession session);
 
     /**
+     * 向会话写入队列添加一个新的WriteRequest
+     *
      * Add a new WriteRequest to the session write's queue
      * @param session The session
      * @param writeRequest The writeRequest to add
@@ -43,6 +49,8 @@ public interface WriteRequestQueue {
     void offer(IoSession session, WriteRequest writeRequest);
 
     /**
+     * 告诉会话的WriteRequest队列是否为空
+     *
      * Tells if the WriteRequest queue is empty or not for a session
      * @param session The session to check
      * @return <tt>true</tt> if the writeRequest is empty
@@ -50,12 +58,16 @@ public interface WriteRequestQueue {
     boolean isEmpty(IoSession session);
 
     /**
+     * 从会话队列中删除所有请求。
+     *
      * Removes all the requests from this session's queue.
      * @param session The associated session
      */
     void clear(IoSession session);
 
     /**
+     * 处理与指定会话关联的任何发布。断开连接时调用此方法。
+     *
      * Disposes any releases associated with the specified session.
      * This method is invoked on disconnection.
      * @param session The associated session
@@ -63,6 +75,8 @@ public interface WriteRequestQueue {
     void dispose(IoSession session);
 
     /**
+     * 当前存储在队列中的对象的数量。
+     * 
      * @return the number of objects currently stored in the queue.
      */
     int size();

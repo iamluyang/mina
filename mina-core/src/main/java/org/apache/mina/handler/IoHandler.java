@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.mina.core.service;
+package org.apache.mina.handler;
 
 import java.io.IOException;
 

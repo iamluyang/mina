@@ -31,6 +31,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.filter.FilterEvent;
+import org.apache.mina.handler.IoHandler;
 
 /**
  * A base implementation of {@link IoConnector}.

@@ -46,6 +46,7 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSessionInitializationException;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.util.ExceptionMonitor;
 import org.apache.mina.util.NamePreservingRunnable;
 import org.slf4j.Logger;

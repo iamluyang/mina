@@ -18,7 +18,7 @@
  */
 package org.apache.mina.example.haiku;
 
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

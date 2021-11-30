@@ -20,6 +20,8 @@
 package org.apache.mina.core.future;
 
 /**
+ * 用于异步写入请求的IoFuture 。
+ *
  * An {@link IoFuture} for asynchronous write requests.
  *
  * <h3>Example</h3>
@@ -44,12 +46,34 @@ package org.apache.mina.core.future;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface WriteFuture extends IoFuture {
+
+    // --------------------------------------------------
+    // isWritten
+    // --------------------------------------------------
+
     /**
+     * 如果写入操作成功完成，则为true 。
+     *
      * @return <tt>true</tt> if the write operation is finished successfully.
      */
     boolean isWritten();
 
     /**
+     * 设置消息被写入，并通知所有等待这个未来的线程。 该方法由 MINA 内部调用。 请不要直接调用此方法。
+     *
+     * Sets the message is written, and notifies all threads waiting for
+     * this future.  This method is invoked by MINA internally.  Please do
+     * not call this method directly.
+     */
+    void setWritten();
+
+    // --------------------------------------------------
+    // getException
+    // --------------------------------------------------
+
+    /**
+     * 写入失败的原因当且仅当写入操作因Exception而失败。 否则，返回null 。
+     *
      * @return the cause of the write failure if and only if the write
      * operation has failed due to an {@link Exception}.  Otherwise,
      * <tt>null</tt> is returned.
@@ -57,13 +81,8 @@ public interface WriteFuture extends IoFuture {
     Throwable getException();
 
     /**
-     * Sets the message is written, and notifies all threads waiting for
-     * this future.  This method is invoked by MINA internally.  Please do
-     * not call this method directly.
-     */
-    void setWritten();
-
-    /**
+     * 设置写失败的原因，并通知所有等待这个未来的线程。该方法由 MINA 内部调用。请不要直接调用此方法。
+     *
      * Sets the cause of the write failure, and notifies all threads waiting
      * for this future.  This method is invoked by MINA internally.  Please
      * do not call this method directly.
@@ -71,6 +90,16 @@ public interface WriteFuture extends IoFuture {
      * @param cause The exception to store in the Future instance
      */
     void setException(Throwable cause);
+
+    // --------------------------------------------------
+    // await
+    // --------------------------------------------------
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    WriteFuture awaitUninterruptibly();
 
     /**
      * Wait for the asynchronous operation to complete.
@@ -83,11 +112,9 @@ public interface WriteFuture extends IoFuture {
     @Override
     WriteFuture await() throws InterruptedException;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    WriteFuture awaitUninterruptibly();
+    // --------------------------------------------------
+    // listener
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}

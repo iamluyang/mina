@@ -31,12 +31,15 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 一个实用程序类，提供与 {@link IoSession} 和 {@link IoFuture} 相关的各种便捷方法。
+ *
  * A utility class that provides various convenience methods related with
  * {@link IoSession} and {@link IoFuture}.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public final class IoUtil {
+
     private static final IoSession[] EMPTY_SESSIONS = new IoSession[0];
 
     private IoUtil() {
@@ -44,6 +47,8 @@ public final class IoUtil {
     }
 
     /**
+     * 将指定的message写入指定的sessions 。 如果指定的message是IoBuffer ，则使用IoBuffer.duplicate()自动复制缓冲区。
+     *
      * Writes the specified {@code message} to the specified {@code sessions}.
      * If the specified {@code message} is an {@link IoBuffer}, the buffer is
      * automatically duplicated using {@link IoBuffer#duplicate()}.
@@ -59,6 +64,8 @@ public final class IoUtil {
     }
 
     /**
+     * 将指定的message写入指定的sessions 。 如果指定的message是IoBuffer ，则使用IoBuffer.duplicate()自动复制缓冲区。
+     *
      * Writes the specified {@code message} to the specified {@code sessions}.
      * If the specified {@code message} is an {@link IoBuffer}, the buffer is
      * automatically duplicated using {@link IoBuffer#duplicate()}.
@@ -74,6 +81,8 @@ public final class IoUtil {
     }
 
     /**
+     * 将指定的message写入指定的sessions 。 如果指定的message是IoBuffer ，则使用IoBuffer.duplicate()自动复制缓冲区。
+     *
      * Writes the specified {@code message} to the specified {@code sessions}.
      * If the specified {@code message} is an {@link IoBuffer}, the buffer is
      * automatically duplicated using {@link IoBuffer#duplicate()}.
@@ -89,6 +98,8 @@ public final class IoUtil {
     }
 
     /**
+     * 将指定的message写入指定的sessions 。 如果指定的message是IoBuffer ，则使用IoBuffer.duplicate()自动复制缓冲区。
+     *
      * Writes the specified {@code message} to the specified {@code sessions}.
      * If the specified {@code message} is an {@link IoBuffer}, the buffer is
      * automatically duplicated using {@link IoBuffer#duplicate()}.
@@ -130,6 +141,8 @@ public final class IoUtil {
     }
 
     /**
+     * 等待我们得到的所有IoFuture ，或者直到其中一个IoFuture被中断
+     *
      * Wait on all the {@link IoFuture}s we get, or until one of the {@link IoFuture}s is interrupted
      *  
      * @param futures The {@link IoFuture}s we are waiting on
@@ -142,6 +155,8 @@ public final class IoUtil {
     }
 
     /**
+     * 等待我们得到的所有IoFuture 。 这不能被打断。
+     *
      * Wait on all the {@link IoFuture}s we get. This can't get interrupted.
      *  
      * @param futures The {@link IoFuture}s we are waiting on
@@ -153,6 +168,8 @@ public final class IoUtil {
     }
 
     /**
+     * 等待我们得到的所有IoFuture ，或者直到其中一个IoFuture被中断
+     *
      * Wait on all the {@link IoFuture}s we get, or until one of the {@link IoFuture}s is interrupted
      *  
      * @param futures The {@link IoFuture}s we are waiting on 
@@ -176,11 +193,14 @@ public final class IoUtil {
      * at least one {@link IoFuture} has been interrupted
      * @throws InterruptedException If one of the {@link IoFuture} is interrupted
      */
-    public static boolean await(Iterable<? extends IoFuture> futures, long timeoutMillis) throws InterruptedException {
+    public static boolean await(Iterable<? extends IoFuture> futures, long timeoutMillis)
+            throws InterruptedException {
         return await0(futures, timeoutMillis, true);
     }
 
     /**
+     * 等待我们得到的所有IoFuture 。
+     *
      * Wait on all the {@link IoFuture}s we get.
      *  
      * @param futures The {@link IoFuture}s we are waiting on 
@@ -194,6 +214,8 @@ public final class IoUtil {
     }
 
     /**
+     * 等待我们得到的所有IoFuture 。
+     *
      * Wait on all the {@link IoFuture}s we get.
      *  
      * @param futures The {@link IoFuture}s we are waiting on 
@@ -212,33 +234,32 @@ public final class IoUtil {
     private static boolean await0(Iterable<? extends IoFuture> futures, long timeoutMillis, boolean interruptable)
             throws InterruptedException {
         long startTime = timeoutMillis <= 0 ? 0 : System.currentTimeMillis();
-        long waitTime = timeoutMillis;
+        long waitTime  = timeoutMillis;
 
         boolean lastComplete = true;
-        Iterator<? extends IoFuture> i = futures.iterator();
+        Iterator<? extends IoFuture> iterator = futures.iterator();
         
-        while (i.hasNext()) {
-            IoFuture f = i.next();
+        while (iterator.hasNext()) {
+            IoFuture ioFuture = iterator.next();
 
             do {
                 if (interruptable) {
-                    lastComplete = f.await(waitTime);
+                    lastComplete = ioFuture.await(waitTime);
                 } else {
-                    lastComplete = f.awaitUninterruptibly(waitTime);
+                    lastComplete = ioFuture.awaitUninterruptibly(waitTime);
                 }
-
                 waitTime = timeoutMillis - (System.currentTimeMillis() - startTime);
 
                 if (waitTime <= 0) {
                     break;
                 }
-            } while (!lastComplete);
+            } while (!lastComplete); // 当前 ioFuture 是否完成
 
             if (waitTime <= 0) {
                 break;
             }
         }
 
-        return lastComplete && !i.hasNext();
+        return lastComplete && !iterator.hasNext();
     }
 }

@@ -23,7 +23,7 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.transport.AbstractTrafficControlTest;
 
 /**

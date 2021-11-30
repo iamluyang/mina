@@ -26,34 +26,55 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 表示iossession.write(Object)触发的写请求。
+ *
  * Represents write request fired by {@link IoSession#write(Object)}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface WriteRequest {
+
     /**
+     * 与此写请求相关的WriteFuture。
+     *
+     * @return {@link WriteFuture} that is associated with this write request.
+     */
+    WriteFuture getFuture();
+
+    /**
+     * 最初请求的WriteRequest，没有被任何ifilter转换。
+     *
      * @return the {@link WriteRequest} which was requested originally,
      * which is not transformed by any {@link IoFilter}.
      */
     WriteRequest getOriginalRequest();
 
     /**
-     * @return {@link WriteFuture} that is associated with this write request.
+     * 在任何筛选器转换之前发送到会话的原始消息。
+     *
+     * @return the original message which was sent to the session, before
+     * any filter transformation.
      */
-    WriteFuture getFuture();
+    Object getOriginalMessage();
 
     /**
+     * 要写入的消息对象。
+     *
      * @return a message object to be written.
      */
     Object getMessage();
 
     /**
+     * 在经过筛选器处理后设置已修改的消息。
+     *
      * Set the modified message after it has been processed by a filter.
      * @param modifiedMessage The modified message
      */
     void setMessage(Object modifiedMessage);
 
     /**
+     * 返回写请求的目标。
+     *
      * Returns the destination of this write request.
      *
      * @return <tt>null</tt> for the default destination
@@ -61,15 +82,12 @@ public interface WriteRequest {
     SocketAddress getDestination();
 
     /**
+     * 告诉当前消息是否已被编码
+     *
      * Tells if the current message has been encoded
      *
      * @return true if the message has already been encoded
      */
     boolean isEncoded();
-    
-    /**
-     * @return the original message which was sent to the session, before
-     * any filter transformation.
-     */
-    Object getOriginalMessage();
+
 }

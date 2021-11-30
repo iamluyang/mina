@@ -29,7 +29,7 @@ import org.apache.mina.core.future.ReadFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.write.WriteRequest;

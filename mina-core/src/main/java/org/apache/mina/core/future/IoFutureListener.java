@@ -24,6 +24,8 @@ import java.util.EventListener;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 观察异步 I/O 操作完成时收到通知： IoFuture 。
+ *
  * Something interested in being notified when the completion
  * of an asynchronous I/O operation : {@link IoFuture}. 
  * 
@@ -32,7 +34,10 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoFutureListener<F extends IoFuture> extends EventListener {
+
     /**
+     * 关闭与指定的 {@link IoFuture} 关联的 {@link IoSession} 的 {@link IoFutureListener}。
+     *
      * An {@link IoFutureListener} that closes the {@link IoSession} which is
      * associated with the specified {@link IoFuture}.
      */
@@ -47,6 +52,8 @@ public interface IoFutureListener<F extends IoFuture> extends EventListener {
     };
 
     /**
+     * 在与 {@link IoFuture} 关联的操作完成时调用，即使您在完成后添加侦听器。
+     *
      * Invoked when the operation associated with the {@link IoFuture}
      * has been completed even if you add the listener after the completion.
      *

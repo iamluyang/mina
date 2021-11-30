@@ -23,6 +23,8 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.FilterEvent;
 
 /**
+ * 由MINA提供的I/O事件或I/O请求。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
+ *
  * An I/O event or an I/O request that MINA provides.
  * Most users won't need to use this class.  It is usually used by internal
  * components to store I/O events.
@@ -30,6 +32,7 @@ import org.apache.mina.filter.FilterEvent;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoEvent implements Runnable {
+
     /** The IoEvent type */
     private final IoEventType type;
 
@@ -50,11 +53,9 @@ public class IoEvent implements Runnable {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
-        
         if (session == null) {
             throw new IllegalArgumentException("session");
         }
-        
         this.type = type;
         this.session = session;
         this.parameter = parameter;
@@ -159,7 +160,6 @@ public class IoEvent implements Runnable {
             sb.append(':');
             sb.append(parameter);
         }
-
         return sb.toString();
     }
 }

@@ -20,12 +20,15 @@
 package org.apache.mina.core.session;
 
 /**
+ * 当初始化一个IoSession失败时抛出的RuntimeException
+ *
  * A {@link RuntimeException} that is thrown when the initialization of
  * an {@link IoSession} fails.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoSessionInitializationException extends RuntimeException {
+
     private static final long serialVersionUID = -1205810145763696189L;
 
     /**
@@ -33,16 +36,6 @@ public class IoSessionInitializationException extends RuntimeException {
      */
     public IoSessionInitializationException() {
         super();
-    }
-
-    /**
-     * Creates a new IoSessionInitializationException instance.
-     * 
-     * @param message The detail message
-     * @param cause The Exception's cause
-     */
-    public IoSessionInitializationException(String message, Throwable cause) {
-        super(message, cause);
     }
 
     /**
@@ -61,5 +54,15 @@ public class IoSessionInitializationException extends RuntimeException {
      */
     public IoSessionInitializationException(Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Creates a new IoSessionInitializationException instance.
+     *
+     * @param message The detail message
+     * @param cause The Exception's cause
+     */
+    public IoSessionInitializationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

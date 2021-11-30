@@ -19,10 +19,11 @@
  */
 package org.apache.mina.example.imagine.step1.server;
 
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.imagine.step1.ImageRequest;
 import org.apache.mina.example.imagine.step1.ImageResponse;
+import org.apache.mina.handler.IoHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 /**
- * server-side {@link org.apache.mina.core.service.IoHandler}
+ * server-side {@link IoHandler}
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
@@ -48,7 +49,7 @@ public class ImageServerIoHandler extends IoHandlerAdapter {
     /**
      * Called when the session is opened, which will come after the session created.
      * 
-     * @see org.apache.mina.core.service.IoHandlerAdapter#sessionOpened(org.apache.mina.core.session.IoSession)
+     * @see IoHandlerAdapter#sessionOpened(org.apache.mina.core.session.IoSession)
      */
     public void sessionOpened(IoSession session) throws Exception {
         session.setAttribute(INDEX_KEY, 0);
@@ -58,7 +59,7 @@ public class ImageServerIoHandler extends IoHandlerAdapter {
      * This method will be called whenever an exception occurs.  For this handler,
      * the logger will generate a warning message.
      * 
-     * @see org.apache.mina.core.service.IoHandlerAdapter#exceptionCaught(org.apache.mina.core.session.IoSession, java.lang.Throwable)
+     * @see IoHandlerAdapter#exceptionCaught(org.apache.mina.core.session.IoSession, java.lang.Throwable)
      */
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
         LOGGER.warn(cause.getMessage(), cause);
@@ -67,7 +68,7 @@ public class ImageServerIoHandler extends IoHandlerAdapter {
     /**
      * Handle incoming messages.
      * 
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
+     * @see IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
      */
     public void messageReceived(IoSession session, Object message) throws Exception {
         ImageRequest request = (ImageRequest) message;

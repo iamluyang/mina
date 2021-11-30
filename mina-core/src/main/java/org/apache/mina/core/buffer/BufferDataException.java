@@ -20,6 +20,8 @@
 package org.apache.mina.core.buffer;
 
 /**
+ * 当IoBuffer包含的数据损坏时抛出RuntimeException。
+ *
  * A {@link RuntimeException} which is thrown when the data the {@link IoBuffer}
  * contains is corrupt.
  *
@@ -27,6 +29,7 @@ package org.apache.mina.core.buffer;
  *
  */
 public class BufferDataException extends RuntimeException {
+
     private static final long serialVersionUID = -4138189188602563502L;
 
     /**

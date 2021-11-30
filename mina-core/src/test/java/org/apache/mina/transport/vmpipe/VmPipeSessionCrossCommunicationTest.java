@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
 

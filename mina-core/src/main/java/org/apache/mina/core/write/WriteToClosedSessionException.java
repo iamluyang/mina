@@ -22,6 +22,8 @@ package org.apache.mina.core.write;
 import java.util.Collection;
 
 /**
+ * 在关闭的会话上尝试一个或多个写操作时引发的异常。
+ *
  * An exception which is thrown when one or more write operations were
  * attempted on a closed session.
  * 
@@ -35,6 +37,35 @@ public class WriteToClosedSessionException extends WriteException {
      * Create a new WriteToClosedSessionException instance
      * 
      * @param requests The {@link WriteRequest}s which have been written on a closed session
+     */
+    public WriteToClosedSessionException(Collection<WriteRequest> requests) {
+        super(requests);
+    }
+
+    /**
+     * Create a new WriteToClosedSessionException instance
+     *
+     * @param requests The {@link WriteRequest}s which have been written on a closed session
+     * @param message The error message
+     */
+    public WriteToClosedSessionException(Collection<WriteRequest> requests, String message) {
+        super(requests, message);
+    }
+
+    /**
+     * Create a new WriteToClosedSessionException instance
+     *
+     * @param requests The {@link WriteRequest}s which have been written on a closed session
+     * @param cause The original exception
+     */
+    public WriteToClosedSessionException(Collection<WriteRequest> requests, Throwable cause) {
+        super(requests, cause);
+    }
+
+    /**
+     * Create a new WriteToClosedSessionException instance
+     *
+     * @param requests The {@link WriteRequest}s which have been written on a closed session
      * @param message The error message
      * @param cause The original exception
      */
@@ -45,46 +76,16 @@ public class WriteToClosedSessionException extends WriteException {
     /**
      * Create a new WriteToClosedSessionException instance
      * 
-     * @param requests The {@link WriteRequest}s which have been written on a closed session
-     * @param message The error message
-     */
-    public WriteToClosedSessionException(Collection<WriteRequest> requests, String message) {
-        super(requests, message);
-    }
-
-    /**
-     * Create a new WriteToClosedSessionException instance
-     * 
-     * @param requests The {@link WriteRequest}s which have been written on a closed session
-     * @param cause The original exception
-     */
-    public WriteToClosedSessionException(Collection<WriteRequest> requests, Throwable cause) {
-        super(requests, cause);
-    }
-
-    /**
-     * Create a new WriteToClosedSessionException instance
-     * 
-     * @param requests The {@link WriteRequest}s which have been written on a closed session
-     */
-    public WriteToClosedSessionException(Collection<WriteRequest> requests) {
-        super(requests);
-    }
-
-    /**
-     * Create a new WriteToClosedSessionException instance
-     * 
      * @param request The {@link WriteRequest} which has been written on a closed session
-     * @param message The error message
-     * @param cause The original exception
+
      */
-    public WriteToClosedSessionException(WriteRequest request, String message, Throwable cause) {
-        super(request, message, cause);
+    public WriteToClosedSessionException(WriteRequest request) {
+        super(request);
     }
 
     /**
      * Create a new WriteToClosedSessionException instance
-     * 
+     *
      * @param request The {@link WriteRequest} which has been written on a closed session
      * @param message The error message
      */
@@ -94,7 +95,7 @@ public class WriteToClosedSessionException extends WriteException {
 
     /**
      * Create a new WriteToClosedSessionException instance
-     * 
+     *
      * @param request The {@link WriteRequest} which has been written on a closed session
      * @param cause The original exception
      */
@@ -104,11 +105,12 @@ public class WriteToClosedSessionException extends WriteException {
 
     /**
      * Create a new WriteToClosedSessionException instance
-     * 
+     *
      * @param request The {@link WriteRequest} which has been written on a closed session
-
+     * @param message The error message
+     * @param cause The original exception
      */
-    public WriteToClosedSessionException(WriteRequest request) {
-        super(request);
+    public WriteToClosedSessionException(WriteRequest request, String message, Throwable cause) {
+        super(request, message, cause);
     }
 }

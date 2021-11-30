@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.handler.IoHandler;
 
 /**
  * Accepts incoming connection, communicates with clients, and fires events to

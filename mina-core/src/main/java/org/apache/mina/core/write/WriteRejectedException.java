@@ -2,7 +2,9 @@ package org.apache.mina.core.write;
 
 import java.util.Collection;
 
+// 写拒绝异常
 public class WriteRejectedException extends WriteException {
+
 	private static final long serialVersionUID = 6272160412793858438L;
 
 	/**

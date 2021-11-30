@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.file.FileRegion;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.handler.IoHandler;
 
 /**
  * Filter implementation that converts a {@link FileRegion} to {@link IoBuffer}
@@ -45,7 +46,7 @@ import org.apache.mina.core.session.IoSession;
  * <p><b>NOTE:</b> this filter does not close the file channel in
  * {@link FileRegion#getFileChannel()} after the data from the file has been
  * written.  The {@code FileChannel} should be closed in either 
- * {@link org.apache.mina.core.service.IoHandler#messageSent(IoSession,Object)}
+ * {@link IoHandler#messageSent(IoSession,Object)}
  * or in an {@link org.apache.mina.core.future.IoFutureListener} associated with the
  * {@code WriteFuture}.
  * </p>

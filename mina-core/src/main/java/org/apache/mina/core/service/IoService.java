@@ -30,8 +30,11 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
+import org.apache.mina.handler.IoHandler;
 
 /**
+ * 所有提供I/O服务和管理ioessions的IoAcceptors和IoConnectors的基本接口。
+ *
  * Base interface for all {@link IoAcceptor}s and {@link IoConnector}s
  * that provide I/O service and manage {@link IoSession}s.
  *

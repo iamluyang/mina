@@ -22,6 +22,8 @@ package org.apache.mina.proxy;
 import javax.security.sasl.SaslException;
 
 /**
+ * 这个类扩展了SaslException，表示代理的身份验证失败。
+ *
  * ProxyAuthException.java - This class extends {@link SaslException} and represents an
  * authentication failure to the proxy.
  * 

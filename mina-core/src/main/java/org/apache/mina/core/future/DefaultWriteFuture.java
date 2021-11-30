@@ -22,11 +22,14 @@ package org.apache.mina.core.future;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * {@link WriteFuture} 的默认实现。
+ *
  * A default implementation of {@link WriteFuture}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
+
     /**
      * Creates a new instance.
      * 
@@ -35,6 +38,10 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
     public DefaultWriteFuture(IoSession session) {
         super(session);
     }
+
+    // --------------------------------------------------
+    // newWrittenFuture
+    // --------------------------------------------------
 
     /**
      * Returns a new {@link DefaultWriteFuture} which is already marked as 'written'.
@@ -45,7 +52,6 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
     public static WriteFuture newWrittenFuture(IoSession session) {
         DefaultWriteFuture writtenFuture = new DefaultWriteFuture(session);
         writtenFuture.setWritten();
-        
         return writtenFuture;
     }
 
@@ -59,41 +65,12 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
     public static WriteFuture newNotWrittenFuture(IoSession session, Throwable cause) {
         DefaultWriteFuture unwrittenFuture = new DefaultWriteFuture(session);
         unwrittenFuture.setException(cause);
-        
         return unwrittenFuture;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isWritten() {
-        if (isDone()) {
-            Object v = getValue();
-            
-            if (v instanceof Boolean) {
-                return ((Boolean) v).booleanValue();
-            }
-        }
-        
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Throwable getException() {
-        if (isDone()) {
-            Object v = getValue();
-            
-            if (v instanceof Throwable) {
-                return (Throwable) v;
-            }
-        }
-        
-        return null;
-    }
+    // --------------------------------------------------
+    // setValue: isWritten/getException
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -107,13 +84,44 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
      * {@inheritDoc}
      */
     @Override
+    public boolean isWritten() {
+        if (isDone()) {
+            Object value = getValue();
+            if (value instanceof Boolean) {
+                return ((Boolean) value).booleanValue();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Throwable getException() {
+        if (isDone()) {
+            Object value = getValue();
+            if (value instanceof Throwable) {
+                return (Throwable) value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setException(Throwable exception) {
         if (exception == null) {
             throw new IllegalArgumentException("exception");
         }
-
         setValue(exception);
     }
+
+    // --------------------------------------------------
+    // await
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -123,6 +131,10 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
         return (WriteFuture) super.await();
     }
 
+    // --------------------------------------------------
+    // awaitUninterruptibly
+    // --------------------------------------------------
+
     /**
      * {@inheritDoc}
      */
@@ -130,6 +142,10 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
     public WriteFuture awaitUninterruptibly() {
         return (WriteFuture) super.awaitUninterruptibly();
     }
+
+    // --------------------------------------------------
+    // listener
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}

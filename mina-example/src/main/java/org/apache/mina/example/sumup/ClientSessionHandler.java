@@ -19,8 +19,8 @@
  */
 package org.apache.mina.example.sumup;
 
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandler;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.sumup.message.AddMessage;
 import org.apache.mina.example.sumup.message.ResultMessage;

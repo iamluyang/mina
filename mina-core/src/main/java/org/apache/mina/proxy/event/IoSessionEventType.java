@@ -20,12 +20,15 @@
 package org.apache.mina.proxy.event;
 
 /**
+ * 枚举会话事件类型
+ *
  * IoSessionEventType.java - Enumerates session event types.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  * @since MINA 2.0.0-M3
  */
 public enum IoSessionEventType {
+
     /** Session created */
     CREATED(1), 
     
@@ -43,6 +46,10 @@ public enum IoSessionEventType {
      */
     private final int id;
 
+    /**
+     *
+     * @param id
+     */
     private IoSessionEventType(int id) {
         this.id = id;
     }
@@ -62,16 +69,12 @@ public enum IoSessionEventType {
         switch (this) {
             case CREATED:
                 return "- CREATED event -";
-
             case OPENED:
                 return "- OPENED event -";
-            
             case IDLE:
                 return "- IDLE event -";
-            
             case CLOSED:
                 return "- CLOSED event -";
-            
             default:
                 return "- Event Id=" + id + " -";
         }

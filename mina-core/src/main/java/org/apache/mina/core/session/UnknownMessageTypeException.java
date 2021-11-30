@@ -20,11 +20,14 @@
 package org.apache.mina.core.session;
 
 /**
+ * 当无法确定消息的类型时引发的异常。
+ *
  * An exception that is thrown when the type of the message cannot be determined.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class UnknownMessageTypeException extends RuntimeException {
+
     private static final long serialVersionUID = 3257290227428047158L;
 
     /**
@@ -32,16 +35,6 @@ public class UnknownMessageTypeException extends RuntimeException {
      */
     public UnknownMessageTypeException() {
         // Do nothing
-    }
-
-    /**
-     * Creates a new UnknownMessageTypeException instance.
-     * 
-     * @param message The detail message
-     * @param cause The Exception's cause
-     */
-    public UnknownMessageTypeException(String message, Throwable cause) {
-        super(message, cause);
     }
 
     /**
@@ -60,5 +53,15 @@ public class UnknownMessageTypeException extends RuntimeException {
      */
     public UnknownMessageTypeException(Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Creates a new UnknownMessageTypeException instance.
+     *
+     * @param message The detail message
+     * @param cause The Exception's cause
+     */
+    public UnknownMessageTypeException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

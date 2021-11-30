@@ -28,6 +28,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.apache.mina.util.AvailablePortFinder;
@@ -36,7 +37,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
@@ -134,7 +134,7 @@ public class AbstractIoServiceDIRMINA1076Test {
 
     public static class ClientHandler
         extends
-        IoHandlerAdapter {
+            IoHandlerAdapter {
 
         @Override
         public void sessionCreated( IoSession session )

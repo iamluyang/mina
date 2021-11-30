@@ -23,11 +23,15 @@ import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * ConnectFuture的默认实现
+ *
  * A default implementation of {@link ConnectFuture}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFuture {
+
+    // 当连接被取消时存储在 ConnectFuture 中的静态对象
     /** A static object stored into the ConnectFuture when teh connection has been cancelled */
     private static final Object CANCELED = new Object();
 
@@ -39,6 +43,8 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
     }
 
     /**
+     * 创建连接失败的新实例，以及相关的原因。
+     *
      * Creates a new instance of a Connection Failure, with the associated cause.
      * 
      * @param exception The exception that caused the failure
@@ -47,43 +53,12 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
     public static ConnectFuture newFailedFuture(Throwable exception) {
         DefaultConnectFuture failedFuture = new DefaultConnectFuture();
         failedFuture.setException(exception);
-        
         return failedFuture;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IoSession getSession() {
-        Object v = getValue();
-        
-        if (v instanceof IoSession) {
-            return (IoSession) v;
-        } else if (v instanceof RuntimeException) {
-            throw (RuntimeException) v;
-        } else if (v instanceof Error) {
-            throw (Error) v;
-        } else if (v instanceof Throwable) {
-            throw (RuntimeIoException) new RuntimeIoException("Failed to get the session.").initCause((Throwable) v);
-        } else  {
-            return null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Throwable getException() {
-        Object v = getValue();
-        
-        if (v instanceof Throwable) {
-            return (Throwable) v;
-        } else {
-            return null;
-        }
-    }
+    // --------------------------------------------------
+    // setValue: Session
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -97,8 +72,19 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
      * {@inheritDoc}
      */
     @Override
-    public boolean isCanceled() {
-        return getValue() == CANCELED;
+    public IoSession getSession() {
+        Object value = getValue();
+        if (value instanceof IoSession) {
+            return (IoSession) value;
+        } else if (value instanceof RuntimeException) {
+            throw (RuntimeException) value;
+        } else if (value instanceof Error) {
+            throw (Error) value;
+        } else if (value instanceof Throwable) {
+            throw (RuntimeIoException) new RuntimeIoException("Failed to get the session.").initCause((Throwable) value);
+        } else  {
+            return null;
+        }
     }
 
     /**
@@ -109,8 +95,44 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
         if (session == null) {
             throw new IllegalArgumentException("session");
         }
-        
         setValue(session);
+    }
+
+    // --------------------------------------------------
+    // setValue: CANCELED
+    // --------------------------------------------------
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCanceled() {
+        return getValue() == CANCELED;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean cancel() {
+        return setValue(CANCELED);
+    }
+
+    // --------------------------------------------------
+    // setValue: Exception
+    // --------------------------------------------------
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Throwable getException() {
+        Object value = getValue();
+        if (value instanceof Throwable) {
+            return (Throwable) value;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -121,17 +143,12 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
         if (exception == null) {
             throw new IllegalArgumentException("exception");
         }
-        
         setValue(exception);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean cancel() {
-        return setValue(CANCELED);
-    }
+    // --------------------------------------------------
+    // await
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -148,6 +165,10 @@ public class DefaultConnectFuture extends DefaultIoFuture implements ConnectFutu
     public ConnectFuture awaitUninterruptibly() {
         return (ConnectFuture) super.awaitUninterruptibly();
     }
+
+    // --------------------------------------------------
+    // listener
+    // --------------------------------------------------
 
     /**
      * {@inheritDoc}

@@ -19,7 +19,7 @@
  */
 package org.apache.mina.core.filterchain;
 
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
@@ -78,7 +78,16 @@ import org.apache.mina.filter.util.ReferenceCountingFilter;
  * @see IoFilterAdapter
  */
 public interface IoFilter {
+
+    // --------------------------------------------------
+    // filter event
+    // --------------------------------------------------
     /**
+     * 当这个过滤器第一次被添加到ifilterchain时，由ReferenceCountingFilter调用，
+     * 以便您可以初始化共享资源。
+     *
+     * *请注意，如果没有使用ReferenceCountingFilter包装过滤器，则不会调用此方法。*
+     *
      * Invoked by {@link ReferenceCountingFilter} when this filter
      * is added to a {@link IoFilterChain} at the first time, so you can
      * initialize shared resources.  Please note that this method is never
@@ -89,6 +98,9 @@ public interface IoFilter {
     void init() throws Exception;
 
     /**
+     * 当任何ifilterchain不再使用此过滤器时，由ReferenceCountingFilter调用，因此您可以销毁共享资源。
+     * 请注意，如果没有使用ReferenceCountingFilter包装过滤器，则不会调用此方法。
+     *
      * Invoked by {@link ReferenceCountingFilter} when this filter
      * is not used by any {@link IoFilterChain} anymore, so you can destroy
      * shared resources.  Please note that this method is never called if
@@ -99,12 +111,15 @@ public interface IoFilter {
     void destroy() throws Exception;
 
     /**
+     * 在将此筛选器添加到指定的父级之前调用。
+     * 请注意，如果将此筛选器添加到多个父级，则可以多次调用此方法。在调用init()之前不会调用此方法。
+     *
      * Invoked before this filter is added to the specified <tt>parent</tt>.
      * Please note that this method can be invoked more than once if
      * this filter is added to more than one parents.  This method is not
      * invoked before {@link #init()} is invoked.
      *
-     * @param parent the parent who called this method
+     * @param parent the parent who called this method 调用此方法的父类
      * @param name the name assigned to this filter
      * @param nextFilter the {@link NextFilter} for this filter.  You can reuse
      *                   this object until this filter is removed from the chain.
@@ -113,12 +128,15 @@ public interface IoFilter {
     void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
+     * 在将此筛选器添加到指定的父级之后调用。
+     * 请注意，如果将此筛选器添加到多个父级，则可以多次调用此方法。在调用init()之前不会调用此方法。
+     *
      * Invoked after this filter is added to the specified <tt>parent</tt>.
      * Please note that this method can be invoked more than once if
      * this filter is added to more than one parents.  This method is not
      * invoked before {@link #init()} is invoked.
      *
-     * @param parent the parent who called this method
+     * @param parent the parent who called this method 调用此方法的父类
      * @param name the name assigned to this filter
      * @param nextFilter the {@link NextFilter} for this filter.  You can reuse
      *                   this object until this filter is removed from the chain.
@@ -127,6 +145,9 @@ public interface IoFilter {
     void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
+     * 在从指定的父级删除此筛选器之前调用。
+     * 请注意，如果从多个父节点中删除此筛选器，则可以多次调用此方法。这个方法总是在调用destroy()之前调用。
+     *
      * Invoked before this filter is removed from the specified <tt>parent</tt>.
      * Please note that this method can be invoked more than once if
      * this filter is removed from more than one parents.
@@ -141,6 +162,9 @@ public interface IoFilter {
     void onPreRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
+     * 在从指定的父级删除此筛选器之后调用。
+     * 请注意，如果从多个父节点中删除此筛选器，则可以多次调用此方法。这个方法总是在调用destroy()之前调用。
+     *
      * Invoked after this filter is removed from the specified <tt>parent</tt>.
      * Please note that this method can be invoked more than once if
      * this filter is removed from more than one parents.
@@ -154,7 +178,12 @@ public interface IoFilter {
      */
     void onPostRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
+    // --------------------------------------------------
+    // session
+    // --------------------------------------------------
     /**
+     * 过滤器IoHandler.sessionCreated (IoSession)事件。
+     *
      * Filters {@link IoHandler#sessionCreated(IoSession)} event.
      * 
      * @param nextFilter
@@ -166,6 +195,8 @@ public interface IoFilter {
     void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
+     * 过滤器IoHandler.sessionOpened (IoSession)事件。
+     *
      * Filters {@link IoHandler#sessionOpened(IoSession)} event.
      * 
      * @param nextFilter
@@ -177,6 +208,8 @@ public interface IoFilter {
     void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
+     * 过滤器IoHandler.sessionClosed (IoSession)事件。
+     *
      * Filters {@link IoHandler#sessionClosed(IoSession)} event.
      * 
      * @param nextFilter
@@ -188,6 +221,8 @@ public interface IoFilter {
     void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
+     * IoHandler过滤器。sessionIdle (IoSession IdleStatus)事件。
+     *
      * Filters {@link IoHandler#sessionIdle(IoSession,IdleStatus)} event.
      * 
      * @param nextFilter
@@ -200,6 +235,8 @@ public interface IoFilter {
     void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception;
 
     /**
+     * IoHandler过滤器。exceptionCaught (IoSession Throwable)事件。
+     *
      * Filters {@link IoHandler#exceptionCaught(IoSession,Throwable)} event.
      * 
      * @param nextFilter
@@ -212,6 +249,8 @@ public interface IoFilter {
     void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception;
 
     /**
+     * 过滤器IoHandler.inputClosed (IoSession)事件。
+     *
      * Filters {@link IoHandler#inputClosed(IoSession)} event.
      * 
      * @param nextFilter
@@ -223,6 +262,8 @@ public interface IoFilter {
     void inputClosed(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
+     * IoHandler过滤器。messageReceived (IoSession对象)的事件。
+     *
      * Filters {@link IoHandler#messageReceived(IoSession,Object)} event.
      * 
      * @param nextFilter
@@ -235,6 +276,8 @@ public interface IoFilter {
     void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception;
 
     /**
+     * IoHandler过滤器。messageSent (IoSession对象)的事件。
+     *
      * Filters {@link IoHandler#messageSent(IoSession,Object)} event.
      * 
      * @param nextFilter
@@ -247,6 +290,8 @@ public interface IoFilter {
     void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
 
     /**
+     * 过滤iossession.closeNow()或iossession.closeOnFlush()方法调用。
+     *
      * Filters {@link IoSession#closeNow()} or a {@link IoSession#closeOnFlush()} method invocations.
      * 
      * @param nextFilter
@@ -260,6 +305,8 @@ public interface IoFilter {
     void filterClose(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
+     * 过滤iossession.write(Object)方法调用。
+     *
      * Filters {@link IoSession#write(Object)} method invocation.
      * 
      * @param nextFilter
@@ -272,6 +319,8 @@ public interface IoFilter {
     void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
     
     /**
+     * 将事件传播到IoHandler
+     *
      * Propagate an event up to the {@link IoHandler}
      * 
      * @param nextFilter
@@ -284,9 +333,12 @@ public interface IoFilter {
     void event(NextFilter nextFilter, IoSession session, FilterEvent event) throws Exception;
 
     /**
+     * 表示ifilterchain中的下一个ifilter。
+     *
      * Represents the next {@link IoFilter} in {@link IoFilterChain}.
      */
     interface NextFilter {
+
         /**
          * Forwards <tt>sessionCreated</tt> event to next filter.
          * 

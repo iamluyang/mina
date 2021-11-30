@@ -19,8 +19,8 @@
  */
 package org.apache.mina.example.tennis;
 
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandler;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.mina.core.service;
+package org.apache.mina.handler;
 
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoHandlerAdapter implements IoHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IoHandlerAdapter.class);
 
     /**

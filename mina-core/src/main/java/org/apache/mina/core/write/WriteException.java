@@ -30,11 +30,14 @@ import java.util.Set;
 import org.apache.mina.util.MapBackedSet;
 
 /**
+ * 当一个或多个写操作失败时引发的异常。
+ *
  * An exception which is thrown when one or more write operations failed.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class WriteException extends IOException {
+
     /** The mandatory serialVersionUUID */
     private static final long serialVersionUID = -4174407422754524197L;
 

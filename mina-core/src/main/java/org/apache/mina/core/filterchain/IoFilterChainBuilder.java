@@ -22,6 +22,9 @@ package org.apache.mina.core.filterchain;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 在创建IoSession时以预定义的方式构建ifilterchain的接口。
+ * 您可以将通用筛选器链修改逻辑提取到该接口。例如，要向链中添加过滤器
+ *
  * An interface that builds {@link IoFilterChain} in predefined way
  * when {@link IoSession} is created.  You can extract common filter chain
  * modification logic to this interface.  For example, to add a filter
@@ -38,6 +41,8 @@ import org.apache.mina.core.session.IoSession;
  */
 public interface IoFilterChainBuilder {
     /**
+     * 一个什么都不做的实现。
+     *
      * An implementation which does nothing.
      */
     IoFilterChainBuilder NOOP = new IoFilterChainBuilder() {
@@ -58,6 +63,8 @@ public interface IoFilterChainBuilder {
     };
 
     /**
+     * 修改指定的链。
+     *
      * Modifies the specified <tt>chain</tt>.
      * 
      * @param chain The chain to modify

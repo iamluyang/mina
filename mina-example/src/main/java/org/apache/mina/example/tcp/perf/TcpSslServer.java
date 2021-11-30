@@ -25,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.echoserver.ssl.BogusSslContextFactory;

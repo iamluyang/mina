@@ -24,6 +24,7 @@ import java.net.SocketAddress;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.apache.mina.handler.IoHandler;
 
 /**
  * Connects to endpoint, communicates with the server, and fires events to

@@ -25,6 +25,9 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.FilterEvent;
 
 /**
+ * IoFilter的适配器类。您可以扩展这个类并只有选择地覆盖所需的事件筛选器方法。
+ * 默认情况下，所有方法都将事件转发给下一个筛选器。
+ *
  * An adapter class for {@link IoFilter}.  You can extend
  * this class and selectively override required event filter methods only.  All
  * methods forwards events to the next filter by default.
@@ -32,6 +35,10 @@ import org.apache.mina.filter.FilterEvent;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoFilterAdapter implements IoFilter {
+
+    // --------------------------------------------------
+    // init/destroy
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -46,6 +53,9 @@ public class IoFilterAdapter implements IoFilter {
     public void destroy() throws Exception {
     }
 
+    // --------------------------------------------------
+    // onPreAdd/onPostAdd/onPreRemove/onPostRemove
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -74,6 +84,9 @@ public class IoFilterAdapter implements IoFilter {
     public void onPostRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
     }
 
+    // --------------------------------------------------
+    // sessionCreated/sessionOpened/sessionClosed/sessionIdle
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -106,6 +119,9 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.sessionIdle(session, status);
     }
 
+    // --------------------------------------------------
+    // exceptionCaught
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -114,6 +130,9 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.exceptionCaught(session, cause);
     }
 
+    // --------------------------------------------------
+    // messageReceived/messageSent
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -130,6 +149,9 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.messageSent(session, writeRequest);
     }
 
+    // --------------------------------------------------
+    // filterWrite/filterClose
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -146,6 +168,9 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.filterClose(session);
     }
 
+    // --------------------------------------------------
+    // inputClosed
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -154,6 +179,9 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.inputClosed(session);
     }
 
+    // --------------------------------------------------
+    // event
+    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
