@@ -55,8 +55,8 @@ import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.transport.socket.DatagramAcceptor;
-import org.apache.mina.transport.socket.DatagramSessionConfig;
-import org.apache.mina.transport.socket.DefaultDatagramSessionConfig;
+import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
+import org.apache.mina.transport.socket.config.impl.DefaultDatagramSessionConfig;
 import org.apache.mina.util.ExceptionMonitor;
 
 /**

@@ -22,7 +22,7 @@ package org.apache.mina.filter.codec;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**

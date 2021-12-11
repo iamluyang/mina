@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**

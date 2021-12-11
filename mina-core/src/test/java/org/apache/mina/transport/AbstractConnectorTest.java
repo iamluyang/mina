@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.handler.IoHandlerAdapter;

@@ -31,7 +31,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.echoserver.ssl.BogusSslContextFactory;
 import org.apache.mina.filter.FilterEvent;
 import org.apache.mina.filter.ssl.SSLFilter;
-import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;

@@ -24,8 +24,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterEvent;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterEvent;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;

@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.api.IoFutureListener;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;

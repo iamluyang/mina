@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
 import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;

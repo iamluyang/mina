@@ -21,8 +21,8 @@ package org.apache.mina.example.tapedeck;
 
 import static org.apache.mina.statemachine.event.IoFilterEvents.*;
 
-import org.apache.mina.core.filterchain.IoFilter.NextFilter;
-import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.future.api.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.example.tapedeck.TapeDeckServer.TapeDeckContext;

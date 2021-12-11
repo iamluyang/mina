@@ -19,9 +19,9 @@
  */
 package org.apache.mina.filter.executor;
 
-import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.future.api.IoFutureListener;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.session.IoEvent;
 import org.apache.mina.core.session.IoEventType;

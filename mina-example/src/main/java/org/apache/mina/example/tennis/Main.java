@@ -19,7 +19,7 @@
  */
 package org.apache.mina.example.tennis;
 
-import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.vmpipe.VmPipeAcceptor;

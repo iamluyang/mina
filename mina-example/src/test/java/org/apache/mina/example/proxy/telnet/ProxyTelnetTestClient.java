@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.LineDelimiter;

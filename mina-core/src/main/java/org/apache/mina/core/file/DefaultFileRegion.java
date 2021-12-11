@@ -37,11 +37,11 @@ public class DefaultFileRegion implements FileRegion {
     /** The channel used to manage the file */
     private final FileChannel channel;
 
-    // 文件中的原始位置
+    // 文件中的原始位置，final表示之后不会被修改
     /** The original position in the file */
     private final long originalPosition;
 
-    // 档案中的位置
+    // 文件中的当前位置，会随着数据逐渐写出而递增
     /** The position in teh file */
     private long position;
 
@@ -50,7 +50,7 @@ public class DefaultFileRegion implements FileRegion {
     private long remainingBytes;
 
     /**
-     * 创建一个新的defaultfilereregion实例
+     * 学习笔记：创建一个新的defaultfilereregion实例
      * Creates a new DefaultFileRegion instance
      * 
      * @param channel The channel mapped over the file
@@ -61,12 +61,12 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 创建一个新的defaultfilereregion实例
+     * 学习笔记：创建一个新的defaultfilereregion实例
      * Creates a new DefaultFileRegion instance
      * 
      * @param channel The channel mapped over the file 映射到文件上的通道
-     * @param position The position in teh file 在档案中的位置
-     * @param remainingBytes The remaining bytes 剩余字节数
+     * @param position The position in teh file 在档案中的位置（一般从位置0开始）
+     * @param remainingBytes The remaining bytes 剩余字节数（一般为文件通道的长度）
      */
     public DefaultFileRegion(FileChannel channel, long position, long remainingBytes) {
         if (channel == null) {
@@ -85,6 +85,8 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：当前文件关联的通道
+     *
      * {@inheritDoc}
      */
     @Override
@@ -93,6 +95,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：文件当前写出的位置
      * {@inheritDoc}
      */
     @Override
@@ -101,6 +104,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：当前位置减去初始位置，即写出的数据长度
      * {@inheritDoc}
      */
     @Override
@@ -109,6 +113,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：剩余还没有写出的数据
      * {@inheritDoc}
      */
     @Override
@@ -117,6 +122,8 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：更新当前写出的位置向前移动，因此剩余字节数也会减少
+     *
      * {@inheritDoc}
      */
     @Override

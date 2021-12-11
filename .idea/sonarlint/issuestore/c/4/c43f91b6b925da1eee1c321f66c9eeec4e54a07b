@@ -1,0 +1,39 @@
+
+p
+java:S3776‰"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(ìæ8ÙğîìÙ/
+L
+java:S3252’"/Use static access with "!Unknown!" for "Entry".(­´“$8ÛğîìÙ/
+u
+java:S3776À"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(Ù´ŠÊÿÿÿÿÿ8İğîìÙ/
+L
+java:S3252Ê"/Use static access with "!Unknown!" for "Entry".(­´“$8ßğîìÙ/
+V
+java:S1117¢"8Rename "head" which hides the field declared at line 76.(”åí±8õğîìÙ/
+b
+java:S1117‡	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8ñîìÙ/
+b
+java:S1117	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8ñîìÙ/
+b
+java:S1117™	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8ñîìÙ/
+b
+java:S1117¢	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8‘ñîìÙ/
+b
+java:S1117«	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8’ñîìÙ/
+b
+java:S1117´	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8“ñîìÙ/
+b
+java:S1117½	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8”ñîìÙ/
+b
+java:S1117Æ	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8•ñîìÙ/
+b
+java:S1117Ï	"?Rename "nextEntry" which hides the field declared at line 1132.(¶‡êùÿÿÿÿ8–ñîìÙ/
+b
+java:S1117Ø	"?Rename "nextEntry" which hides the field declared at line 1132.(Ø“Ú¨ûÿÿÿÿ8–ñîìÙ/
+b
+java:S1117á	"?Rename "nextEntry" which hides the field declared at line 1132.(Ø“Ú¨ûÿÿÿÿ8—ñîìÙ/
+l
+java:S1192ı"NDefine a constant instead of duplicating this literal "onPostAdd(): " 4 times.(åïû‡8¢ñîìÙ/
+q
+java:S1192Æ"SDefine a constant instead of duplicating this literal "Filter not found: " 4 times.(äıî8¢ñîìÙ/
+p
+java:S1192ï"MDefine a constant instead of duplicating this literal "onPreAdd(): " 4 times.(şñŒ˜ùÿÿÿÿ8£ñîìÙ/

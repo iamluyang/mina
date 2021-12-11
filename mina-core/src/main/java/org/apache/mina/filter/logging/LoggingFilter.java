@@ -19,8 +19,8 @@
  */
 package org.apache.mina.filter.logging;
 
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;

@@ -1,0 +1,15 @@
+
+R
+java:S3252Š"/Use static access with "!Unknown!" for "Entry".(ÎìÎ×şÿÿÿÿ8şóîÇÙ/
+R
+java:S3252—"/Use static access with "!Unknown!" for "Entry".(ÎìÎ×şÿÿÿÿ8€ôîÇÙ/
+u
+java:S3776¢"RRefactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed.(í°´¯úÿÿÿÿ8Ë¼·“Ú/
+Q
+java:S1874Ò"3Remove this use of "newInstance"; it is deprecated.(éÔæ—8Ñ¼·“Ú/
+A
+java:S2119Û"Save and re-use this "Random".(šŸ«íøÿÿÿÿ8Ó¼·“Ú/
+z
+java:S3077ƒ"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(»Ì‘îıÿÿÿÿ8Ö¼·“Ú/
+q
+java:S1192“"SDefine a constant instead of duplicating this literal "Filter not found: " 4 times.(äıî8Û¼·“Ú/

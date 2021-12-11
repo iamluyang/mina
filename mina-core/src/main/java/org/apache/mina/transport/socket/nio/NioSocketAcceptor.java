@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
-import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -32,7 +31,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.polling.AbstractPollingIoAcceptor;
@@ -41,9 +39,9 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
+import org.apache.mina.transport.socket.config.impl.DefaultSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
-import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * {@link IoAcceptor} for socket transport (TCP/IP).  This class

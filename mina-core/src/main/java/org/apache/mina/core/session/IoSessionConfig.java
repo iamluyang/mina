@@ -22,7 +22,7 @@ package org.apache.mina.core.session;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * IoSession的配置。
+ * IoSession的配置，封装了一些底层socket的配置和会话层抽象session的配置。
  *
  * The configuration of {@link IoSession}.
  *
@@ -114,41 +114,11 @@ public interface IoSessionConfig {
     void setMaxReadBufferSize(int maxReadBufferSize);
 
     // --------------------------------------------------
-    // throughput
+    // IdleTime - 允许回话的读写闲置的时间
     // --------------------------------------------------
 
     /**
-     * 每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
-     *
-     * @return the interval (seconds) between each throughput calculation.
-     * The default value is <tt>3</tt> seconds.
-     */
-    int getThroughputCalculationInterval();
-
-    /**
-     * 每次吞吐量计算之间的间隔（毫秒）。 默认值为3秒。
-     *
-     * @return the interval (milliseconds) between each throughput calculation.
-     * The default value is <tt>3</tt> seconds.
-     */
-    long getThroughputCalculationIntervalInMillis();
-
-    /**
-     * 设置每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
-     *
-     * Sets the interval (seconds) between each throughput calculation.  The
-     * default value is <tt>3</tt> seconds.
-     * 
-     * @param throughputCalculationInterval The interval
-     */
-    void setThroughputCalculationInterval(int throughputCalculationInterval);
-
-    // --------------------------------------------------
-    // IdleTime
-    // --------------------------------------------------
-
-    /**
-     * 以秒为单位设置指定类型空闲的空闲时间。
+     * 以秒为单位设置指定空闲类型的空闲时间。
      *
      * Sets idle time for the specified type of idleness in seconds.
      * @param status The status for which we want to set the idle time (One of READER_IDLE,
@@ -158,7 +128,7 @@ public interface IoSessionConfig {
     void setIdleTime(IdleStatus status, int idleTime);
 
     /**
-     * status – 我们想要空闲时间的状态（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
+     * status – 返回指定空闲类型的空闲时间（以秒为单位）。（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
      *
      * @return idle time for the specified type of idleness in seconds.
      * 
@@ -168,7 +138,7 @@ public interface IoSessionConfig {
     int getIdleTime(IdleStatus status);
 
     /**
-     * status – 我们想要空闲时间的状态（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
+     * status – 返回指定空闲类型的空闲时间（以毫秒为单位）。（READER_IDLE、WRITER_IDLE 或 BOTH_IDLE 之一）
      *
      * @return idle time for the specified type of idleness in milliseconds.
      * 
@@ -178,14 +148,14 @@ public interface IoSessionConfig {
     long getIdleTimeInMillis(IdleStatus status);
 
     /**
-     * IdleStatus.READER_IDLE空闲时间（以秒为单位）。
+     * 返回IdleStatus.READER_IDLE空闲时间（以秒为单位）。
      *
      * @return idle time for {@link IdleStatus#READER_IDLE} in seconds.
      */
     int getReaderIdleTime();
 
     /**
-     * IdleStatus.READER_IDLE空闲时间（以毫秒为单位）
+     * 返回IdleStatus.READER_IDLE空闲时间（以毫秒为单位）
      * @return idle time for {@link IdleStatus#READER_IDLE} in milliseconds.
      */
     long getReaderIdleTimeInMillis();
@@ -199,13 +169,13 @@ public interface IoSessionConfig {
     void setReaderIdleTime(int idleTime);
 
     /**
-     * IdleStatus.WRITER_IDLE空闲时间（以秒为单位）。
+     * 返回IdleStatus.WRITER_IDLE空闲时间（以秒为单位）。
      * @return idle time for {@link IdleStatus#WRITER_IDLE} in seconds.
      */
     int getWriterIdleTime();
 
     /**
-     * IdleStatus.WRITER_IDLE空闲时间（以毫秒为单位）。
+     * 返回IdleStatus.WRITER_IDLE空闲时间（以毫秒为单位）。
      * @return idle time for {@link IdleStatus#WRITER_IDLE} in milliseconds.
      */
     long getWriterIdleTimeInMillis();
@@ -219,13 +189,13 @@ public interface IoSessionConfig {
     void setWriterIdleTime(int idleTime);
 
     /**
-     * IdleStatus.BOTH_IDLE空闲时间（以秒为单位）。
+     * 返回IdleStatus.BOTH_IDLE空闲时间（以秒为单位）。
      * @return idle time for {@link IdleStatus#BOTH_IDLE} in seconds.
      */
     int getBothIdleTime();
 
     /**
-     * IdleStatus.BOTH_IDLE空闲时间（以毫秒为单位）。
+     * 返回IdleStatus.BOTH_IDLE空闲时间（以毫秒为单位）。
      * @return idle time for {@link IdleStatus#BOTH_IDLE} in milliseconds.
      */
     long getBothIdleTimeInMillis();
@@ -243,21 +213,21 @@ public interface IoSessionConfig {
     // --------------------------------------------------
 
     /**
-     * 以秒为单位的写入超时。
+     * 以秒为单位的写入超时时间。
      *
      * @return write timeout in seconds.
      */
     int getWriteTimeout();
 
     /**
-     * 以毫秒为单位的写入超时。
+     * 以毫秒为单位的写入超时时间。
      *
      * @return write timeout in milliseconds.
      */
     long getWriteTimeoutInMillis();
 
     /**
-     * 以秒为单位设置写入超时。
+     * 以秒为单位设置写入超时时间。
      *
      * Sets write timeout in seconds.
      * 
@@ -266,7 +236,7 @@ public interface IoSessionConfig {
     void setWriteTimeout(int writeTimeout);
 
     // --------------------------------------------------
-    // write timeout
+    // 是否允许回话将接收到的消息存储下来
     // --------------------------------------------------
 
     /**
@@ -304,5 +274,35 @@ public interface IoSessionConfig {
      * @param useReadOperation <tt>true</tt> if the read operation is enabled, <tt>false</tt> otherwise
      */
     void setUseReadOperation(boolean useReadOperation);
+
+    // --------------------------------------------------
+    // throughput
+    // --------------------------------------------------
+
+    /**
+     * 每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
+     *
+     * @return the interval (seconds) between each throughput calculation.
+     * The default value is <tt>3</tt> seconds.
+     */
+    int getThroughputCalculationInterval();
+
+    /**
+     * 每次吞吐量计算之间的间隔（毫秒）。 默认值为3秒。
+     *
+     * @return the interval (milliseconds) between each throughput calculation.
+     * The default value is <tt>3</tt> seconds.
+     */
+    long getThroughputCalculationIntervalInMillis();
+
+    /**
+     * 设置每次吞吐量计算之间的间隔（秒）。 默认值为3秒。
+     *
+     * Sets the interval (seconds) between each throughput calculation.  The
+     * default value is <tt>3</tt> seconds.
+     *
+     * @param throughputCalculationInterval The interval
+     */
+    void setThroughputCalculationInterval(int throughputCalculationInterval);
 
 }

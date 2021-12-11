@@ -23,8 +23,8 @@ package org.apache.mina.filter.errorgenerating;
 import java.util.Random;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;

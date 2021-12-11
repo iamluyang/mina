@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
 import org.apache.mina.proxy.ProxyAuthException;
 import org.apache.mina.proxy.handlers.http.AbstractAuthLogicHandler;
 import org.apache.mina.proxy.handlers.http.HttpProxyConstants;

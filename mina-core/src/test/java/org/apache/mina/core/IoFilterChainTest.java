@@ -19,11 +19,11 @@
  */
 package org.apache.mina.core;
 
-import org.apache.mina.core.filterchain.DefaultIoFilterChain;
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
+import org.apache.mina.core.filterchain.impl.DefaultIoFilterChain;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.filterchain.api.IoFilterChain.Entry;
 import org.apache.mina.handler.IoHandler;
 import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.DummySession;

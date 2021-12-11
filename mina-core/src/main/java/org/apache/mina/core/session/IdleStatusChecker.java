@@ -22,9 +22,9 @@ package org.apache.mina.core.session;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.api.CloseFuture;
+import org.apache.mina.core.future.api.IoFuture;
+import org.apache.mina.core.future.api.IoFutureListener;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.util.ConcurrentHashSet;
 

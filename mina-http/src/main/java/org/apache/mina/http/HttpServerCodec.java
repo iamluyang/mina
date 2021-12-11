@@ -19,7 +19,7 @@
  */
 package org.apache.mina.http;
 
-import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;

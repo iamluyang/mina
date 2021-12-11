@@ -25,6 +25,9 @@ import org.apache.mina.filter.FilterEvent;
 /**
  * 由MINA提供的I/O事件或I/O请求。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
  *
+ * 学习笔记：该Io事件实例封装事件的宿主即会话，事件的类型，事件的额外参数，
+ * 并且内部的fire方法会委托事件的宿主会话的过滤器链执行对应的事件
+ *
  * An I/O event or an I/O request that MINA provides.
  * Most users won't need to use this class.  It is usually used by internal
  * components to store I/O events.
@@ -44,6 +47,8 @@ public class IoEvent implements Runnable {
 
     /**
      * Creates a new IoEvent
+     *
+     * 学习笔记：该Io事件实例封装事件的宿主即会话，事件的类型，事件的额外参数
      * 
      * @param type The type of event to create
      * @param session The associated IoSession
@@ -62,6 +67,8 @@ public class IoEvent implements Runnable {
     }
 
     /**
+     * 学习笔记：事件的类型
+     *
      * @return The IoEvent type
      */
     public IoEventType getType() {
@@ -69,6 +76,8 @@ public class IoEvent implements Runnable {
     }
 
     /**
+     * 学习笔记：事件的宿主
+     *
      * @return The associated IoSession
      */
     public IoSession getSession() {
@@ -76,6 +85,8 @@ public class IoEvent implements Runnable {
     }
 
     /**
+     * 学习笔记：事件的参数
+     *
      * @return The stored parameter
      */
     public Object getParameter() {
@@ -83,6 +94,8 @@ public class IoEvent implements Runnable {
     }
 
     /**
+     * 学习笔记：Runnable的方法，可以由线程异步执行
+     *
      * {@inheritDoc}
      */
     @Override
@@ -91,6 +104,7 @@ public class IoEvent implements Runnable {
     }
 
     /**
+     * 学习笔记：Io事件的默认fire逻辑，由事件的宿主会话内部的过滤器链触发对应的类型
      * Fire an event
      */
     public void fire() {

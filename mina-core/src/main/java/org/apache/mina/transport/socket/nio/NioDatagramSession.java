@@ -29,7 +29,7 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 
 /**
  * An {@link IoSession} for datagram transport (UDP/IP).

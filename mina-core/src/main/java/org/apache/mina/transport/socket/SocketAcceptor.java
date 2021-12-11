@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.util.Set;
 
 import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * {@link IoAcceptor} for socket transport (TCP/IP).  This class

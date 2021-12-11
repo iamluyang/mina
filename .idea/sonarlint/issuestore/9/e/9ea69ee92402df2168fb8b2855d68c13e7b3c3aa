@@ -1,0 +1,30 @@
+
+\	java:S112›"FDefine and throw a dedicated exception instead of using a generic one.(ÃÔ÷ı
+\	java:S112¾"FDefine and throw a dedicated exception instead of using a generic one.(ÃÔ÷ı
+u
+java:S2234ó
+"^Parameters to getMediumInt have the same names but not the same order as the method arguments.(ÄŠÈ„
+u
+java:S2234‘"^Parameters to getMediumInt have the same names but not the same order as the method arguments.(ÄŠÈ„
+n
+java:S3776­"RRefactor this method to reduce its Cognitive Complexity from 40 to the 15 allowed.(±ÚŠ‰ûÿÿÿÿ
+n
+java:S3776•"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(—Šùßıÿÿÿÿ
+i
+java:S3776ú"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(ÆÃ—ã
+i
+java:S3776­"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(Ê­¾¹
+8	java:S131‹""Add a default case to this switch.(Œ¢Ö”
+i
+java:S3776é"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(ú¨ÏÉ
+8	java:S131ş""Add a default case to this switch.(Œ¢Ö”
+8	java:S131Í""Add a default case to this switch.(Œ¢Ö”
+
+java:S1192­"tDefine a constant instead of duplicating this literal "Derived buffers and their parent can't be expanded." 4 times.(Âî‚ªøÿÿÿÿ
+o	java:S135¾"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135Ä"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135ğ"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135Õ"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135„"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135¯"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135£"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™

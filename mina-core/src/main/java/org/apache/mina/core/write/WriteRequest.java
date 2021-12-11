@@ -21,8 +21,8 @@ package org.apache.mina.core.write;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**

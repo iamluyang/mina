@@ -1,8 +1,8 @@
 package org.apache.mina.transport.socket.nio;
 
-import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.future.api.CloseFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.handler.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;

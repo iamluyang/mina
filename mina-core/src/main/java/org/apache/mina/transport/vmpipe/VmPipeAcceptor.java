@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.api.IoFuture;
 import org.apache.mina.core.service.AbstractIoAcceptor;
 import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;

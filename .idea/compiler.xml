@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="mina-legal" />
+        <module name="mina-core" />
+        <module name="mina-integration-jmx" />
+        <module name="mina-filter-compression" />
+        <module name="mina-integration-xbean" />
+        <module name="mina-statemachine" />
+        <module name="mina-example" />
+        <module name="mina-http" />
+        <module name="mina-filter" />
+        <module name="mina-transport-apr" />
+        <module name="mina-integration-ognl" />
+        <module name="mina-integration-beans" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="mina-avro" target="1.7" />
+      <module name="mina-benchmarks" target="1.7" />
+      <module name="mina-benchmarks-common" target="1.7" />
+      <module name="mina-benchmarks-netty3" target="1.7" />
+      <module name="mina-benchmarks-netty4" target="1.7" />
+      <module name="mina-coap" target="1.7" />
+      <module name="mina-codec" target="1.6" />
+      <module name="mina-examples" target="1.7" />
+      <module name="mina-http2" target="1.7" />
+      <module name="mina-monitoring" target="1.7" />
+      <module name="mina-protobuf" target="1.7" />
+      <module name="mina-thrift" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

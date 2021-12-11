@@ -19,7 +19,7 @@
  */
 package org.apache.mina.filter.util;
 
-import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 
 /**
  * A Noop filter. It does nothing, as all the method are already implemented

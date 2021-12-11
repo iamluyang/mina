@@ -24,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.api.IoFilterChain;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.handler.IoHandler;
 import org.apache.mina.core.service.IoProcessor;

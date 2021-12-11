@@ -19,7 +19,7 @@
  */
 package org.apache.mina.core.session;
 
-import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.api.IoFuture;
 
 /**
  * Defines a callback for obtaining the {@link IoSession} during

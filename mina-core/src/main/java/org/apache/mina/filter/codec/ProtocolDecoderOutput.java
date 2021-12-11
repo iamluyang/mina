@@ -19,7 +19,7 @@
  */
 package org.apache.mina.filter.codec;
 
-import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**

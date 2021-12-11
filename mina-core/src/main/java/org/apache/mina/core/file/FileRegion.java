@@ -22,7 +22,7 @@ package org.apache.mina.core.file;
 import java.nio.channels.FileChannel;
 
 /**
- * 指定要发送到远程主机的文件所在的区域。
+ * 指定要发送到远程主机的文件区域。
  *
  * Indicates the region of a file to be sent to the remote host.
  *
@@ -31,7 +31,7 @@ import java.nio.channels.FileChannel;
 public interface FileRegion {
 
     /**
-     * 打开的FileChannel，从中读取数据并将其发送到远程主机。
+     * 打开的FileChannel，将从中读取数据并将其发送到远程主机。
      *
      * The open <tt>FileChannel</tt> from which data will be read to send to
      * remote host.
@@ -41,7 +41,7 @@ public interface FileRegion {
     FileChannel getFileChannel();
 
     /**
-     * 将从其中读取数据的当前文件位置。
+     * 将从其中读取数据的当前文件的位置。
      *
      * The current file position from which data will be read.
      *
@@ -50,8 +50,8 @@ public interface FileRegion {
     long getPosition();
 
     /**
-     * 根据指定的数量更新当前文件位置。这将使getPosition()和getWrittenBytes()返回的值增加给定的数量，
-     * 并使getRemainingBytes()返回的值减少给定的数量。
+     * 根据指定的数量更新当前文件位置。这将使getPosition()和getWrittenBytes()
+     * 返回的值增加给定的数量，并使getRemainingBytes()返回的值减少给定的数量。
      *
      * Updates the current file position based on the specified amount. This
      * increases the value returned by {@link #getPosition()} and

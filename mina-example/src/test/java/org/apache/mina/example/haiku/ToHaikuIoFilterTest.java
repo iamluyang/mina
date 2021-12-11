@@ -21,7 +21,7 @@ package org.apache.mina.example.haiku;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilter;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

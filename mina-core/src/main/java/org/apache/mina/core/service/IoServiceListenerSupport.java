@@ -28,9 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.future.api.IoFuture;
+import org.apache.mina.core.future.api.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.ExceptionMonitor;
 

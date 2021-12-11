@@ -23,6 +23,9 @@ import java.io.IOException;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.file.FileRegion;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.future.api.IoFutureListener;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.IoHandler;
 
@@ -30,9 +33,9 @@ import org.apache.mina.handler.IoHandler;
  * Filter implementation that converts a {@link FileRegion} to {@link IoBuffer}
  * objects and writes those buffers to the next filter. When end of the
  * {@code FileRegion} has been reached this filter will call
- * {@link org.apache.mina.core.filterchain.IoFilter.NextFilter#messageSent(org.apache.mina.core.session.IoSession, org.apache.mina.core.write.WriteRequest)} using the
+ * {@link IoFilter.NextFilter#messageSent(org.apache.mina.core.session.IoSession, org.apache.mina.core.write.WriteRequest)} using the
  * original {@link FileRegion} written to the session and notifies
- * {@link org.apache.mina.core.future.WriteFuture} on the original
+ * {@link WriteFuture} on the original
  * {@link org.apache.mina.core.write.WriteRequest}.
  * <p>Normall {@code FileRegion} objects should be handled by the
  * {@link org.apache.mina.core.service.IoProcessor} but this is not always possible
@@ -47,7 +50,7 @@ import org.apache.mina.handler.IoHandler;
  * {@link FileRegion#getFileChannel()} after the data from the file has been
  * written.  The {@code FileChannel} should be closed in either 
  * {@link IoHandler#messageSent(IoSession,Object)}
- * or in an {@link org.apache.mina.core.future.IoFutureListener} associated with the
+ * or in an {@link IoFutureListener} associated with the
  * {@code WriteFuture}.
  * </p>
  *

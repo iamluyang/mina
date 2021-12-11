@@ -22,8 +22,8 @@ package org.apache.mina.core.service;
 
 import static org.junit.Assert.fail;
 
-import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.api.CloseFuture;
+import org.apache.mina.core.future.api.ConnectFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;

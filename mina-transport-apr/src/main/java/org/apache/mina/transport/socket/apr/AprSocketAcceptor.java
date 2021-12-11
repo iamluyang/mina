@@ -35,7 +35,7 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
+import org.apache.mina.transport.socket.config.impl.DefaultSocketSessionConfig;
 import org.apache.tomcat.jni.Address;
 import org.apache.tomcat.jni.Poll;
 import org.apache.tomcat.jni.Pool;

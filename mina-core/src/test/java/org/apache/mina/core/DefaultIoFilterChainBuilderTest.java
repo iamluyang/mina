@@ -19,10 +19,10 @@
  */
 package org.apache.mina.core;
 
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
+import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.api.IoFilterChain.Entry;
 import org.apache.mina.filter.util.NoopFilter;
 import org.junit.After;
 import org.junit.Before;

@@ -1,0 +1,38 @@
+
+a	java:S112¿"FDefine and throw a dedicated exception instead of using a generic one.(Ù£¼¥ûÿÿÿÿ
+m
+java:S3077i"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ù°‚¯
+i
+java:S3776š"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(“–ış
+u
+java:S2142Á"^Either re-interrupt this method or rethrow the "InterruptedException" that can be caught here.(”ı¾
+u
+java:S2142Æ"^Either re-interrupt this method or rethrow the "InterruptedException" that can be caught here.(‘í†
+?	java:S108Æ")Either remove or fill this block of code.(‘í†
+n
+java:S3776Ø"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(¸—…æÿÿÿÿÿ
+i
+java:S3776„"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(Ğ»Ÿ¸
+X
+java:S3252“"AUse static access with "java.net.InetAddress" for "getByAddress".(­Ï¬º
+i
+java:S3776Ë"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(ğË¦²
+=
+java:S3398·"!Move this method into "Acceptor".(ØÅÇ§ıÿÿÿÿ
+8
+java:S3398„"!Move this method into "Acceptor".(Ğ»Ÿ¸
+8
+java:S3398Ø"!Move this method into "Acceptor".(„–ˆØ
+=
+java:S3398Ø"!Move this method into "Acceptor".(¸—…æÿÿÿÿÿ
+=
+java:S3398á"!Move this method into "Acceptor".(Å»÷Ğùÿÿÿÿ
+t	java:S135¡"YReduce the total number of break and continue statements in this loop to use at most one.(š‡ÔØÿÿÿÿÿ
+o	java:S135"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+o	java:S135â"YReduce the total number of break and continue statements in this loop to use at most one.(´ÿÕ™
+a
+java:S2259Ø"EA "NullPointerException" could be thrown; "session" is nullable here.(Ä¶Ôúşÿÿÿÿ
+\
+java:S2259¹"EA "NullPointerException" could be thrown; "session" is nullable here.(•ô§û
+Z
+java:S2583ã"DChange this condition so that it does not always evaluate to "false"(±Ä·

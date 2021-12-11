@@ -33,8 +33,8 @@ import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SSLFilter;
-import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
-import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.config.impl.AbstractSocketSessionConfig;
+import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * An {@link IoSession} for socket transport (TCP/IP).

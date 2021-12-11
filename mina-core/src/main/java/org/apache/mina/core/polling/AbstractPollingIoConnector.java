@@ -30,9 +30,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.filterchain.IoFilter;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.DefaultConnectFuture;
+import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.impl.DefaultConnectFuture;
 import org.apache.mina.core.service.AbstractIoConnector;
 import org.apache.mina.core.service.AbstractIoService;
 import org.apache.mina.core.service.IoConnector;

@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.mina.core.IoUtil;
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChainBuilder;
-import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.filterchain.api.IoFilterChainBuilder;
+import org.apache.mina.core.future.api.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
