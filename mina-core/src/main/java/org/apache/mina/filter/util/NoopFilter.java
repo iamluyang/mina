@@ -22,10 +22,15 @@ package org.apache.mina.filter.util;
 import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 
 /**
+ * 学习笔记：一个 Noop 过滤器。它什么都不做，因为所有的方法都已经在超类中实现了
+ *
  * A Noop filter. It does nothing, as all the method are already implemented
  * in the super class.
  * <br>
- * 
+ *
+ * 学习笔记：当添加或删除过滤器时需要一些伪造的过滤器来测试链是否正常工作时，测试会使用此类。
+ * 即用来创建MINA通信时使用的测试过滤器或测试过滤器的基类
+ *
  * This class is used by tests, when some faked filter is needed to test that the 
  * chain is working properly when adding or removing a filter.
  *

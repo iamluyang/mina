@@ -22,6 +22,8 @@ package org.apache.mina.filter.ssl;
 import org.apache.mina.filter.FilterEvent;
 
 /**
+ * 学习笔记：ssl事件，加密或不加密
+ *
  * A SSL event sent by {@link SslFilter} when the session is secured or not
  * secured.
  * 

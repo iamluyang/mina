@@ -36,6 +36,8 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 
 /**
+ * 学习笔记：抽象接收器
+ *
  * A base implementation of {@link IoAcceptor}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -43,16 +45,22 @@ import org.apache.mina.core.session.IoSessionConfig;
  */
 public abstract class AbstractIoAcceptor extends AbstractIoService implements IoAcceptor {
 
+    // 默认的本地地址
     private final List<SocketAddress> defaultLocalAddresses = new ArrayList<>();
 
-    private final List<SocketAddress> unmodifiableDefaultLocalAddresses = Collections
-            .unmodifiableList(defaultLocalAddresses);
+    // 用作只读查询的容器
+    private final List<SocketAddress> unmodifiableDefaultLocalAddresses = Collections.unmodifiableList(defaultLocalAddresses);
 
+    // 已经绑定的地址
     private final Set<SocketAddress> boundAddresses = new HashSet<>();
 
+    //
     private boolean disconnectOnUnbind = true;
 
     /**
+     * 学习笔记：一个同步锁
+     * 执行绑定或解除绑定操作时获取的锁定对象。在您的属性设置器中获取此锁，在绑定服务时不应更改该锁。
+     *
      * The lock object which is acquired while bind or unbind operation is performed.
      * Acquire this lock in your property setters which shouldn't be changed while
      * the service is bound.
@@ -60,6 +68,7 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     protected final Object bindLock = new Object();
 
     /**
+     * 学习笔记：需要一个会话配置类，线程池
      * Constructor for {@link AbstractIoAcceptor}. You need to provide a default
      * session configuration and an {@link Executor} for handling I/O events. If
      * null {@link Executor} is provided, a default one will be created using
@@ -79,6 +88,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：获取一个绑定的本地地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -87,25 +98,26 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
         if (localAddresses.isEmpty()) {
             return null;
         }
-
         return localAddresses.iterator().next();
     }
 
     /**
+     * 学习笔记：获取所有绑定的本地地址
+     *
      * {@inheritDoc}
      */
     @Override
     public final Set<SocketAddress> getLocalAddresses() {
         Set<SocketAddress> localAddresses = new HashSet<>();
-
         synchronized (boundAddresses) {
             localAddresses.addAll(boundAddresses);
         }
-
         return localAddresses;
     }
 
     /**
+     * 学习笔记：默认的本地绑定地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -117,6 +129,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：默认的本地绑定地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -125,6 +139,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：默认的本地绑定地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -133,6 +149,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：默认的本地绑定地址
+     *
      * {@inheritDoc}
      * @org.apache.xbean.Property nestedType="java.net.SocketAddress"
      */
@@ -145,6 +163,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：设置默认的本地绑定地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -153,9 +173,11 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
             throw new IllegalArgumentException("localAddresses");
         }
 
+        // 在绑定操作的时候不能重置默认地址列表，都已经在绑定了，改变默认的本地绑定列表自然不合适
         synchronized (bindLock) {
             synchronized (boundAddresses) {
                 if (!boundAddresses.isEmpty()) {
+                    // 并且该服务已经绑定了本地地址，则不能再设置了
                     throw new IllegalStateException("localAddress can't be set while the acceptor is bound.");
                 }
 
@@ -170,6 +192,7 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
                     throw new IllegalArgumentException("empty localAddresses");
                 }
 
+                // 清空老的列表，设置新列表
                 this.defaultLocalAddresses.clear();
                 this.defaultLocalAddresses.addAll(newLocalAddresses);
             }
@@ -177,6 +200,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：设置默认的本地绑定地址
+     *
      * {@inheritDoc}
      * @org.apache.xbean.Property nestedType="java.net.SocketAddress"
      */
@@ -198,6 +223,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：返回 true。当且仅当此接受器与所有相关本地地址解除绑定时（即当服务被停用时），所有客户端都关闭。
+     *
      * {@inheritDoc}
      */
     @Override
@@ -214,6 +241,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：绑定默认的本地地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -222,6 +251,8 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 学习笔记：绑定默认的本地地址，或指定的地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -229,13 +260,14 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
         if (localAddress == null) {
             throw new IllegalArgumentException("localAddress");
         }
-
         List<SocketAddress> localAddresses = new ArrayList<>(1);
         localAddresses.add(localAddress);
         bind(localAddresses);
     }
 
     /**
+     * 学习笔记：绑定默认的本地地址，或指定的地址列表
+     *
      * {@inheritDoc}
      */
     @Override
@@ -246,15 +278,15 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
         }
 
         List<SocketAddress> localAddresses = new ArrayList<>(2);
-
         for (SocketAddress address : addresses) {
             localAddresses.add(address);
         }
-
         bind(localAddresses);
     }
 
     /**
+     * 学习笔记：绑定默认的本地地址，或指定的地址列表
+     *
      * {@inheritDoc}
      */
     @Override
@@ -279,10 +311,12 @@ public abstract class AbstractIoAcceptor extends AbstractIoService implements Io
     }
 
     /**
+     * 绑定本地地址
+     *
      * {@inheritDoc}
      */
     @Override
-public final void bind(Iterable<? extends SocketAddress> localAddresses) throws IOException {
+    public final void bind(Iterable<? extends SocketAddress> localAddresses) throws IOException {
         if (isDisposing()) {
             throw new IllegalStateException("The Accpetor disposed is being disposed.");
         }
@@ -293,6 +327,7 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
 
         List<SocketAddress> localAddressesCopy = new ArrayList<>();
 
+        // 将绑定地址复制一份并校验
         for (SocketAddress a : localAddresses) {
             checkAddressType(a);
             localAddressesCopy.add(a);
@@ -315,8 +350,10 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
             }
 
             try {
+                // 绑定地址
                 Set<SocketAddress> addresses = bindInternal(localAddressesCopy);
 
+                // 将绑定的地址加到绑定地址列表
                 synchronized (boundAddresses) {
                     boundAddresses.addAll(addresses);
                 }
@@ -333,6 +370,8 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     }
 
     /**
+     * 学习笔记：解绑本地地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -341,6 +380,8 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     }
 
     /**
+     * 学习笔记：解绑本地地址，或指定的地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -355,6 +396,8 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     }
 
     /**
+     * 学习笔记：解绑本地地址，或指定的地址列表
+     *
      * {@inheritDoc}
      */
     @Override
@@ -373,6 +416,8 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     }
 
     /**
+     * 学习笔记：解绑本地地址列表
+     *
      * {@inheritDoc}
      */
     @Override
@@ -382,15 +427,16 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
         }
 
         boolean deactivate = false;
-        synchronized (bindLock) {
-            synchronized (boundAddresses) {
-                if (boundAddresses.isEmpty()) {
+        synchronized (bindLock) {// 学习笔记：解绑的时候不能绑定
+            synchronized (boundAddresses) {// 也不能操作绑定的地址
+                if (boundAddresses.isEmpty()) {// 如果绑定的地址为空，则立即返回
                     return;
                 }
 
                 List<SocketAddress> localAddressesCopy = new ArrayList<>();
                 int specifiedAddressCount = 0;
 
+                // 检测解绑的地址是否存在于绑定过的地址列表中，并复制出一个新的副本，过滤掉不存在的地址
                 for (SocketAddress a : localAddresses) {
                     specifiedAddressCount++;
 
@@ -403,6 +449,7 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
                     throw new IllegalArgumentException("localAddresses is empty.");
                 }
 
+                // 执行真正的解绑操作
                 if (!localAddressesCopy.isEmpty()) {
                     try {
                         unbind0(localAddressesCopy);
@@ -412,8 +459,10 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
                         throw new RuntimeIoException("Failed to unbind from: " + getLocalAddresses(), e);
                     }
 
+                    // 并从绑定列表移除掉被解绑的地址
                     boundAddresses.removeAll(localAddressesCopy);
 
+                    // 所有地址都解绑了，说明服务被停
                     if (boundAddresses.isEmpty()) {
                         deactivate = true;
                     }
@@ -421,12 +470,15 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
             }
         }
 
+        // 如果服务被停，触发服务停止事件
         if (deactivate) {
             getListeners().fireServiceDeactivated();
         }
     }
 
     /**
+     * 学习笔记：真正的接收逻辑，由nio实现
+     *
      * Starts the acceptor, and register the given addresses
      * 
      * @param localAddresses The address to bind to
@@ -436,6 +488,8 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     protected abstract Set<SocketAddress> bindInternal(List<? extends SocketAddress> localAddresses) throws Exception;
 
     /**
+     * 学习笔记：真正的解绑逻辑，由Nio实现
+     *
      * Implement this method to perform the actual unbind operation.
      * 
      * @param localAddresses The address to unbind from
@@ -455,6 +509,7 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
                         + getManagedSessionCount() : "not bound") + ')';
     }
 
+    // 学习笔记：校验地址
     private void checkAddressType(SocketAddress a) {
         if (a != null && !getTransportMetadata().getAddressType().isAssignableFrom(a.getClass())) {
             throw new IllegalArgumentException("localAddress type: " + a.getClass().getSimpleName() + " (expected: "
@@ -463,9 +518,12 @@ public final void bind(Iterable<? extends SocketAddress> localAddresses) throws 
     }
 
     /**
+     * 学习笔记：一个包含绑定地址的简单的异步请求结果
+     *
      * A {@link IoFuture} 
      */
     public static class AcceptorOperationFuture extends ServiceOperationFuture {
+
         private final List<SocketAddress> localAddresses;
 
         /**

@@ -34,11 +34,15 @@ import org.apache.mina.filter.util.CommonEventFilter;
 import org.slf4j.MDC;
 
 /**
+ * 此过滤器将一些关键的 IoSession 属性注入映射诊断上下文 (MDC) <p> 这些属性将在 MDC 中设置，
+ * 用于在调用堆栈中生成的所有日志记录事件，即使在不知道 MINA 的代码中也是如此。
+ *
  * This filter will inject some key IoSession properties into the Mapped Diagnostic Context (MDC)
  * <p>
  * These properties will be set in the MDC for all logging events that are generated
  * down the call stack, even in code that is not aware of MINA.
  *
+ * 默认情况下，将为所有传输设置以下属性：
  * By default, the following properties will be set for all transports:
  * <ul>
  *  <li>"handlerClass"</li>
@@ -46,6 +50,7 @@ import org.slf4j.MDC;
  *  <li>"localAddress"</li>
  * </ul>
  *
+ * 当 session.getTransportMetadata().getAddressType() == InetSocketAddress.class 时，还将设置以下属性：
  * When <code>session.getTransportMetadata().getAddressType() == InetSocketAddress.class</code>
  * the following properties will also be set:
  * <ul>
@@ -54,6 +59,12 @@ import org.slf4j.MDC;
  * <li>"localIp"</li>
  * <li>"localPort"</li>
  * </ul>
+ *
+ * 用户代码也可以在上下文中添加自定义属性，通过 setProperty(IoSession, String, String)
+ * 如果只想为 IoHandler 代码设置 MDC，在过滤器末尾添加一个 MdcInjectionFilter 就足够了链。
+ * 如果您希望为所有代码设置 MDC，您应该将 MdcInjectionFilter 添加到链的开头，并在链中的每个
+ * ExecutorFilter 之后添加相同的 MdcInjectionFilter 实例因此可以拥有一个 MdcInjectionFilter
+ * 实例并多次添加它到链中，但您应该避免向链中添加多个实例。
  *
  * User code can also add custom properties to the context, via {@link #setProperty(IoSession, String, String)}
  *
@@ -71,7 +82,10 @@ import org.slf4j.MDC;
  */
 
 public class MdcInjectionFilter extends CommonEventFilter {
+
     /**
+     * 学习笔记：此枚举列出了此过滤器将处理的所有可能的键
+     *
      * This enum lists all the possible keys this filter will process 
      */
     public enum MdcKey {

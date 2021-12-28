@@ -22,6 +22,8 @@ package org.apache.mina.filter.codec;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：协议解码器的默认适配器模式的实现
+ *
  * An abstract {@link ProtocolDecoder} implementation for those who don't need
  * {@link ProtocolDecoder#finishDecode(IoSession, ProtocolDecoderOutput)} nor
  * {@link ProtocolDecoder#dispose(IoSession)} method.

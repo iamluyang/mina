@@ -25,12 +25,16 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 
 /**
+ * 学习笔记：为新创建的会话提供数据结构的数据工厂类
+ *
  * Provides data structures to a newly created session.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoSessionDataStructureFactory {
     /**
+     * 学习笔记：返回指定的 session 关联的IoSessionAttributeMap。请注意，返回的实现必须是线程安全的。
+     *
      * @return an {@link IoSessionAttributeMap} which is going to be associated
      * with the specified <tt>session</tt>.  Please note that the returned
      * implementation must be thread-safe.
@@ -41,6 +45,9 @@ public interface IoSessionDataStructureFactory {
     IoSessionAttributeMap getAttributeMap(IoSession session) throws Exception;
 
     /**
+     * 学习笔记：返回指定的 session 关联的写请求队列。请注意，返回的实现必须是线程安全且足够健壮的，
+     * 以处理各种消息类型（甚至是您根本没想到的），尤其是当您要实现涉及 Comparator 的优先级队列时。
+     *
      * @return an {@link WriteRequest} which is going to be associated with
      * the specified <tt>session</tt>.  Please note that the returned
      * implementation must be thread-safe and robust enough to deal

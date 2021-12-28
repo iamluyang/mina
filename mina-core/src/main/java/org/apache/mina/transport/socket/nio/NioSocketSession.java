@@ -37,6 +37,8 @@ import org.apache.mina.transport.socket.config.impl.AbstractSocketSessionConfig;
 import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
+ * 学习笔记：创建一个nio socket会话
+ *
  * An {@link IoSession} for socket transport (TCP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -46,7 +48,8 @@ class NioSocketSession extends NioSession {
 			InetSocketAddress.class, SocketSessionConfig.class, IoBuffer.class, FileRegion.class);
 
 	/**
-	 * 
+	 * 基于NIO的socket会话，需要一个IO服务宿主，一个Io处理器，Socket通道
+	 *
 	 * Creates a new instance of NioSocketSession.
 	 *
 	 * @param service   the associated IoService
@@ -59,11 +62,14 @@ class NioSocketSession extends NioSession {
 		config.setAll(service.getSessionConfig());
 	}
 
+	// 学习笔记：从会话底层的channel中获取对应的socket
 	private Socket getSocket() {
 		return ((SocketChannel) channel).socket();
 	}
 
 	/**
+	 * 学习笔记：会话的传输元数据
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -72,6 +78,8 @@ class NioSocketSession extends NioSession {
 	}
 
 	/**
+	 * 学习笔记：获取会话的配置
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -80,6 +88,8 @@ class NioSocketSession extends NioSession {
 	}
 
 	/**
+	 * 学习笔记：获取会话的底层socket通道
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -88,6 +98,8 @@ class NioSocketSession extends NioSession {
 	}
 
 	/**
+	 * 学习笔记：获取当前socket的对端socket
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -95,17 +107,16 @@ class NioSocketSession extends NioSession {
 		if (channel == null) {
 			return null;
 		}
-
 		Socket socket = getSocket();
-
 		if (socket == null) {
 			return null;
 		}
-
 		return (InetSocketAddress) socket.getRemoteSocketAddress();
 	}
 
 	/**
+	 * 学习笔记：获取会话的本地地址
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -113,22 +124,23 @@ class NioSocketSession extends NioSession {
 		if (channel == null) {
 			return null;
 		}
-
 		Socket socket = getSocket();
-
 		if (socket == null) {
 			return null;
 		}
-
 		return (InetSocketAddress) socket.getLocalSocketAddress();
 	}
 
+	// 学习笔记：获取服务地址
 	@Override
 	public InetSocketAddress getServiceAddress() {
 		return (InetSocketAddress) super.getServiceAddress();
 	}
 
 	/**
+	 * 学习笔记：创建 IoSession 时存储 IoService 配置副本的私有类。
+	 * 这允许会话拥有自己的配置设置，而不是 IoService 默认设置。
+	 *
 	 * A private class storing a copy of the IoService configuration when the
 	 * IoSession is created. That allows the session to have its own configuration
 	 * setting, over the IoService default one.
@@ -239,10 +251,10 @@ class NioSocketSession extends NioSession {
 		 */
 		@Override
 		public boolean isTcpNoDelay() {
+			// 如果会话没有被连接，则返回false，即断开时候不延迟
 			if (!isConnected()) {
 				return false;
 			}
-
 			try {
 				return getSocket().getTcpNoDelay();
 			} catch (SocketException e) {
@@ -336,6 +348,8 @@ class NioSocketSession extends NioSession {
 	}
 
 	/**
+	 * 学习笔记：如果会话中存在SSL_SECURED属性，表示使用了SSL
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override

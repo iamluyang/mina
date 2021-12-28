@@ -22,6 +22,8 @@ package org.apache.mina.filter.ssl;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
+ * 学习笔记：这种写请求类型不加密
+ *
  * Interface used to designate WriteRequest objects which should not be encrypted.
  */
 public interface DisableEncryptWriteRequest extends WriteRequest {

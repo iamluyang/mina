@@ -20,7 +20,7 @@
 package org.apache.mina.core.session;
 
 /**
- * 会话配置类的抽象实现类
+ * 学习笔记：会话配置类的抽象实现类
  * A base implementation of {@link IoSessionConfig}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

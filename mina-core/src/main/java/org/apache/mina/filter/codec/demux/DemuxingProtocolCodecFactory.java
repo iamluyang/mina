@@ -25,6 +25,9 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
+ * 学习笔记：一个方便的 ProtocolCodecFactory，它提供 DemuxingProtocolEncoder 和 DemuxingProtocolDecoder 作为一对。
+ * DemuxingProtocolEncoder和DemuxingProtocolDecoder将传入的消息和缓冲区解复用到适当的MessageEncoder 和 MessageDecoder。
+ *
  * A convenience {@link ProtocolCodecFactory} that provides {@link DemuxingProtocolEncoder}
  * and {@link DemuxingProtocolDecoder} as a pair.
  * <p>

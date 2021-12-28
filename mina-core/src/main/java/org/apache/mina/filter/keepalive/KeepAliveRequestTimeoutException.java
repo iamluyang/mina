@@ -20,6 +20,8 @@
 package org.apache.mina.filter.keepalive;
 
 /**
+ * 学习笔记：未收到心跳相应的异常
+ *
  * A {@link RuntimeException} which is thrown when a keep-alive response
  * message was not received within a certain timeout.
  * 
@@ -40,16 +42,6 @@ public class KeepAliveRequestTimeoutException extends RuntimeException {
      * Creates a new instance of a KeepAliveRequestTimeoutException
      * 
      * @param message The detail message
-     * @param cause The Exception's cause
-     */
-    public KeepAliveRequestTimeoutException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * Creates a new instance of a KeepAliveRequestTimeoutException
-     * 
-     * @param message The detail message
      */
     public KeepAliveRequestTimeoutException(String message) {
         super(message);
@@ -62,5 +54,15 @@ public class KeepAliveRequestTimeoutException extends RuntimeException {
      */
     public KeepAliveRequestTimeoutException(Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Creates a new instance of a KeepAliveRequestTimeoutException
+     *
+     * @param message The detail message
+     * @param cause The Exception's cause
+     */
+    public KeepAliveRequestTimeoutException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

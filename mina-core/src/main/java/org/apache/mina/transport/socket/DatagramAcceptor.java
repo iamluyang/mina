@@ -28,12 +28,26 @@ import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 
 /**
+ * 学习笔记：基于UDP的连接器
+ *
  * {@link IoAcceptor} for datagram transport (UDP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface DatagramAcceptor extends IoAcceptor {
+
     /**
+     * 学习笔记：设置UDP会话配置类
+     *
+     * @return the default Datagram configuration of the new {@link IoSession}s
+     * created by this service.
+     */
+    @Override
+    DatagramSessionConfig getSessionConfig();
+
+    /**
+     * 学习笔记：当前绑定的本地 InetSocketAddress。如果绑定了多个地址，则只返回其中一个，但不一定是第一个绑定的地址。
+     *
      * @return the local InetSocketAddress which is bound currently.  If more than one
      * address are bound, only one of them will be returned, but it's not
      * necessarily the firstly bound address.
@@ -43,6 +57,8 @@ public interface DatagramAcceptor extends IoAcceptor {
     InetSocketAddress getLocalAddress();
 
     /**
+     * 学习笔记：返回默认要绑定的地址
+     *
      * @return a {@link Set} of the local InetSocketAddress which are bound currently.
      * This method overrides the {@link IoAcceptor#getDefaultLocalAddress()} method.
      */
@@ -50,6 +66,8 @@ public interface DatagramAcceptor extends IoAcceptor {
     InetSocketAddress getDefaultLocalAddress();
 
     /**
+     * 学习笔记：设置默认要绑定的地址
+     *
      * Sets the default local InetSocketAddress to bind when no argument is specified in
      * {@link #bind()} method. Please note that the default will not be used
      * if any local InetSocketAddress is specified.
@@ -60,21 +78,18 @@ public interface DatagramAcceptor extends IoAcceptor {
     void setDefaultLocalAddress(InetSocketAddress localAddress);
 
     /**
+     * 学习笔记：UDP通过这个会话回收器来管理会话
+     *
      * @return the {@link IoSessionRecycler} for this service.
      */
     IoSessionRecycler getSessionRecycler();
 
     /**
+     * 学习笔记：设置会话管理器
+     *
      * Sets the {@link IoSessionRecycler} for this service.
      *
      * @param sessionRecycler <tt>null</tt> to use the default recycler
      */
     void setSessionRecycler(IoSessionRecycler sessionRecycler);
-
-    /**
-     * @return the default Datagram configuration of the new {@link IoSession}s
-     * created by this service.
-     */
-    @Override
-    DatagramSessionConfig getSessionConfig();
 }

@@ -21,9 +21,10 @@ package org.apache.mina.core.session;
 
 /**
  * 表示丢失或丢失的空闲类型。懒惰有三种类型:
- * READER_IDLE - 没有来自远程对等体的数据。
- * WRITER_IDLE - Session不写任何数据。
- * BOTH_IDLE—READER_IDLE和WRITER_IDLE。 默认情况下，空闲时间设置都是禁用的。你可以使用IoSessionConfig来启用它们
+ * READER_IDLE - 没有收到来自远程对等体的数据。
+ * WRITER_IDLE - 当前Session没有写出任何数据。
+ * BOTH_IDLE—READER_IDLE和WRITER_IDLE。
+ * 默认情况下，空闲时间设置都是禁用的。你可以使用IoSessionConfig来启用它们
  *
  * Represents the type of idleness of {@link IoSession} or
  * {@link IoSession}.  There are three types of idleness:
@@ -56,6 +57,9 @@ public class IdleStatus {
      */
     public static final IdleStatus BOTH_IDLE = new IdleStatus("both idle");
 
+    /**
+     * 学习笔记：状态描述
+     */
     private final String strValue;
 
     /**

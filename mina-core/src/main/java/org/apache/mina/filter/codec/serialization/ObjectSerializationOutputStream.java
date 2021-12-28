@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import org.apache.mina.core.buffer.IoBuffer;
 
 /**
+ * 学习笔记： 对象序列化输出流（底层基于对象输出流），实际上是将需要序列化的对象放入IO缓冲区，在复制到（底层基于对象输出流）
+ *
  * An {@link ObjectOutput} and {@link OutputStream} that can write the objects as
  * the serialized form that {@link ObjectSerializationDecoder} can decode.
  *
@@ -76,8 +78,28 @@ public class ObjectSerializationOutputStream extends OutputStream implements Obj
         if (maxObjectSize <= 0) {
             throw new IllegalArgumentException("maxObjectSize: " + maxObjectSize);
         }
-
         this.maxObjectSize = maxObjectSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeObject(Object obj) throws IOException {
+        // 将对象塞进缓冲区
+        IoBuffer buf = IoBuffer.allocate(64, false);
+        buf.setAutoExpand(true);
+        // 这里会包含四个字节的int，表示对象长度，后面的长度为真实的数据
+        buf.putObject(obj);
+
+        // 检测写入缓冲区中的数据，这里的4表示对象的长度用int类型表示，int占4个字节
+        int objectSize = buf.position() - 4;
+        if (objectSize > maxObjectSize) {
+            throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize + ')');
+        }
+
+        // 又将缓冲区中的数据复制到out中去
+        out.write(buf.array(), 0, buf.position());
     }
 
     /**
@@ -118,24 +140,6 @@ public class ObjectSerializationOutputStream extends OutputStream implements Obj
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         out.write(b, off, len);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeObject(Object obj) throws IOException {
-        IoBuffer buf = IoBuffer.allocate(64, false);
-        buf.setAutoExpand(true);
-        buf.putObject(obj);
-
-        int objectSize = buf.position() - 4;
-        if (objectSize > maxObjectSize) {
-            throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
-                    + ')');
-        }
-
-        out.write(buf.array(), 0, buf.position());
     }
 
     /**

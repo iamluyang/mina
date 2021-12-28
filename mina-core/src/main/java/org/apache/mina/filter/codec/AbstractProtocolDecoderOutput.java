@@ -26,11 +26,15 @@ import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：一个抽象的解码器，内部使用一个消息队列来堆积待解码的数据
+ *
  * A {@link ProtocolDecoderOutput} based on queue.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class AbstractProtocolDecoderOutput implements ProtocolDecoderOutput {
+
+	// 存储解码消息的队列
 	/** The queue where decoded messages are stored */
 	protected final Queue<Object> messageQueue = new ArrayDeque<>();
 
@@ -49,17 +53,17 @@ public abstract class AbstractProtocolDecoderOutput implements ProtocolDecoderOu
 		if (message == null) {
 			throw new IllegalArgumentException("message");
 		}
-
 		messageQueue.add(message);
 	}
 
 	/**
+	 * 学习笔记：将通过 write(Object) 编写的所有消息刷新到下一个过滤器，即接收消息的事件
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void flush(NextFilter nextFilter, IoSession session) {
 		Object message = null;
-
 		while ((message = messageQueue.poll()) != null) {
 			nextFilter.messageReceived(session, message);
 		}

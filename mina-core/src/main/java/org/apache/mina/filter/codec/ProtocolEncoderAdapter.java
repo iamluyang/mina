@@ -22,6 +22,8 @@ package org.apache.mina.filter.codec;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：协议编码器的默认适配器模式的实现
+ *
  * An abstract {@link ProtocolEncoder} implementation for those who don't have any
  * resources to dispose.
  *

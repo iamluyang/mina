@@ -31,21 +31,28 @@ import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：创建一个基于nio的会话的抽象类
+ *
  * An {@link IoSession} which is managed by the NIO transport.
  *  
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class NioSession extends AbstractIoSession {
+
     /** The NioSession processor */
+    // 学习笔记：nio会话需要一个Io处理器
     protected final IoProcessor<NioSession> processor;
 
     /** The communication channel */
+    // 学习笔记：底层的通信通道
     protected final Channel channel;
 
     /** The SelectionKey used for this session */
+    // 学习笔记：socket通道注册到选择器的选择key
     private SelectionKey key;
 
     /** The FilterChain created for this session */
+    // 学习笔记：会话的过滤器链
     private final IoFilterChain filterChain;
 
     /**
@@ -66,11 +73,14 @@ public abstract class NioSession extends AbstractIoSession {
     }
 
     /**
+     * 学习笔记：会话的底层通信通道
+     *
      * @return The ByteChannel associated with this {@link IoSession} 
      */
     abstract ByteChannel getChannel();
 
     /**
+     * 学习笔记：会话的过滤器链
      * {@inheritDoc}
      */
     @Override
@@ -79,6 +89,8 @@ public abstract class NioSession extends AbstractIoSession {
     }
 
     /**
+     * 学习笔记：会话相关的nio选择key
+     *
      * @return The {@link SelectionKey} associated with this {@link IoSession}
      */
     /* No qualifier*/SelectionKey getSelectionKey() {
@@ -86,6 +98,7 @@ public abstract class NioSession extends AbstractIoSession {
     }
 
     /**
+     * 学习笔记：会话相关的nio选择key
      * Sets the {@link SelectionKey} for this {@link IoSession}
      *
      * @param key The new {@link SelectionKey}
@@ -95,6 +108,7 @@ public abstract class NioSession extends AbstractIoSession {
     }
 
     /**
+     * 学习笔记：会话内部的Io处理器
      * {@inheritDoc}
      */
     @Override
@@ -103,6 +117,7 @@ public abstract class NioSession extends AbstractIoSession {
     }
 
     /**
+     * 学习笔记：会话是否处于活跃状态
      * {@inheritDoc}
      */
     @Override

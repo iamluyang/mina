@@ -26,6 +26,8 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.FilterEvent;
 
 /**
+ * 学习笔记：MINA暴露给业务层的编程即可，可以忽略网络通信的细节
+ *
  * Handles all I/O events fired by MINA.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

@@ -36,7 +36,7 @@ import org.apache.mina.filter.FilterEvent;
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
-public class IoFilterAdapter implements IoFilter {
+public class IoFilterAdapter extends IoFilter {
 
     // --------------------------------------------------
     // init        -> onPreAdd     -> onPostAdd
@@ -87,6 +87,7 @@ public class IoFilterAdapter implements IoFilter {
 
     // --------------------------------------------------
     // sessionCreated/sessionOpened/sessionClosed/sessionIdle
+    // 从head向后调用后驱过滤器的默认逻辑
     // --------------------------------------------------
     /**
      * {@inheritDoc}
@@ -120,9 +121,6 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.sessionClosed(session);
     }
 
-    // --------------------------------------------------
-    // messageReceived/messageSent
-    // --------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -139,10 +137,6 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.messageSent(session, writeRequest);
     }
 
-    // --------------------------------------------------
-    // exceptionCaught
-    // --------------------------------------------------
-
     /**
      * {@inheritDoc}
      */
@@ -151,10 +145,6 @@ public class IoFilterAdapter implements IoFilter {
         nextFilter.exceptionCaught(session, cause);
     }
 
-    // --------------------------------------------------
-    // inputClosed
-    // --------------------------------------------------
-
     /**
      * {@inheritDoc}
      */
@@ -162,10 +152,6 @@ public class IoFilterAdapter implements IoFilter {
     public void inputClosed(NextFilter nextFilter, IoSession session) throws Exception {
         nextFilter.inputClosed(session);
     }
-
-    // --------------------------------------------------
-    // event
-    // --------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -177,6 +163,7 @@ public class IoFilterAdapter implements IoFilter {
 
     // --------------------------------------------------
     // filterWrite/filterClose
+    // 从tail向前调用前驱过滤器的默认逻辑
     // --------------------------------------------------
 
     /**

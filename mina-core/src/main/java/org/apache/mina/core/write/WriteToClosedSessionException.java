@@ -22,7 +22,7 @@ package org.apache.mina.core.write;
 import java.util.Collection;
 
 /**
- * 在关闭的会话上尝试一个或多个写操作时引发的异常。
+ * 学习笔记：在已经关闭的会话上尝试一个或多个写操作时引发的异常。
  *
  * An exception which is thrown when one or more write operations were
  * attempted on a closed session.

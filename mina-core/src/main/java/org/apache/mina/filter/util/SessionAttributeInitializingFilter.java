@@ -28,6 +28,8 @@ import org.apache.mina.core.filterchain.api.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：会话的初始化过滤器
+ *
  * An {@link IoFilter} that sets initial attributes when a new
  * {@link IoSession} is created.  By default, the attribute map is empty when
  * an {@link IoSession} is newly created.  Inserting this filter will make
@@ -38,6 +40,7 @@ import org.apache.mina.core.session.IoSession;
  * @org.apache.xbean.XBean
  */
 public class SessionAttributeInitializingFilter extends IoFilterAdapter {
+
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
@@ -50,6 +53,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：创建过滤器时，指定默认属性
+     *
      * Creates a new instance with the specified default attributes.  You can
      * set the additional attributes by calling methods such as
      * {@link #setAttribute(String, Object)} and {@link #setAttributes(Map)}.
@@ -61,6 +66,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：返回指定key的属性
+     *
      * Returns the value of user-defined attribute.
      *
      * @param key the key of the attribute
@@ -71,6 +78,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置属性
+     *
      * Sets a user-defined attribute.
      *
      * @param key the key of the attribute
@@ -81,11 +90,12 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
         if (value == null) {
             return removeAttribute(key);
         }
-
         return attributes.put(key, value);
     }
 
     /**
+     * 学习笔记：设置标记属性
+     *
      * Sets a user defined attribute without a value.  This is useful when
      * you just want to put a 'mark' attribute.  Its value is set to
      * {@link Boolean#TRUE}.
@@ -98,6 +108,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：移除指定key的属性
+     *
      * Removes a user-defined attribute with the specified key.
      *
      * @param key The attribut's key we want to removee
@@ -108,6 +120,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：检测指定key的属性是否存在
+     *
      * @return <tt>true</tt> if this session contains the attribute with
      * the specified <tt>key</tt>.
      */
@@ -116,6 +130,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：查询所有属性的keys
+     *
      * @return the set of keys of all user-defined attributes.
      */
     public Set<String> getAttributeKeys() {
@@ -123,6 +139,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置新的的属性集合
+     *
      * Sets the attribute map.  The specified attributes are copied into the
      * underlying map, so modifying the specified attributes parameter after
      * the call won't change the internal state.
@@ -138,6 +156,8 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：会话创建时刻，将属性复制给会话
+     *
      * Puts all pre-configured attributes into the actual session attribute
      * map and forward the event to the next filter.
      */

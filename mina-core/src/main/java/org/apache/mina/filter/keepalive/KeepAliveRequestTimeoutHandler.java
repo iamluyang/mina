@@ -24,13 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 学习笔记： 告诉 KeepAliveFilter 在特定超时内未收到心跳响应消息时要做什么。
+ *
  * Tells {@link KeepAliveFilter} what to do when a keep-alive response message
  * was not received within a certain timeout.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface KeepAliveRequestTimeoutHandler {
+
     /**
+     * 学习笔记：心跳超时则什么也不做
+     *
      * Do nothing.
      */
     KeepAliveRequestTimeoutHandler NOOP = new KeepAliveRequestTimeoutHandler() {
@@ -40,6 +45,8 @@ public interface KeepAliveRequestTimeoutHandler {
     };
 
     /**
+     * 学习笔记：心跳超时仅仅打印日志
+     *
      * Logs a warning message, but doesn't do anything else.
      */
     KeepAliveRequestTimeoutHandler LOG = new KeepAliveRequestTimeoutHandler() {
@@ -52,6 +59,8 @@ public interface KeepAliveRequestTimeoutHandler {
     };
 
     /**
+     * 学习笔记：心跳超时则抛出一个心跳超时异常
+     *
      * Throws a {@link KeepAliveRequestTimeoutException}.
      */
     KeepAliveRequestTimeoutHandler EXCEPTION = new KeepAliveRequestTimeoutHandler() {
@@ -62,6 +71,8 @@ public interface KeepAliveRequestTimeoutHandler {
     };
 
     /**
+     * 学习笔记：心跳超时则打印日志并立即关闭会话
+     *
      * Closes the connection after logging.
      */
     KeepAliveRequestTimeoutHandler CLOSE = new KeepAliveRequestTimeoutHandler() {
@@ -75,6 +86,8 @@ public interface KeepAliveRequestTimeoutHandler {
     };
 
     /**
+     * 学习笔记：心跳超时则以聋哑模式处理
+     *
      * A special handler for the 'deaf speaker' mode.
      */
     KeepAliveRequestTimeoutHandler DEAF_SPEAKER = new KeepAliveRequestTimeoutHandler() {
@@ -84,6 +97,7 @@ public interface KeepAliveRequestTimeoutHandler {
     };
 
     /**
+     * 学习笔记：当 KeepAliveFilter 无法收到对端发送的心跳响应消息时调用
      * Invoked when {@link KeepAliveFilter} couldn't receive the response for
      * the sent keep alive message.
      * 

@@ -20,12 +20,15 @@
 package org.apache.mina.filter.codec;
 
 /**
+ * 学习笔记：协议编码器产生的异常
+ *
  * An exception that is thrown when {@link ProtocolEncoder}
  * cannot understand or failed to validate the specified message object.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ProtocolEncoderException extends ProtocolCodecException {
+
     private static final long serialVersionUID = 8752989973624459604L;
 
     /**

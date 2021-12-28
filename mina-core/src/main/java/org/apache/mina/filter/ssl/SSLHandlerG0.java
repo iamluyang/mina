@@ -191,7 +191,7 @@ public class SSLHandlerG0 extends SSLHandler {
 
 		switch (result.getHandshakeStatus()) {
 			case NEED_UNWRAP:
-			case NEED_UNWRAP_AGAIN:
+			//case NEED_UNWRAP_AGAIN:
 				if (result.bytesConsumed() != 0 && message.hasRemaining()) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("{} qreceive() - handshake needs unwrap, looping", toString());
@@ -451,7 +451,7 @@ public class SSLHandlerG0 extends SSLHandler {
 
 		switch (result.getHandshakeStatus()) {
 			case NEED_UNWRAP:
-			case NEED_UNWRAP_AGAIN:
+			//case NEED_UNWRAP_AGAIN:
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("{} lwrite() - handshake needs unwrap, invoking receive", toString());
 				}

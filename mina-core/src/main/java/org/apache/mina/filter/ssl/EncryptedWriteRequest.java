@@ -23,6 +23,12 @@ import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
+ *
+ * 学习笔记：即已经加密过的写请求，不应重复加密了。
+ * 在分派 messageSent 事件时解开原始的 WriteRequest。
+ *
+ * 用户不应创建自己的 EncryptedWriteRequest 对象
+ *
  * Specialty WriteRequest which indicates that the contents has been encrypted.
  * <p>
  * This prevents a WriteRequest from being encrypted twice and allows unwrapping

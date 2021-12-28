@@ -22,7 +22,8 @@ package org.apache.mina.core.session;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * IoSession的配置，封装了一些底层socket的配置和会话层抽象session的配置。
+ * 学习笔记：IoSession的配置，封装了一些底层socket的配置和会话层抽象session的配置。
+ * 默认9个配置
  *
  * The configuration of {@link IoSession}.
  *
@@ -35,7 +36,8 @@ public interface IoSessionConfig {
     // --------------------------------------------------
 
     /**
-     * 设置从指定的config检索的所有配置属性。
+     * 学习笔记：设置从指定的config检索的所有配置属性。
+     *
      * Sets all configuration properties retrieved from the specified
      * <tt>config</tt>.
      *
@@ -48,7 +50,7 @@ public interface IoSessionConfig {
     // --------------------------------------------------
 
     /**
-     * I/O 处理器为每次读取分配的读取缓冲区的大小。
+     * 学习笔记：I/O 处理器为每次读取分配的读取缓冲区的大小。
      * 调整此属性并不常见，因为它通常由 I/O 处理器自动调整。
      *
      * @return the size of the read buffer that I/O processor allocates
@@ -58,7 +60,7 @@ public interface IoSessionConfig {
     int getReadBufferSize();
 
     /**
-     * 设置 I/O 处理器为每次读取分配的读取缓冲区的大小。
+     * 学习笔记：设置 I/O 处理器为每次读取分配的读取缓冲区的大小。
      * 调整此属性并不常见，因为它通常由 I/O 处理器自动调整。
      *
      * Sets the size of the read buffer that I/O processor allocates
@@ -70,7 +72,7 @@ public interface IoSessionConfig {
     void setReadBufferSize(int readBufferSize);
 
     /**
-     * I/O 处理器每次读取分配的读取缓冲区的最小大小。
+     * 学习笔记：I/O 处理器每次读取分配的读取缓冲区的最小大小。
      * I/O 处理器不会将读取缓冲区大小减小到小于该属性值的值。
      *
      * @return the minimum size of the read buffer that I/O processor
@@ -80,7 +82,7 @@ public interface IoSessionConfig {
     int getMinReadBufferSize();
 
     /**
-     * 设置 I/O 处理器每次读取分配的读取缓冲区的最小大小。
+     * 学习笔记：设置 I/O 处理器每次读取分配的读取缓冲区的最小大小。
      * I/O 处理器不会将读取缓冲区大小减小到小于该属性值的值。
      *
      * Sets the minimum size of the read buffer that I/O processor
@@ -92,7 +94,7 @@ public interface IoSessionConfig {
     void setMinReadBufferSize(int minReadBufferSize);
 
     /**
-     * I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * 学习笔记：I/O 处理器每次读取分配的读取缓冲区的最大大小。
      * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
      *
      * @return the maximum size of the read buffer that I/O processor
@@ -102,7 +104,7 @@ public interface IoSessionConfig {
     int getMaxReadBufferSize();
 
     /**
-     * 设置 I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * 学习笔记：设置 I/O 处理器每次读取分配的读取缓冲区的最大大小。
      * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
      *
      * Sets the maximum size of the read buffer that I/O processor
@@ -118,7 +120,7 @@ public interface IoSessionConfig {
     // --------------------------------------------------
 
     /**
-     * 以秒为单位设置指定空闲类型的空闲时间。
+     * 学习笔记：以秒为单位设置指定空闲类型的空闲时间。
      *
      * Sets idle time for the specified type of idleness in seconds.
      * @param status The status for which we want to set the idle time (One of READER_IDLE,
@@ -240,7 +242,7 @@ public interface IoSessionConfig {
     // --------------------------------------------------
 
     /**
-     * 当且仅当IoSession.read()操作被启用时为true 。
+     * 学习笔记：当且仅当IoSession.read()操作被启用时为true 。
      * 如果启用，所有收到的消息都存储在内部BlockingQueue以便您可以更方便地为客户端应用程序读取收到的消息。
      *
      *

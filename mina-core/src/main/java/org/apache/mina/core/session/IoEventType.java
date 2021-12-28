@@ -20,7 +20,7 @@
 package org.apache.mina.core.session;
 
 /**
- * 表示I/O事件和请求类型的Enum。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
+ * 学习笔记：表示I/O事件和请求类型的Enum。大多数用户不需要使用这个类。它通常被内部组件用来存储I/O事件。
  *
  * An {@link Enum} that represents the type of I/O events and requests.
  * Most users won't need to use this class.  It is usually used by internal
@@ -38,7 +38,7 @@ public enum IoEventType {
     SESSION_OPENED, 
     
     /** The session has been closed */
-    SESSION_CLOSED, 
+    SESSION_CLOSED,
 
     // --------------------------------------------------
     /** A message has been received */

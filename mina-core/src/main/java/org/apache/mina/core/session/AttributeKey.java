@@ -22,6 +22,9 @@ package org.apache.mina.core.session;
 import java.io.Serializable;
 
 /**
+ * 根据类名和属性名创建一个 Key。生成的 Key 将存储在会话 Map 中。
+ * 例如，我们可以通过这种方式创建一个“处理器”AttributeKey：
+ *
  * Creates a Key from a class name and an attribute name. The resulting Key will
  * be stored in the session Map.<br>
  * For instance, we can create a 'processor' AttributeKey this way :
@@ -30,7 +33,10 @@ import java.io.Serializable;
  * private static final AttributeKey PROCESSOR = new AttributeKey(
  * 	SimpleIoProcessorPool.class, &quot;processor&quot;);
  * </pre>
- * 
+ *
+ * 这将创建 <b>SimpleIoProcessorPool.processor@7DE45C99<b> 键，
+ * 该键将存储在会话映射中。这样的属性键主要用于调试目的。
+ *
  * This will create the <b>SimpleIoProcessorPool.processor@7DE45C99</b> key
  * which will be stored in the session map.<br>
  * Such an attributeKey is mainly useful for debug purposes.
@@ -38,6 +44,7 @@ import java.io.Serializable;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public final class AttributeKey implements Serializable {
+
     /** The serial version UID */
     private static final long serialVersionUID = -583377473376683096L;
 

@@ -25,6 +25,9 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：服务相关的监听器，监听服务什么时候激活的，什么时候闲置的，什么时候停用了
+ * 以及在服务的角度观察会话的创建，关闭，销毁事件
+ *
  * Listens to events related to an {@link IoService}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

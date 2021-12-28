@@ -103,7 +103,7 @@ public class DefaultWriteRequest implements WriteRequest {
          * {@inheritDoc}
          */
         @Override
-        public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
+        public boolean await(long timeoutMillis) throws InterruptedException {
             return true;
         }
 
@@ -111,7 +111,7 @@ public class DefaultWriteRequest implements WriteRequest {
          * {@inheritDoc}
          */
         @Override
-        public boolean await(long timeoutMillis) throws InterruptedException {
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
             return true;
         }
 
@@ -172,32 +172,33 @@ public class DefaultWriteRequest implements WriteRequest {
         }
     };
 
-    // 最终将写入远程对等方的消息
+    // 学习笔记：最终将写入远程对等方的消息
     /** The message that will ultimately be written to the remote peer */
     private Object message;
 
     /**
-     * 由 IoHandler 编写的原始消息。 它将在 messageSent 事件中发回
+     * 学习笔记：由 IoHandler 编写的原始消息。 它将在 messageSent 事件中发回
      *
      * The original message as it was written by the IoHandler. It will be sent back
      * in the messageSent event 
      */ 
     private final Object originalMessage;
 
-    // 相关的future
+    // 学习笔记：相关的future
     /** The associated Future */
     private final WriteFuture future;
 
-    // 对等目标（没用？？？）
+    // 学习笔记：对等目标（没用？？？）
     /** The peer destination (useless ???) */
     private final SocketAddress destination;
 
     // --------------------------------------------------
     // DefaultWriteRequest
     // --------------------------------------------------
+
     /**
      * 创建一个没有WriteFuture的新实例。 即你调用了这个构造函数，
-     * 你也会得到一个WriteFuture的实例，因为getFuture()会返回一个虚假的未来。
+     * 你也会得到一个WriteFuture的实例，因为getFuture()会返回一个虚假的feature。
      *
      * Creates a new instance without {@link WriteFuture}.  You'll get
      * an instance of {@link WriteFuture} even if you called this constructor
@@ -224,6 +225,7 @@ public class DefaultWriteRequest implements WriteRequest {
     /**
      * 创建一个新实例
      *
+     * 学习笔记：一般无需设置目的地址
      * Creates a new instance.
      *
      * @param message a message to write 要写的消息
@@ -246,7 +248,7 @@ public class DefaultWriteRequest implements WriteRequest {
         if (message instanceof IoBuffer) {
             // duplicate it, so that any modification made on it
             // won't change the original message
-            // 复制它，这样对其进行的任何修改都不会改变原始消息
+            // 学习笔记：复制它，这样对其进行的任何修改都不会改变原始消息
             this.message = ((IoBuffer)message).duplicate();
         }
 
@@ -294,16 +296,25 @@ public class DefaultWriteRequest implements WriteRequest {
      * {@inheritDoc}
      */
     @Override
-    public WriteRequest getOriginalRequest() {
-        return this;
+    public SocketAddress getDestination() {
+        return destination;
+    }
+
+    /**
+     * 学习笔记：默认不做编码
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEncoded() {
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SocketAddress getDestination() {
-        return destination;
+    public WriteRequest getOriginalRequest() {
+        return this;
     }
 
     @Override
@@ -325,13 +336,5 @@ public class DefaultWriteRequest implements WriteRequest {
             }
         }
         return sb.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isEncoded() {
-        return false;
     }
 }

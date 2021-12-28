@@ -29,11 +29,15 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import java.nio.charset.Charset;
 
 /**
+ * 学习笔记：使用固定长度的前缀对字符串进行解码。默认前缀长度为4（其他可选长度为1，2），
+ * 数据的最大长度为2048。
+ *
  * A {@link ProtocolDecoder} which decodes a String using a fixed-length length prefix.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class PrefixedStringDecoder extends CumulativeProtocolDecoder {
+
     /** The default length for the prefix */
     public static final int DEFAULT_PREFIX_LENGTH = 4;
 
@@ -125,12 +129,14 @@ public class PrefixedStringDecoder extends CumulativeProtocolDecoder {
      */
     @Override
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+
+        // 学习笔记：对收到的消息检查是否有指定的前缀长度，如果数据符合前缀长度，则取出数据，再丢到解码输出队列中
         if (in.prefixedDataAvailable(prefixLength, maxDataLength)) {
             String msg = in.getPrefixedString(prefixLength, charset.newDecoder());
             out.write(msg);
             return true;
         }
-
+        // 学习笔记：解码的数据不符合前缀长度
         return false;
     }
 }

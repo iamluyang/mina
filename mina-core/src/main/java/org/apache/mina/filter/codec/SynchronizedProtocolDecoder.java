@@ -23,6 +23,10 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：这个协议解码器的同步装饰器。代理模式的典型实现。
+ * 当需要在解码器保证线程安全时才会使用，但是会影响性能。
+ * 一般来说在协议过滤器上保障每个会话的线程安全即可。
+ *
  * A {@link ProtocolDecoder} implementation which decorates an existing decoder
  * to be thread-safe.  Please be careful if you're going to use this decorator
  * because it can be a root of performance degradation in a multi-thread

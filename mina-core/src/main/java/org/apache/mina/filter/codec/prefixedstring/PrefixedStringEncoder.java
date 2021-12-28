@@ -28,12 +28,16 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import java.nio.charset.Charset;
 
 /**
+ * 学习笔记：使用固定长度前缀对字符串进行编码的。默认前缀长度为4（其他可选长度为1，2），
+ * 数据的最大长度为2048。
+ *
  * A {@link ProtocolEncoder} which encodes a string
  * using a fixed-length length prefix.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
+
     /** The default length for the prefix */
     public static final int DEFAULT_PREFIX_LENGTH = 4;
 
@@ -137,11 +141,13 @@ public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         String value = (String) message;
         IoBuffer buffer = IoBuffer.allocate(value.length()).setAutoExpand(true);
+        // 给数据填充指定长度的前缀
         buffer.putPrefixedString(value, prefixLength, charset.newEncoder());
         if (buffer.position() > maxDataLength) {
             throw new IllegalArgumentException("Data length: " + buffer.position());
         }
         buffer.flip();
+        // 将编码后的数据丢到编码输出器中的消息队列
         out.write(buffer);
     }
 }

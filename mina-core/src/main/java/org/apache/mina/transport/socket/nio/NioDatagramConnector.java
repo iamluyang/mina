@@ -37,6 +37,8 @@ import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 import org.apache.mina.transport.socket.config.impl.DefaultDatagramSessionConfig;
 
 /**
+ * 学习笔记：基于UDP的连接器,内部基于NioProcessor，NioSession，DatagramChannel
+ *
  * {@link IoConnector} for datagram transport (UDP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -70,6 +72,21 @@ DatagramConnector {
     }
 
     /**
+     * Constructor for {@link NioDatagramConnector} with default configuration with default configuration which will use a built-in
+     * thread pool executor to manage the default number of processor instances. The processor class must have
+     * a constructor that accepts ExecutorService or Executor as its single argument, or, failing that, a
+     * no-arg constructor. The default number of instances is equal to the number of processor cores
+     * in the system, plus one.
+     *
+     * @param processorClass the processor class.
+     * @see SimpleIoProcessorPool#SimpleIoProcessorPool(Class, Executor, int, java.nio.channels.spi.SelectorProvider)
+     * @since 2.0.0-M4
+     */
+    public NioDatagramConnector(Class<? extends IoProcessor<NioSession>> processorClass) {
+        super(new DefaultDatagramSessionConfig(), processorClass);
+    }
+
+    /**
      * Constructor for {@link NioDatagramConnector} with default configuration which will use a built-in
      * thread pool executor to manage the given number of processor instances. The processor class must have
      * a constructor that accepts ExecutorService or Executor as its single argument, or, failing that, a
@@ -85,21 +102,8 @@ DatagramConnector {
     }
 
     /**
-     * Constructor for {@link NioDatagramConnector} with default configuration with default configuration which will use a built-in
-     * thread pool executor to manage the default number of processor instances. The processor class must have
-     * a constructor that accepts ExecutorService or Executor as its single argument, or, failing that, a
-     * no-arg constructor. The default number of instances is equal to the number of processor cores
-     * in the system, plus one.
-     * 
-     * @param processorClass the processor class.
-     * @see SimpleIoProcessorPool#SimpleIoProcessorPool(Class, Executor, int, java.nio.channels.spi.SelectorProvider)
-     * @since 2.0.0-M4
-     */
-    public NioDatagramConnector(Class<? extends IoProcessor<NioSession>> processorClass) {
-        super(new DefaultDatagramSessionConfig(), processorClass);
-    }
-
-    /**
+     * 学习笔记：协议的元数据
+     *
      * {@inheritDoc}
      */
     @Override
@@ -108,6 +112,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：UDP会话配置类
+     *
      * {@inheritDoc}
      */
     @Override
@@ -116,6 +122,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：默认的远程地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -124,6 +132,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：默认的远程地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -132,6 +142,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：连接初始化
+     *
      * {@inheritDoc}
      */
     @Override
@@ -140,16 +152,21 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：创建UDP底层的socket通道，用于封装到session中
+     *
      * {@inheritDoc}
      */
     @Override
     protected DatagramChannel newHandle(SocketAddress localAddress) throws Exception {
+        // 学习笔记：创建一个udp数据报通道
         DatagramChannel ch = DatagramChannel.open();
 
         try {
             if (localAddress != null) {
                 try {
+                    // udp客户端绑定到一个本地地址
                     ch.socket().bind(localAddress);
+                    // 设置为默认地址，即下次默认的发送地址
                     setDefaultLocalAddress(localAddress);
                 } catch (IOException ioe) {
                     // Add some info regarding the address we try to bind to the
@@ -160,6 +177,7 @@ DatagramConnector {
                     e.initCause(ioe.getCause());
 
                     // and close the channel
+                    // 发生异常则关闭通道
                     ch.close();
 
                     throw e;
@@ -176,6 +194,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：UDP连接远程地址
+     *
      * {@inheritDoc}
      */
     @Override
@@ -185,6 +205,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：创建一个客户端的会话，用于跟远端通信的封装类。要有Io处理器，UDP通道，会话的配置类
+     *
      * {@inheritDoc}
      */
     @Override
@@ -195,6 +217,9 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：关闭掉UDP数据报通道
+     *
+     *
      * {@inheritDoc}
      */
     @Override
@@ -204,6 +229,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：不做任何操作
+     *
      * {@inheritDoc}
      */
     // Unused extension points.
@@ -213,14 +240,8 @@ DatagramConnector {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected ConnectionRequest getConnectionRequest(DatagramChannel handle) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
+     * 学习笔记：不做任何操作
+     *
      * {@inheritDoc}
      */
     @Override
@@ -229,22 +250,8 @@ DatagramConnector {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean finishConnect(DatagramChannel handle) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void register(DatagramChannel handle, ConnectionRequest request) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
+     * 学习笔记：不做任何操作
+     *
      * {@inheritDoc}
      */
     @Override
@@ -253,6 +260,8 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：不做任何操作
+     *
      * {@inheritDoc}
      */
     @Override
@@ -261,6 +270,38 @@ DatagramConnector {
     }
 
     /**
+     * 学习笔记：UDP不支持此操作
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean finishConnect(DatagramChannel handle) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 学习笔记：UDP不支持此操作
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected ConnectionRequest getConnectionRequest(DatagramChannel handle) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 学习笔记：UDP不支持此操作
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected void register(DatagramChannel handle, ConnectionRequest request) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 学习笔记：唤醒
+     *
      * {@inheritDoc}
      */
     @Override

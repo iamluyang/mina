@@ -22,6 +22,8 @@ package org.apache.mina.core.buffer;
 import java.nio.ByteBuffer;
 
 /**
+ * io缓冲区分配器：用于创建Io缓冲区和NIO原生的ByteBuffer
+ *
  * Allocates {@link IoBuffer}s and manages them.  Please implement this
  * interface if you need more advanced memory management scheme.
  *
@@ -29,6 +31,8 @@ import java.nio.ByteBuffer;
  */
 public interface IoBufferAllocator {
     /**
+     * 创建Io缓冲区，指定大小和直接内存还是堆内存
+     *
      * Returns the buffer which is capable of the specified size.
      *
      * @param capacity the capacity of the buffer
@@ -39,6 +43,8 @@ public interface IoBufferAllocator {
     IoBuffer allocate(int capacity, boolean direct);
 
     /**
+     * 创建NIO缓冲区，指定大小和直接内存还是堆内存
+     *
      * Returns the NIO buffer which is capable of the specified size.
      *
      * @param capacity the capacity of the buffer
@@ -49,6 +55,7 @@ public interface IoBufferAllocator {
     ByteBuffer allocateNioBuffer(int capacity, boolean direct);
 
     /**
+     * 将一个NIO缓冲区，包装成一个NIO缓冲区
      * Wraps the specified NIO {@link ByteBuffer} into MINA buffer.
      * 
      * @param nioBuffer The {@link ByteBuffer} to wrap
@@ -57,6 +64,7 @@ public interface IoBufferAllocator {
     IoBuffer wrap(ByteBuffer nioBuffer);
 
     /**
+     * 释放资源
      * Dispose of this allocator.
      */
     void dispose();

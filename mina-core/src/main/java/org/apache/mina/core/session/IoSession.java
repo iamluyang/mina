@@ -36,6 +36,33 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 
 /**
+ * 学习笔记：会话可以理解成OSI模型中的会话层，它封装了底层的socket，负责与对端连接，关闭连接，与对端交互
+ * 一端的会话与另一端的会话通信，看上去就好像是两个电话之间的通信，而底层的通信协议，过滤器组件对他
+ * 来说可以是透明的。
+ *
+ * 扩展属性：
+ * 会话自身包含一个属性组件，用来绑定与会话相关的扩展信息。它通常包含表示更高级别协议状态的对象，
+ * 并成为过滤器和处理程序之间交换数据的一种方式。
+ *
+ * 线程安全：
+ * IoSession是线程安全的。但请注意，同时执行多个 write(Object) 调用会导致IoFilter.filterWrite(IoFilter.NextFilter,
+ * IoSession,WriteRequest)} 同时执行，因此您必须确保正在使用的 IoFilter 实现也是线程安全的。
+ *
+ * 与会话相关的组件：
+ * Io服务，即宿主，Io处理器，会话配置，过滤器链，写出队列，协议元数据，会话属性
+ *
+ * 与会话相关的属性：
+ * 会话的闲置状态，会话的吞吐量值，会话的读写速率
+ *
+ * 与会话相关的操作：
+ * 读，写，关闭，读写挂起与恢复
+ *
+ * 与会话相关的状态：
+ * 连接，关闭中，活跃中，加密
+ *
+ * 与会话相关的地址：
+ * 本地地址，远程地址，服务地址
+ *
  * <p>
  *   A handle which represents connection between two end-points regardless of
  *   transport types.
@@ -60,6 +87,10 @@ import org.apache.mina.core.write.WriteRequestQueue;
  * </p>
  * <h3>Equality of Sessions</h3>
  * TODO : The getId() method is totally wrong. We can't base
+ *
+ * TODO：getId() 方法是完全错误的。我们不能基于一个旨在在 hashCode 方法上创建唯一 ID 的方法。
+ *  Object.equals(Object) 和 Object.hashCode() 不应被 Object 中定义的默认行为覆盖。
+ *
  * a method which is designed to create a unique ID on the hashCode method.
  * {@link Object#equals(Object)} and {@link Object#hashCode()} shall not be overriden
  * to the default behavior that is defined in {@link Object}.
@@ -67,7 +98,19 @@ import org.apache.mina.core.write.WriteRequestQueue;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoSession {
+
+    // --------------------------------------
+    // 会话的直接状态和属性
+    // --------------------------------------
+
     /**
+     * @return the session's creation time in milliseconds
+     */
+    long getCreationTime();
+
+    /**
+     * 学习笔记：返回一个标识会话的唯一id，具体要看实现
+     *
      * @return a unique identifier for this session.  Every session has its own
      * ID which is different from each other.
      * 
@@ -77,27 +120,42 @@ public interface IoSession {
      */
     long getId();
 
+    // --------------------------------------
+    // 会话的相关组件
+    // --------------------------------------
+
     /**
+     * 学习笔记：会话所在的Io服务，可以是连接器（即客户端），也可以是接收器（即服务器端）
+     *
      * @return the {@link IoService} which provides I/O service to this session.
      */
     IoService getService();
 
     /**
+     * 学习笔记：会话的最终处理器，相当于应用层的逻辑处理了
+     *
      * @return the {@link IoHandler} which handles this session.
      */
     IoHandler getHandler();
 
     /**
+     * 学习笔记：会话配置信息
+     *
      * @return the configuration of this session.
      */
     IoSessionConfig getConfig();
 
     /**
+     * 学习笔记：过滤器链实际上是附加在了会话这个宿主上，每个过滤器链对与会话来说都是独立的
      * @return the filter chain that only affects this session.
      */
     IoFilterChain getFilterChain();
 
     /**
+     * 学习笔记：获取包含等待写出消息的队列。由于读者可能还没有准备好，消息没有完全写入，
+     * 或者当新消息到达时一些较旧的消息正在等待写入，这是很常见的。此队列用于管理待写出
+     * 消息的积压。
+     *
      * Get the queue that contains the message waiting for being written.
      * As the reader might not be ready, it's frequent that the messages
      * aren't written completely, or that some older messages are waiting
@@ -109,9 +167,88 @@ public interface IoSession {
     WriteRequestQueue getWriteRequestQueue();
 
     /**
+     * 学习笔记：会话的协议元数据
+     *
      * @return the {@link TransportMetadata} that this session runs on.
      */
     TransportMetadata getTransportMetadata();
+
+    // --------------------------------------
+    // 会话的状态，已经连接，关闭中，是否加密
+    // --------------------------------------
+
+    /**
+     * 学习笔记：判断是否和对端已经连接上了。
+     * @return <tt>true</tt> if this session is connected with remote peer.
+     */
+    boolean isConnected();
+
+    /**
+     * 学习笔记：判断会话是否处于活跃状态
+     *
+     * @return <tt>true</tt> if this session is active.
+     */
+    boolean isActive();
+
+    /**
+     * 学习笔记：判断会话是否处于正在关闭的状态
+     *
+     * @return <tt>true</tt> if and only if this session is being closed
+     * (but not disconnected yet) or is closed.
+     */
+    boolean isClosing();
+
+    /**
+     * 学习笔记：会话是否设置了SSL
+     *
+     * @return <tt>true</tt> if the session has started and initialized a SslEngine,
+     * <tt>false</tt> if the session is not yet secured (the handshake is not completed)
+     * or if SSL is not set for this session, or if SSL is not even an option.
+     */
+    boolean isSecured();
+
+    // --------------------------------------
+    // 会话地址信息：远程或本地地址
+    // --------------------------------------
+
+    /**
+     * 学习笔记：判断服务类型，即是连接器还是接收器
+     *
+     * @return <tt>true</tt> if the session was created by an acceptor.
+     */
+    boolean isServer();
+
+    /**
+     * 学习笔记：获取会话的远程对端地址
+     *
+     * @return the socket address of remote peer.
+     */
+    SocketAddress getRemoteAddress();
+
+    /**
+     * 学习笔记：获取会话本地绑定的地址
+     *
+     * @return the socket address of local machine which is associated with this
+     * session.
+     */
+    SocketAddress getLocalAddress();
+
+    /**
+     * 学习笔记：如果当前是连接器的会话，这个地址就是服务器端的地址。如果当前会话是接收器的会话，
+     * 则这个地址就是接收器在bind绑定时候指定的地址。
+     *
+     * @return the socket address of the {@link IoService} listens to to manage
+     * this session.  If this session is managed by {@link IoAcceptor}, it
+     * returns the {@link SocketAddress} which is specified as a parameter of
+     * {@link IoAcceptor#bind()}.  If this session is managed by
+     * {@link IoConnector}, this method returns the same address with
+     * that of {@link #getRemoteAddress()}.
+     */
+    SocketAddress getServiceAddress();
+
+    // --------------------------------------
+    // 读操作
+    // --------------------------------------
 
     /**
      * TODO This javadoc is wrong. The return tag should be short.
@@ -133,7 +270,14 @@ public interface IoSession {
      */
     ReadFuture read();
 
+    // --------------------------------------
+    // 写操作
+    // --------------------------------------
+
     /**
+     * 学习笔记：异步的写出消息到远端。IoHandler#messageSent(IoSession,Object)表示的是
+     * 数据被发write发送出去后触发的事件
+     *
      * Writes the specified <code>message</code> to remote peer.  This
      * operation is asynchronous; {@link IoHandler#messageSent(IoSession,Object)}
      * will be invoked when the message is actually sent to remote peer.
@@ -146,6 +290,8 @@ public interface IoSession {
     WriteFuture write(Object message);
 
     /**
+     * 学习笔记：同上，但可以指定一个与默认远程地址不同但目的端地址
+     *
      * (Optional) Writes the specified <tt>message</tt> to the specified <tt>destination</tt>.
      * This operation is asynchronous; {@link IoHandler#messageSent(IoSession, Object)}
      * will be invoked when the message is actually sent to remote peer. You can
@@ -168,6 +314,38 @@ public interface IoSession {
     WriteFuture write(Object message, SocketAddress destination);
 
     /**
+     * 学习笔记：将当前写入请求与会话关联？？？？？
+     *
+     * Associate the current write request with the session
+     *
+     * @param currentWriteRequest the current write request to associate
+     */
+    void setCurrentWriteRequest(WriteRequest currentWriteRequest);
+
+    /**
+     * Returns the {@link WriteRequest} which is being processed by
+     * {@link IoService}.
+     *
+     * @return <tt>null</tt> if and if only no message is being written
+     */
+    WriteRequest getCurrentWriteRequest();
+
+    /**
+     * 学习笔记：返回 IoService 正在写出的消息
+     *
+     * Returns the message which is being written by {@link IoService}.
+     * @return <tt>null</tt> if and if only no message is being written
+     */
+    Object getCurrentWriteMessage();
+
+    // --------------------------------------
+    // 关闭操作
+    // --------------------------------------
+
+    /**
+     * 学习笔记：关闭会话。需要指定是否需要刷出排队中的写入请求后关闭此会话。此操作是异步的。
+     * 如果您想等待会话实际关闭，可以阻塞的等待CloseFuture。
+     *
      * Closes this session immediately or after all queued write requests
      * are flushed.  This operation is asynchronous.  Wait for the returned
      * {@link CloseFuture} if you want to wait for the session actually closed.
@@ -184,6 +362,8 @@ public interface IoSession {
     CloseFuture close(boolean immediately);
 
     /**
+     * 学习笔记：立即关闭此会话。不刷出写出队列即关闭。
+     *
      * Closes this session immediately.  This operation is asynchronous, it 
      * returns a {@link CloseFuture}.
      * 
@@ -192,6 +372,8 @@ public interface IoSession {
     CloseFuture closeNow();
 
     /**
+     * 学习笔记：在刷新所有排队的写出请求后关闭此会话。
+     *
      * Closes this session after all queued write requests are flushed.  This operation 
      * is asynchronous.  Wait for the returned {@link CloseFuture} if you want to wait 
      * for the session actually closed.
@@ -201,6 +383,8 @@ public interface IoSession {
     CloseFuture closeOnFlush();
 
     /**
+     * 学习笔记：在刷新所有排队的写入请求后关闭此会话。（废弃）
+     *
      * Closes this session after all queued write requests
      * are flushed. This operation is asynchronous.  Wait for the returned
      * {@link CloseFuture} if you want to wait for the session actually closed.
@@ -212,234 +396,16 @@ public interface IoSession {
     CloseFuture close();
 
     /**
-     * Returns an attachment of this session.
-     * This method is identical with <tt>getAttribute( "" )</tt>.
+     * 学习笔记：如果会话的关闭异步结果
      *
-     * @return The attachment
-     * @deprecated Use {@link #getAttribute(Object)} instead.
-     */
-    @Deprecated
-    Object getAttachment();
-
-    /**
-     * Sets an attachment of this session.
-     * This method is identical with <tt>setAttribute( "", attachment )</tt>.
-     *
-     * @param attachment The attachment
-     * @return Old attachment. <tt>null</tt> if it is new.
-     * @deprecated Use {@link #setAttribute(Object, Object)} instead.
-     */
-    @Deprecated
-    Object setAttachment(Object attachment);
-
-    /**
-     * Returns the value of the user-defined attribute of this session.
-     *
-     * @param key the key of the attribute
-     * @return <tt>null</tt> if there is no attribute with the specified key
-     */
-    Object getAttribute(Object key);
-
-    /**
-     * Returns the value of user defined attribute associated with the
-     * specified key.  If there's no such attribute, the specified default
-     * value is associated with the specified key, and the default value is
-     * returned.  This method is same with the following code except that the
-     * operation is performed atomically.
-     * <pre>
-     * if (containsAttribute(key)) {
-     *     return getAttribute(key);
-     * } else {
-     *     setAttribute(key, defaultValue);
-     *     return defaultValue;
-     * }
-     * </pre>
-     * 
-     * @param key the key of the attribute we want to retreive
-     * @param defaultValue the default value of the attribute
-     * @return The retrieved attribute or <tt>null</tt> if not found
-     */
-    Object getAttribute(Object key, Object defaultValue);
-
-    /**
-     * Sets a user-defined attribute.
-     *
-     * @param key the key of the attribute
-     * @param value the value of the attribute
-     * @return The old value of the attribute.  <tt>null</tt> if it is new.
-     */
-    Object setAttribute(Object key, Object value);
-
-    /**
-     * Sets a user defined attribute without a value.  This is useful when
-     * you just want to put a 'mark' attribute.  Its value is set to
-     * {@link Boolean#TRUE}.
-     *
-     * @param key the key of the attribute
-     * @return The old value of the attribute.  <tt>null</tt> if it is new.
-     */
-    Object setAttribute(Object key);
-
-    /**
-     * Sets a user defined attribute if the attribute with the specified key
-     * is not set yet.  This method is same with the following code except
-     * that the operation is performed atomically.
-     * <pre>
-     * if (containsAttribute(key)) {
-     *     return getAttribute(key);
-     * } else {
-     *     return setAttribute(key, value);
-     * }
-     * </pre>
-     * 
-     * @param key The key of the attribute we want to set
-     * @param value The value we want to set
-     * @return The old value of the attribute.  <tt>null</tt> if not found.
-     */
-    Object setAttributeIfAbsent(Object key, Object value);
-
-    /**
-     * Sets a user defined attribute without a value if the attribute with
-     * the specified key is not set yet.  This is useful when you just want to
-     * put a 'mark' attribute.  Its value is set to {@link Boolean#TRUE}.
-     * This method is same with the following code except that the operation
-     * is performed atomically.
-     * <pre>
-     * if (containsAttribute(key)) {
-     *     return getAttribute(key);  // might not always be Boolean.TRUE.
-     * } else {
-     *     return setAttribute(key);
-     * }
-     * </pre>
-     * 
-     * @param key The key of the attribute we want to set
-     * @return The old value of the attribute.  <tt>null</tt> if not found.
-     */
-    Object setAttributeIfAbsent(Object key);
-
-    /**
-     * Removes a user-defined attribute with the specified key.
-     *
-     * @param key The key of the attribute we want to remove
-     * @return The old value of the attribute.  <tt>null</tt> if not found.
-     */
-    Object removeAttribute(Object key);
-
-    /**
-     * Removes a user defined attribute with the specified key if the current
-     * attribute value is equal to the specified value.  This method is same
-     * with the following code except that the operation is performed
-     * atomically.
-     * <pre>
-     * if (containsAttribute(key) &amp;&amp; getAttribute(key).equals(value)) {
-     *     removeAttribute(key);
-     *     return true;
-     * } else {
-     *     return false;
-     * }
-     * </pre>
-     * 
-     * @param key The key we want to remove
-     * @param value The value we want to remove
-     * @return <tt>true</tt> if the removal was successful
-     */
-    boolean removeAttribute(Object key, Object value);
-
-    /**
-     * Replaces a user defined attribute with the specified key if the
-     * value of the attribute is equals to the specified old value.
-     * This method is same with the following code except that the operation
-     * is performed atomically.
-     * <pre>
-     * if (containsAttribute(key) &amp;&amp; getAttribute(key).equals(oldValue)) {
-     *     setAttribute(key, newValue);
-     *     return true;
-     * } else {
-     *     return false;
-     * }
-     * </pre>
-     * 
-     * @param key The key we want to replace
-     * @param oldValue The previous value
-     * @param newValue The new value
-     * @return <tt>true</tt> if the replacement was successful
-     */
-    boolean replaceAttribute(Object key, Object oldValue, Object newValue);
-
-    /**
-     * @param key The key of the attribute we are looking for in the session 
-     * @return <tt>true</tt> if this session contains the attribute with
-     * the specified <tt>key</tt>.
-     */
-    boolean containsAttribute(Object key);
-
-    /**
-     * @return the set of keys of all user-defined attributes.
-     */
-    Set<Object> getAttributeKeys();
-
-    /**
-     * @return <tt>true</tt> if this session is connected with remote peer.
-     */
-    boolean isConnected();
-    
-    /**
-     * @return <tt>true</tt> if this session is active.
-     */
-    boolean isActive();
-
-    /**
-     * @return <tt>true</tt> if and only if this session is being closed
-     * (but not disconnected yet) or is closed.
-     */
-    boolean isClosing();
-    
-    /**
-     * @return <tt>true</tt> if the session has started and initialized a SslEngine,
-     * <tt>false</tt> if the session is not yet secured (the handshake is not completed)
-     * or if SSL is not set for this session, or if SSL is not even an option.
-     */
-    boolean isSecured();
-    
-    /**
-     * @return <tt>true</tt> if the session was created by an acceptor.
-     */
-    boolean isServer();
-
-    /**
      * @return the {@link CloseFuture} of this session.  This method returns
      * the same instance whenever user calls it.
      */
     CloseFuture getCloseFuture();
 
-    /**
-     * @return the socket address of remote peer.
-     */
-    SocketAddress getRemoteAddress();
-
-    /**
-     * @return the socket address of local machine which is associated with this
-     * session.
-     */
-    SocketAddress getLocalAddress();
-
-    /**
-     * @return the socket address of the {@link IoService} listens to to manage
-     * this session.  If this session is managed by {@link IoAcceptor}, it
-     * returns the {@link SocketAddress} which is specified as a parameter of
-     * {@link IoAcceptor#bind()}.  If this session is managed by
-     * {@link IoConnector}, this method returns the same address with
-     * that of {@link #getRemoteAddress()}.
-     */
-    SocketAddress getServiceAddress();
-
-    /**
-     * 
-     * Associate the current write request with the session
-     *
-     * @param currentWriteRequest the current write request to associate
-     */
-    void setCurrentWriteRequest(WriteRequest currentWriteRequest);
+    // --------------------------------------
+    // 挂起或恢复读写操作
+    // --------------------------------------
 
     /**
      * Suspends read operations for this session.
@@ -462,18 +428,41 @@ public interface IoSession {
     void resumeWrite();
 
     /**
-     * Is read operation is suspended for this session. 
-     * 
+     * Is read operation is suspended for this session.
+     *
      * @return <tt>true</tt> if suspended
      */
     boolean isReadSuspended();
 
     /**
      * Is write operation is suspended for this session.
-     * 
+     *
      * @return <tt>true</tt> if suspended
      */
     boolean isWriteSuspended();
+
+    // --------------------------------------
+    // 与最后读写时间相关的属性
+    // --------------------------------------
+
+    /**
+     * @return the time in millis when I/O occurred lastly.
+     */
+    long getLastIoTime();
+
+    /**
+     * @return the time in millis when read operation occurred lastly.
+     */
+    long getLastReadTime();
+
+    /**
+     * @return the time in millis when write operation occurred lastly.
+     */
+    long getLastWriteTime();
+
+    // --------------------------------------
+    // 与吞吐量和统计相关的属性
+    // --------------------------------------
 
     /**
      * Update all statistical properties related with throughput assuming
@@ -540,39 +529,9 @@ public interface IoSession {
      */
     long getScheduledWriteBytes();
 
-    /**
-     * Returns the message which is being written by {@link IoService}.
-     * @return <tt>null</tt> if and if only no message is being written
-     */
-    Object getCurrentWriteMessage();
-
-    /**
-     * Returns the {@link WriteRequest} which is being processed by
-     * {@link IoService}.
-     *
-     * @return <tt>null</tt> if and if only no message is being written
-     */
-    WriteRequest getCurrentWriteRequest();
-
-    /**
-     * @return the session's creation time in milliseconds
-     */
-    long getCreationTime();
-
-    /**
-     * @return the time in millis when I/O occurred lastly.
-     */
-    long getLastIoTime();
-
-    /**
-     * @return the time in millis when read operation occurred lastly.
-     */
-    long getLastReadTime();
-
-    /**
-     * @return the time in millis when write operation occurred lastly.
-     */
-    long getLastWriteTime();
+    // --------------------------------------
+    // 与闲置相关属性，读闲置，写闲置，或两者
+    // --------------------------------------
 
     /**
      * @param status The researched idle status
@@ -660,4 +619,203 @@ public interface IoSession {
      * @see #getLastIdleTime(IdleStatus)
      */
     long getLastBothIdleTime();
+
+    // --------------------------------------
+    // 属性
+    // --------------------------------------
+
+    /**
+     * 学习笔记：获取会话是那个的附加对象，应该不需要了，因为有会话有属性集合了
+     *
+     * Returns an attachment of this session.
+     * This method is identical with <tt>getAttribute( "" )</tt>.
+     *
+     * @return The attachment
+     * @deprecated Use {@link #getAttribute(Object)} instead.
+     */
+    @Deprecated
+    Object getAttachment();
+
+    /**
+     * 学习笔记：同上
+     *
+     * Sets an attachment of this session.
+     * This method is identical with <tt>setAttribute( "", attachment )</tt>.
+     *
+     * @param attachment The attachment
+     * @return Old attachment. <tt>null</tt> if it is new.
+     * @deprecated Use {@link #setAttribute(Object, Object)} instead.
+     */
+    @Deprecated
+    Object setAttachment(Object attachment);
+
+    /**
+     * 学习笔记：获取会话属性
+     *
+     * Returns the value of the user-defined attribute of this session.
+     *
+     * @param key the key of the attribute
+     * @return <tt>null</tt> if there is no attribute with the specified key
+     */
+    Object getAttribute(Object key);
+
+    /**
+     * 学习笔记：获取会话属性
+     *
+     * Returns the value of user defined attribute associated with the
+     * specified key.  If there's no such attribute, the specified default
+     * value is associated with the specified key, and the default value is
+     * returned.  This method is same with the following code except that the
+     * operation is performed atomically.
+     * <pre>
+     * if (containsAttribute(key)) {
+     *     return getAttribute(key);
+     * } else {
+     *     setAttribute(key, defaultValue);
+     *     return defaultValue;
+     * }
+     * </pre>
+     *
+     * @param key the key of the attribute we want to retreive
+     * @param defaultValue the default value of the attribute
+     * @return The retrieved attribute or <tt>null</tt> if not found
+     */
+    Object getAttribute(Object key, Object defaultValue);
+
+    /**
+     * 学习笔记：设置会话属性
+     *
+     * Sets a user-defined attribute.
+     *
+     * @param key the key of the attribute
+     * @param value the value of the attribute
+     * @return The old value of the attribute.  <tt>null</tt> if it is new.
+     */
+    Object setAttribute(Object key, Object value);
+
+    /**
+     * 学习笔记：设置会话属性
+     *
+     * Sets a user defined attribute without a value.  This is useful when
+     * you just want to put a 'mark' attribute.  Its value is set to
+     * {@link Boolean#TRUE}.
+     *
+     * @param key the key of the attribute
+     * @return The old value of the attribute.  <tt>null</tt> if it is new.
+     */
+    Object setAttribute(Object key);
+
+    /**
+     * 学习笔记：仅在不存在会话属性时才设置，否则返回属性
+     *
+     * Sets a user defined attribute if the attribute with the specified key
+     * is not set yet.  This method is same with the following code except
+     * that the operation is performed atomically.
+     * <pre>
+     * if (containsAttribute(key)) {
+     *     return getAttribute(key);
+     * } else {
+     *     return setAttribute(key, value);
+     * }
+     * </pre>
+     *
+     * @param key The key of the attribute we want to set
+     * @param value The value we want to set
+     * @return The old value of the attribute.  <tt>null</tt> if not found.
+     */
+    Object setAttributeIfAbsent(Object key, Object value);
+
+    /**
+     * 学习笔记：仅在不存在会话属性时才设置，否则返回属性。因为没有指定属性值，所以认为是一个
+     * 标记属性，默认值为true
+     *
+     * Sets a user defined attribute without a value if the attribute with
+     * the specified key is not set yet.  This is useful when you just want to
+     * put a 'mark' attribute.  Its value is set to {@link Boolean#TRUE}.
+     * This method is same with the following code except that the operation
+     * is performed atomically.
+     * <pre>
+     * if (containsAttribute(key)) {
+     *     return getAttribute(key);  // might not always be Boolean.TRUE.
+     * } else {
+     *     return setAttribute(key);
+     * }
+     * </pre>
+     *
+     * @param key The key of the attribute we want to set
+     * @return The old value of the attribute.  <tt>null</tt> if not found.
+     */
+    Object setAttributeIfAbsent(Object key);
+
+    /**
+     * 学习笔记：移除指定的属性
+     *
+     * Removes a user-defined attribute with the specified key.
+     *
+     * @param key The key of the attribute we want to remove
+     * @return The old value of the attribute.  <tt>null</tt> if not found.
+     */
+    Object removeAttribute(Object key);
+
+    /**
+     * 学习笔记：移除指定的属性，且属性值也要匹配
+     *
+     * Removes a user defined attribute with the specified key if the current
+     * attribute value is equal to the specified value.  This method is same
+     * with the following code except that the operation is performed
+     * atomically.
+     * <pre>
+     * if (containsAttribute(key) &amp;&amp; getAttribute(key).equals(value)) {
+     *     removeAttribute(key);
+     *     return true;
+     * } else {
+     *     return false;
+     * }
+     * </pre>
+     *
+     * @param key The key we want to remove
+     * @param value The value we want to remove
+     * @return <tt>true</tt> if the removal was successful
+     */
+    boolean removeAttribute(Object key, Object value);
+
+    /**
+     * 学习笔记：替换指定的属性
+     *
+     * Replaces a user defined attribute with the specified key if the
+     * value of the attribute is equals to the specified old value.
+     * This method is same with the following code except that the operation
+     * is performed atomically.
+     * <pre>
+     * if (containsAttribute(key) &amp;&amp; getAttribute(key).equals(oldValue)) {
+     *     setAttribute(key, newValue);
+     *     return true;
+     * } else {
+     *     return false;
+     * }
+     * </pre>
+     *
+     * @param key The key we want to replace
+     * @param oldValue The previous value
+     * @param newValue The new value
+     * @return <tt>true</tt> if the replacement was successful
+     */
+    boolean replaceAttribute(Object key, Object oldValue, Object newValue);
+
+    /**
+     * 学习笔记：校验属性是否存在
+     *
+     * @param key The key of the attribute we are looking for in the session
+     * @return <tt>true</tt> if this session contains the attribute with
+     * the specified <tt>key</tt>.
+     */
+    boolean containsAttribute(Object key);
+
+    /**
+     * 学习笔记：获取所有属性key
+     *
+     * @return the set of keys of all user-defined attributes.
+     */
+    Set<Object> getAttributeKeys();
+
 }

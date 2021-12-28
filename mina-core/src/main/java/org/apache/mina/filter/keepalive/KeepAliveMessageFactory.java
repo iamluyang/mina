@@ -22,6 +22,8 @@ package org.apache.mina.filter.keepalive;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：心跳信息工厂
+ *
  * Provides keep-alive messages to {@link KeepAliveFilter}.
  *  
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -29,6 +31,8 @@ import org.apache.mina.core.session.IoSession;
 public interface KeepAliveMessageFactory {
 
     /**
+     * 学习笔记：检测消息是否是心跳请求消息
+     *
      * @return <tt>true</tt> if and only if the specified message is a
      * keep-alive request message.
      * 
@@ -38,6 +42,8 @@ public interface KeepAliveMessageFactory {
     boolean isRequest(IoSession session, Object message);
 
     /**
+     * 学习笔记：检测消息是否是心跳响应消息
+     *
      * @return <tt>true</tt> if and only if the specified message is a 
      * keep-alive response message;
      * 
@@ -47,6 +53,8 @@ public interface KeepAliveMessageFactory {
     boolean isResponse(IoSession session, Object message);
 
     /**
+     * 学习笔记：返回一个（新的）心跳请求消息或如果不需要请求则返回null。
+     *
      * @return a (new) keep-alive request message or <tt>null</tt> if no request is required.
      * 
      * @param session The current session
@@ -54,6 +62,8 @@ public interface KeepAliveMessageFactory {
     Object getRequest(IoSession session);
 
     /**
+     * 学习笔记：返回一个（新的）指定的心跳请求对应的心跳响应或如果不需要响应则返回null。
+     *
      * @return a (new) response message for the specified keep-alive request, or <tt>null</tt> if no response is required.
      * 
      * @param session The current session

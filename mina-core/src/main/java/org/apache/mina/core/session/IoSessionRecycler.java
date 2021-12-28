@@ -24,6 +24,8 @@ import java.net.SocketAddress;
 import org.apache.mina.core.service.IoService;
 
 /**
+ * 学习笔记：这是一个会话回收器。IoSessionRecycler被分配给IoService来回收现有会话（无连接传输）。
+ *
  * A connectionless transport can recycle existing sessions by assigning an
  * {@link IoSessionRecycler} to an {@link IoService}.
  *
@@ -31,6 +33,8 @@ import org.apache.mina.core.service.IoService;
  */
 public interface IoSessionRecycler {
     /**
+     * 学习笔记：一个傀儡会话收集器，不做任何操作
+     *
      * A dummy recycler that doesn't recycle any sessions.  Using this recycler will
      * make all session lifecycle events to be fired for every I/O for all connectionless
      * sessions.
@@ -62,6 +66,8 @@ public interface IoSessionRecycler {
     };
 
     /**
+     * 学习笔记：当底层传输创建或写入新的 IoSession 时调用。
+     *
      * Called when the underlying transport creates or writes a new {@link IoSession}.
      *
      * @param session the new {@link IoSession}.
@@ -69,6 +75,8 @@ public interface IoSessionRecycler {
     void put(IoSession session);
 
     /**
+     * 学习笔记：传输要回收的 IoSession 的远程套接字地址。
+     *
      * Attempts to retrieve a recycled {@link IoSession}.
      *
      * @param remoteAddress the remote socket address of the {@link IoSession} the transport wants to recycle.
@@ -77,6 +85,8 @@ public interface IoSessionRecycler {
     IoSession recycle(SocketAddress remoteAddress);
 
     /**
+     * 学习笔记：当 IoSession 显式关闭时调用。
+     *
      * Called when an {@link IoSession} is explicitly closed.
      *
      * @param session the new {@link IoSession}.

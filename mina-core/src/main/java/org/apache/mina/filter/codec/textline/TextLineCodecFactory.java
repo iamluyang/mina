@@ -28,6 +28,9 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
+ * 学习笔记：在文本行数据和Java字符串对象之间执行编码和解码的协议编码工厂 ProtocolCodecFactory。
+ * 此编解码器在您使用基于文本的协议（如 SMTP 和 IMAP）时尤其有用。
+ *
  * A {@link ProtocolCodecFactory} that performs encoding and decoding between
  * a text line data and a Java string object.  This codec is useful especially
  * when you work with a text-based protocols such as SMTP and IMAP.
@@ -41,6 +44,8 @@ public class TextLineCodecFactory implements ProtocolCodecFactory {
     private final TextLineDecoder decoder;
 
     /**
+     * 学习笔记：使用当前默认的 {@link Charset} 创建一个新实例。
+     *
      * Creates a new instance with the current default {@link Charset}.
      */
     public TextLineCodecFactory() {
@@ -48,6 +53,10 @@ public class TextLineCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：使用指定的 Charset 创建一个新实例。
+     * 编码器使用 UNIX {@link LineDelimiter}，
+     * 解码器使用 AUTO {@link LineDelimiter}。
+     *
      * Creates a new instance with the specified {@link Charset}.  The
      * encoder uses a UNIX {@link LineDelimiter} and the decoder uses
      * the AUTO {@link LineDelimiter}.
@@ -60,6 +69,8 @@ public class TextLineCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：创建 TextLineCodecFactory 的新实例。此构造函数为开发人员提供了更大的灵活性
+     *
      * Creates a new instance of TextLineCodecFactory.  This constructor
      * provides more flexibility for the developer.
      *
@@ -76,6 +87,8 @@ public class TextLineCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：创建 TextLineCodecFactory 的新实例。此构造函数为开发人员提供了更大的灵活性。
+     *
      * Creates a new instance of TextLineCodecFactory.  This constructor
      * provides more flexibility for the developer.
      *

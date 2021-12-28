@@ -24,6 +24,8 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
+ * 学习笔记：消息解码器的结果。默认有OK，NEED_DATA，NOT_OK三种结果
+ *
  * Represents results from {@link MessageDecoder}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -31,6 +33,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @see MessageDecoder
  */
 public class MessageDecoderResult {
+
     /**
      * Represents a result from {@link MessageDecoder#decodable(IoSession, IoBuffer)}
      * and {@link MessageDecoder#decode(IoSession, IoBuffer, ProtocolDecoderOutput)}.

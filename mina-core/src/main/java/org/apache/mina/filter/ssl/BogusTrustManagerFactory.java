@@ -33,12 +33,18 @@ import javax.net.ssl.TrustManagerFactorySpi;
 import javax.net.ssl.X509TrustManager;
 
 /**
+ * 一个虚假的信任关联工厂，相信一切
+ *
  * Bogus {@link javax.net.ssl.TrustManagerFactory} which creates
  * {@link javax.net.ssl.X509TrustManager} trusting everything.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class BogusTrustManagerFactory extends TrustManagerFactory {
+
+	// X509TrustManager管理器
+	// 此接口的实例管理哪些 X509 证书可用于验证安全套接字的远程端。
+	// 决策可能基于受信任的证书颁发机构、证书撤销列表、在线状态检查或其他方式。
 	private static final X509TrustManager X509 = new X509TrustManager() {
 		/**
 		 * {@inheritDoc}
@@ -77,6 +83,7 @@ public class BogusTrustManagerFactory extends TrustManagerFactory {
 		}, "MinaBogus");
 	}
 
+	// 一个基于SPI的虚假信任管理工厂服务实现，啥也不做
 	private static class BogusTrustManagerFactorySpi extends TrustManagerFactorySpi {
 		/**
 		 * {@inheritDoc}

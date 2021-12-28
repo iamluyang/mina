@@ -20,6 +20,8 @@
 package org.apache.mina.filter.codec;
 
 /**
+ * 学习笔记：协议编码产生的异常
+ *
  * An exception that is thrown when {@link ProtocolEncoder} or
  * {@link ProtocolDecoder} cannot understand or failed to validate
  * data to process.
@@ -27,6 +29,7 @@ package org.apache.mina.filter.codec;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ProtocolCodecException extends Exception {
+
     private static final long serialVersionUID = 5939878548186330695L;
 
     /**

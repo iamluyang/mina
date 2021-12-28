@@ -22,6 +22,10 @@ package org.apache.mina.filter.codec;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：这个协议编码器的同步装饰器。代理模式的典型实现。
+ * 当需要在解码器保证线程安全时才会使用，但是会影响性能。
+ * 一般来说在协议过滤器上保障每个会话的线程安全即可。
+ *
  * A {@link ProtocolEncoder} implementation which decorates an existing encoder
  * to be thread-safe.  Please be careful if you're going to use this decorator
  * because it can be a root of performance degradation in a multi-thread
@@ -32,6 +36,7 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class SynchronizedProtocolEncoder implements ProtocolEncoder {
+
     private final ProtocolEncoder encoder;
 
     /**

@@ -20,6 +20,9 @@
 package org.apache.mina.util;
 
 /**
+ * 学习笔记：延迟加载的常用设计
+ * 一个抽象类，它为对象提供语义，只有在请求时才会完全初始化。它可以避免在早期初始化不必要的对象时浪费时间。
+ *
  * An abstract class which provides semantics for an object which will be only
  * fully initialized when requested to. It allows to avoid loosing time when 
  * early initializing unnecessary objects.

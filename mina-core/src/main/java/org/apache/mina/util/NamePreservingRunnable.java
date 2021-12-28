@@ -22,12 +22,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 学习笔记：一个Runnable包装器，会在runnable运行前先更改线程名称，等到任务执行完再把线程名字恢复过来
+ *
  * A {@link Runnable} wrapper that preserves the name of the thread after the runnable is
  * complete (for {@link Runnable}s that change the name of the Thread they use.)
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class NamePreservingRunnable implements Runnable {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(NamePreservingRunnable.class);
 
     /** The runnable name */

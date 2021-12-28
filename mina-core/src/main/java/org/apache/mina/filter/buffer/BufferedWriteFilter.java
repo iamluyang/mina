@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public final class BufferedWriteFilter extends IoFilterAdapter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BufferedWriteFilter.class);
 
     /**
@@ -218,19 +219,6 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
     }
 
     /**
-     * Internal method that actually frees the {@link IoBuffer} that contains
-     * the buffered data that has not been flushed.
-     * 
-     * @param session the session we operate on
-     */
-    private void free(IoSession session) {
-        IoBuffer buf = buffersMap.remove(session);
-        if (buf != null) {
-            buf.free();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -246,5 +234,18 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
     public void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
         free(session);
         nextFilter.sessionClosed(session);
+    }
+
+    /**
+     * Internal method that actually frees the {@link IoBuffer} that contains
+     * the buffered data that has not been flushed.
+     *
+     * @param session the session we operate on
+     */
+    private void free(IoSession session) {
+        IoBuffer buf = buffersMap.remove(session);
+        if (buf != null) {
+            buf.free();
+        }
     }
 }

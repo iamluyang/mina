@@ -26,6 +26,11 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
+ * 学习笔记：序列化和反序列化 Java 对象的 ProtocolCodecFactory。
+ * 当您必须在没有任何特定编解码器的情况下快速构建应用程序原型时，此编解码器非常有用。
+ *
+ * 即：一种通用的基于java对象序列化和反序列化的协议处理器
+ *
  * A {@link ProtocolCodecFactory} that serializes and deserializes Java objects.
  * This codec is very useful when you have to prototype your application rapidly
  * without any specific codec.
@@ -33,6 +38,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ObjectSerializationCodecFactory implements ProtocolCodecFactory {
+
     private final ObjectSerializationEncoder encoder;
 
     private final ObjectSerializationDecoder decoder;
@@ -46,6 +52,8 @@ public class ObjectSerializationCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 使用指定的 {@link ClassLoader} 创建一个新实例。反序列化（即解码时）需要类加载器
+     *
      * Creates a new instance with the specified {@link ClassLoader}.
      * 
      * @param classLoader The class loader to use
@@ -72,6 +80,9 @@ public class ObjectSerializationCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：编码对象允许的最大大小。如果编码对象的大小超过此值，
+     * 编码器将抛出 {@link IllegalArgumentException}。默认值为 Integer.MAX_VALUE。
+     *
      * @return the allowed maximum size of the encoded object.
      * If the size of the encoded object exceeds this value, the encoder
      * will throw a {@link IllegalArgumentException}.  The default value
@@ -98,6 +109,9 @@ public class ObjectSerializationCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：解码的对象允许的最大大小。如果要解码的对象的大小超过此值，
+     * 解码器将抛出 {@link BufferDataException}。默认值为 1048576 (1MB)。
+     *
      * @return the allowed maximum size of the object to be decoded.
      * If the size of the object to be decoded exceeds this value, the
      * decoder will throw a {@link BufferDataException}.  The default

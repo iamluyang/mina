@@ -31,6 +31,11 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
+ * 学习笔记：该类将测量 {@link IoFilterAdapter} 类中的方法执行所需的时间。
+ * 该类逻辑的基本前提是在方法开始时获取当前时间，调用nextFilter上的方法，然后再次获取当前时间。如何使用过滤器的一个例子是
+ *
+ * 仅仅检测6个事件，不分析异常事件，InputClose，Event事件。默认只关注消息的接收和发生的性能剖析
+ *
  * This class will measure the time it takes for a method in the {@link IoFilterAdapter} class to execute. The basic
  * premise of the logic in this class is to get the current time at the beginning of the method, call method on
  * nextFilter, and then get the current time again. An example of how to use the filter is:
@@ -54,6 +59,7 @@ import org.apache.mina.core.write.WriteRequest;
  * @org.apache.xbean.XBean
  */
 public class ProfilerTimerFilter extends IoFilterAdapter {
+
     /** TRhe selected time unit */
     private volatile TimeUnit timeUnit;
 
@@ -113,6 +119,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：初始化性能分析过滤器和其中那些事件需要分析性能，并创建每个对应事件的性能状态对象
+	 *
      * Creates a new instance of ProfilerFilter. An example of this call would be:
      *
      * <pre>
@@ -178,6 +186,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：设置性能分析的时间精度单位
+	 *
      * Sets the {@link TimeUnit} being used.
      *
      * @param timeUnit
@@ -188,6 +198,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：设置分析指定事件的性能
+	 *
      * Set the {@link IoEventType} to be profiled
      *
      * @param type
@@ -255,6 +267,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：停止分析指定事件的性能
+	 *
      * Stop profiling an {@link IoEventType}
      *
      * @param type
@@ -292,6 +306,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：返回所有开启性能分析的事件
+	 *
      * Return the set of {@link IoEventType} which are profiled.
      *
      * @return a Set containing all the profiled {@link IoEventType}
@@ -327,6 +343,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：重新设置那些事件需要分析性能
+	 *
      * Set the profilers for a list of {@link IoEventType}
      * 
      * @param eventTypes
@@ -335,6 +353,10 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     public void setEventsToProfile(IoEventType... eventTypes) {
 	setProfilers(eventTypes);
     }
+
+	// --------------------------------------------------
+	// 性能分析的逻辑
+	// --------------------------------------------------
 
     /**
      * Profile a MessageReceived event. This method will gather the following informations : - the method duration - the
@@ -350,11 +372,29 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
 	if (profileMessageReceived) {
+		// 学习笔记：该事件要做性能分析,链式调用的前置和后置代码的调用如下图所示，如果当前过滤器是head后的第一个过滤器，
+		// 则会记录这个事件经过完整的过滤器链的执行时间
+		//   doPrepF1
+		// ->f1
+		//    doPrepF2
+		//  ->f2
+		//     doPrepF3
+		//   ->f3
+		//       doPrepF4
+		//    -> f4
+		//       doPostF4
+		//   -> f3
+		//      doPostF3
+		//  -> f2
+		//     doPostF2
+		// -> f1
+		//    doPostF1
 	    long start = timeNow();
 	    nextFilter.messageReceived(session, message);
 	    long end = timeNow();
 	    messageReceivedTimerWorker.addNewDuration(end - start);
 	} else {
+		// 学习笔记：该事件不做性能分析，直接传递给下一个过滤器处理
 	    nextFilter.messageReceived(session, message);
 	}
     }
@@ -469,6 +509,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：返回指定事件的执行平均时间
+	 *
      * Get the average time for the specified method represented by the {@link IoEventType}
      *
      * @param type
@@ -527,6 +569,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：指定事件的调用次数
+	 *
      * Gets the total number of times the method has been called that is represented by the {@link IoEventType}
      *
      * @param type
@@ -585,6 +629,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：获取指定事件的执行总时间
+	 *
      * The total time this method has been executing
      *
      * @param type
@@ -643,6 +689,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：获取指定事件类型的执行最小时间
+	 *
      * The minimum time the method represented by {@link IoEventType} has executed
      *
      * @param type
@@ -701,6 +749,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：获取指定事件类型的执行最大时间
+	 *
      * The maximum time the method represented by {@link IoEventType} has executed
      *
      * @param type
@@ -759,15 +809,18 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：统计每个事件性能的状态类
+	 *
      * Class that will track the time each method takes and be able to provide information for each method.
      *
      */
     private class TimerWorker {
-	/** The sum of all operation durations */
-	private final AtomicLong total;
 
 	/** The number of calls */
 	private final AtomicLong callsNumber;
+
+	/** The sum of all operation durations */
+	private final AtomicLong total;
 
 	/** The fastest operation */
 	private final AtomicLong minimum;
@@ -790,6 +843,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
 	}
 
 	/**
+	 * 学习笔记：添加新的操作持续时间。更新总时间并递增调用次数
+	 *
 	 * Add a new operation duration to this class. Total is updated and calls is incremented
 	 *
 	 * @param duration
@@ -799,12 +854,14 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
 	    callsNumber.incrementAndGet();
 	    total.addAndGet(duration);
 
+		// 统计最小执行时间
 	    synchronized (lock) {
 		// this is not entirely thread-safe, must lock
 		if (duration < minimum.longValue()) {
 		    minimum.set(duration);
 		}
 
+		// 统计最大执行时间
 		// this is not entirely thread-safe, must lock
 		if (duration > maximum.longValue()) {
 		    maximum.set(duration);
@@ -813,6 +870,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
 	}
 
 	/**
+	 * 学习笔记：计算平均时间，需要同步执行该方法
+	 *
 	 * Gets the average reading for this event
 	 *
 	 * @return the average reading for this event
@@ -857,18 +916,19 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
      * @return the current time, expressed using the fixed TimeUnit.
      */
     private long timeNow() {
-	switch (timeUnit) {
-	case SECONDS:
-	    return System.currentTimeMillis() / 1000;
+		switch (timeUnit) {
 
-	case MICROSECONDS:
-	    return System.nanoTime() / 1000;
+			case SECONDS:
+	    	return System.currentTimeMillis() / 1000;
 
-	case NANOSECONDS:
-	    return System.nanoTime();
+			case MICROSECONDS:
+				return System.nanoTime() / 1000;
 
-	default:
-	    return System.currentTimeMillis();
-	}
+			case NANOSECONDS:
+				return System.nanoTime();
+
+			default:
+				return System.currentTimeMillis();
+			}
     }
 }

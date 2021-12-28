@@ -27,7 +27,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
- * IoFilter的包装器，用于跟踪此过滤器的使用次数，并在未使用过滤器时调用 init/destroy。
+ * 学习笔记：IoFilter的包装器，用于跟踪此过滤器的使用次数，并在第一次引用过滤器时init，在释放最后一个引用时触发destroy。
  *
  * An {@link IoFilter}s wrapper that keeps track of the number of usages of this filter and will call init/destroy
  * when the filter is not in use.

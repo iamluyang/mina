@@ -23,6 +23,8 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.util.LazyInitializer;
 
 /**
+ * 学习笔记：延迟加载io缓冲区对象
+ *
  * An {@link LazyInitializer} implementation that initializes an 
  * {@link IoBuffer} only when needed.
  * 

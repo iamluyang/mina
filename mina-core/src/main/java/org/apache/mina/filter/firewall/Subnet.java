@@ -25,6 +25,8 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 
 /**
+ * 学习笔记：使用CIDR设置子网地址，只支持IPV4
+ *
  * A IP subnet using the CIDR notation. Currently, only IP version 4
  * address are supported.
  *
@@ -51,6 +53,8 @@ public class Subnet {
     private int suffix;
 
     /**
+     * 学习笔记：设置IP地址和掩码长度，只支持ipv4
+     *
      * Creates a subnet from CIDR notation. For example, the subnet
      * 192.168.0.0/24 would be created using the {@link InetAddress}
      * 192.168.0.0 and the mask 24.
@@ -94,6 +98,8 @@ public class Subnet {
     }
 
     /**
+     * 学习笔记：将ip地址转化成整数
+     *
      * Converts an IP address into an integer
      */
     private int toInt(InetAddress inetAddress) {
@@ -109,6 +115,8 @@ public class Subnet {
     }
 
     /**
+     * 学习笔记：将ip地址转化成整数
+     *
      * Converts an IP address into a long
      */
     private long toLong(InetAddress inetAddress) {
@@ -124,6 +132,8 @@ public class Subnet {
     }
 
     /**
+     * 学习笔记：使用提供的掩码将 IP 地址转换为子网
+     *
      * Converts an IP address to a subnet using the provided mask
      * 
      * @param address
@@ -139,6 +149,8 @@ public class Subnet {
     }
 
     /**
+     * 学习笔记：检查 InetAddress 是否在此子网内，忽略本地地址
+     *
      * Checks if the {@link InetAddress} is within this subnet
      * @param address The {@link InetAddress} to check
      * @return True if the address is within this subnet, false otherwise
@@ -155,14 +167,6 @@ public class Subnet {
         }
     }
 
-    /**
-     * @see Object#toString()
-     */
-    @Override
-    public String toString() {
-        return subnet.getHostAddress() + "/" + suffix;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Subnet)) {
@@ -174,4 +178,11 @@ public class Subnet {
         return other.subnetInt == subnetInt && other.suffix == suffix;
     }
 
+    /**
+     * @see Object#toString()
+     */
+    @Override
+    public String toString() {
+        return subnet.getHostAddress() + "/" + suffix;
+    }
 }

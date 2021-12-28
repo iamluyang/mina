@@ -24,6 +24,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 /**
+ * 学习笔记：对某种类型的消息进行编码。 我们没有为 MessageEncoder 提供任何 dispose 方法，
+ * 因为如果您有很多消息类型要处理，它会给您带来性能损失。
+ *
  * Encodes a certain type of messages.
  * <p>
  * We didn't provide any <tt>dispose</tt> method for {@link MessageEncoder}
@@ -38,7 +41,12 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @param <T> The message type
  */
 public interface MessageEncoder<T> {
+
     /**
+     * 学习笔记：将更高级别的消息对象编码为二进制或特定于协议的数据。
+     * MINA 使用从会话写入队列中弹出的消息调用 encode(IoSession, Object, ProtocolEncoderOutput) 方法，
+     * 然后编码器实现将编码的 IoBuffer 放入 ProtocolEncoderOutput。
+     *
      * Encodes higher-level message objects into binary or protocol-specific data.
      * MINA invokes {@link #encode(IoSession, Object, ProtocolEncoderOutput)}
      * method with message which is popped from the session write queue, and then

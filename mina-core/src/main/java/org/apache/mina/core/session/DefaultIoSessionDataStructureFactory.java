@@ -30,6 +30,11 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 
 /**
+ * 学习笔记：默认的 IoSessionDataStructureFactory 数据工厂。
+ * 会话属性哈希集合基于：ConcurrentHashMap
+ * 会话的写请求队列基于：ConcurrentLinkedQueue，如果写请求中有一个CLOSE_REQUEST请求（一个毒丸数据），
+ * 则立即关闭会话，并释放和会话相关的资源
+ *
  * The default {@link IoSessionDataStructureFactory} implementation
  * that creates a new {@link HashMap}-based {@link IoSessionAttributeMap}
  * instance and a new synchronized {@link ConcurrentLinkedQueue} instance per
@@ -54,7 +59,9 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         return new DefaultWriteRequestQueue();
     }
 
+    // 默认的属性集合
     private static class DefaultIoSessionAttributeMap implements IoSessionAttributeMap {
+
         private final ConcurrentHashMap<Object, Object> attributes = new ConcurrentHashMap<>(4);
 
         /**
@@ -191,6 +198,7 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
     }
 
     private static class DefaultWriteRequestQueue implements WriteRequestQueue {
+
         /** A queue to store incoming write requests */
         private final Queue<WriteRequest> q = new ConcurrentLinkedQueue<>();
 
@@ -216,6 +224,14 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         @Override
         public boolean isEmpty(IoSession session) {
             return q.isEmpty();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int size() {
+            return q.size();
         }
 
         /**
@@ -248,14 +264,6 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         @Override
         public String toString() {
             return q.toString();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int size() {
-            return q.size();
         }
     }
 }

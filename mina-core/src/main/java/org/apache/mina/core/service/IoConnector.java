@@ -27,6 +27,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.handler.IoHandler;
 
 /**
+ * 学习笔记：连接器终端，于服务器通信的一端。
  * Connects to endpoint, communicates with the server, and fires events to
  * {@link IoHandler}s.
  * <p>
@@ -34,10 +35,14 @@ import org.apache.mina.handler.IoHandler;
  * <a href="../../../../../xref-examples/org/apache/mina/examples/netcat/Main.html">NetCat</a>
  * example.
  * <p>
+ * 学习笔记：连接到所需的套接字地址以开始通信，然后传入连接的事件将发送到指定的IoHandler。
+ *
  * You should connect to the desired socket address to start communication,
  * and then events for incoming connections will be sent to the specified
  * default {@link IoHandler}.
  * <p>
+ * 学习笔记：当调用 connect(SocketAddress) 时，线程连接到端点会自动启动，并在连接尝试完成后结束该方法。
+ *
  * Threads connect to endpoint start automatically when
  * {@link #connect(SocketAddress)} is invoked, and stop when all
  * connection attempts are finished.
@@ -45,7 +50,9 @@ import org.apache.mina.handler.IoHandler;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoConnector extends IoService {
+
     /**
+     * 学习笔记：连接的超时时间，默认为一分钟
      * @return the connect timeout in seconds.  The default value is 1 minute.
      * 
      * @deprecated
@@ -54,11 +61,15 @@ public interface IoConnector extends IoService {
     int getConnectTimeout();
 
     /**
+     * 学习笔记：连接的超时时间，默认为一分钟
+     *
      * @return the connect timeout in milliseconds.  The default value is 1 minute.
      */
     long getConnectTimeoutMillis();
 
     /**
+     * 学习笔记：连接的超时时间，默认为一分钟
+     *
      * Sets the connect timeout in seconds.  The default value is 1 minute.
      * 
      * @deprecated
@@ -68,6 +79,8 @@ public interface IoConnector extends IoService {
     void setConnectTimeout(int connectTimeout);
 
     /**
+     * 学习笔记：连接的超时时间，默认为一分钟
+     *
      * Sets the connect timeout in milliseconds.  The default value is 1 minute.
      * 
      * @param connectTimeoutInMillis The time out for the connection
@@ -81,6 +94,8 @@ public interface IoConnector extends IoService {
     SocketAddress getDefaultRemoteAddress();
 
     /**
+     * 学习笔记：未指定远程地址时，默认的远程连接地址
+     *
      * Sets the default remote address to connect to when no argument is
      * specified in {@link #connect()} method.
      * 
@@ -89,11 +104,15 @@ public interface IoConnector extends IoService {
     void setDefaultRemoteAddress(SocketAddress defaultRemoteAddress);
 
     /**
+     * 学习笔记：默认的本地地址
+     *
      * @return the default local address
      */
     SocketAddress getDefaultLocalAddress();
 
     /**
+     * 学习笔记：默认的本地地址
+     *
      * Sets the default local address
      * 
      * @param defaultLocalAddress The default local address
@@ -101,6 +120,8 @@ public interface IoConnector extends IoService {
     void setDefaultLocalAddress(SocketAddress defaultLocalAddress);
 
     /**
+     * 学习笔记：连接到默认的远程地址
+     *
      * Connects to the {@link #setDefaultRemoteAddress(SocketAddress) default
      * remote address}.
      * 
@@ -112,6 +133,9 @@ public interface IoConnector extends IoService {
     ConnectFuture connect();
 
     /**
+     * 学习笔记：连接到默认的远程地址。并指定一个会话初始化器。
+     * 注意：由于这是一个异步方法，可能还没有来得及调用会话初始化器，就先返回了
+     *
      * Connects to the {@link #setDefaultRemoteAddress(SocketAddress) default
      * remote address} and invokes the <code>ioSessionInitializer</code> when
      * the IoSession is created but before {@link IoHandler#sessionCreated(IoSession)}
@@ -127,6 +151,7 @@ public interface IoConnector extends IoService {
     ConnectFuture connect(IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
 
     /**
+     * 学习笔记：连接到指定的远程地址。
      * Connects to the specified remote address.
      * 
      * @param remoteAddress The remote address to connect to
@@ -136,6 +161,9 @@ public interface IoConnector extends IoService {
     ConnectFuture connect(SocketAddress remoteAddress);
 
     /**
+     * 学习笔记：连接到指定的远程地址。并指定一个会话初始化器。
+     * 注意：由于这是一个异步方法，可能还没有来得及调用会话初始化器，就先返回了
+     *
      * Connects to the specified remote address and invokes
      * the <code>ioSessionInitializer</code> when the IoSession is created but before
      * {@link IoHandler#sessionCreated(IoSession)} is invoked.  There is <em>no</em>
@@ -151,6 +179,8 @@ public interface IoConnector extends IoService {
     ConnectFuture connect(SocketAddress remoteAddress, IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
 
     /**
+     * 学习笔记：连接到指定的远程地址并绑定到指定的本地地址上
+     *
      * Connects to the specified remote address binding to the specified local address.
      *
      * @param remoteAddress The remote address to connect
@@ -162,6 +192,8 @@ public interface IoConnector extends IoService {
     ConnectFuture connect(SocketAddress remoteAddress, SocketAddress localAddress);
 
     /**
+     * 学习笔记：连接到指定的远程地址并绑定到指定的本地地址上，并指定一个会话初始化器
+     *
      * Connects to the specified remote address binding to the specified local
      * address and and invokes the <code>ioSessionInitializer</code> when the
      * IoSession is created but before {@link IoHandler#sessionCreated(IoSession)}

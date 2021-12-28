@@ -23,6 +23,9 @@ import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：回调 ProtocolDecoder 以生成解码消息。
+ * ProtocolDecoder 必须为每个解码的消息调用 write(Object)
+ *
  * Callback for {@link ProtocolDecoder} to generate decoded messages.
  * {@link ProtocolDecoder} must call {@link #write(Object)} for each decoded
  * messages.
@@ -30,7 +33,11 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface ProtocolDecoderOutput {
+
     /**
+     * 学习笔记：回调 ProtocolDecoder 以生成解码消息。
+     * ProtocolDecoder 必须为每个解码的消息调用 write(Object)
+     *
      * Callback for {@link ProtocolDecoder} to generate decoded messages.
      * {@link ProtocolDecoder} must call {@link #write(Object)} for each
      * decoded messages.
@@ -40,6 +47,8 @@ public interface ProtocolDecoderOutput {
     void write(Object message);
 
     /**
+     * 学习笔记：将通过 write(Object) 编写的所有消息刷新到下一个过滤器
+     *
      * Flushes all messages you wrote via {@link #write(Object)} to
      * the next filter.
      * 

@@ -33,6 +33,11 @@ import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
+ * 学习笔记：一个 {@link IoFilter}，它在 IoEventTypeSESSION_IDLE
+ * 上发送一个保持连接请求，并为发送的保持连接请求发回响应。
+ *
+ * 该过滤器需要关联：心跳消息工厂和心跳超时处理器（默认处理策略为关闭会话）两个组件
+ *
  * An {@link IoFilter} that sends a keep-alive request on
  * {@link IoEventType#SESSION_IDLE} and sends back the response for the
  * sent keep-alive request.
@@ -60,13 +65,20 @@ import org.apache.mina.core.write.WriteRequest;
  *     <th>Name</th><th>Description</th><th>Implementation</th>
  *   </tr>
  *   <tr valign="top">
- *     <td>Active</td>
+ *     <td>Active 主动端</td>
  *     <td>
+ *       您希望在读空闲时发送心跳请求。发送请求后，应在keepAliveRequestTimeout秒内收到请求的响应。
+ *       否则，将调用指定的KeepAliveRequestTimeoutHandler，处理响应超时的场景。如果接收到心跳请求，
+ *       它的响应请求也应该被发回。
+ *       请求的数据数据为non-null
+ *       响应的数据数据为non-null
+ *
  *       You want a keep-alive request is sent when the reader is idle.
  *       Once the request is sent, the response for the request should be
  *       received within <tt>keepAliveRequestTimeout</tt> seconds.  Otherwise,
  *       the specified {@link KeepAliveRequestTimeoutHandler} will be invoked.
  *       If a keep-alive request is received, its response also should be sent back.
+ *
  *     </td>
  *     <td>
  *       Both {@link KeepAliveMessageFactory#getRequest(IoSession)} and
@@ -75,8 +87,18 @@ import org.apache.mina.core.write.WriteRequest;
  *     </td>
  *   </tr>
  *   <tr valign="top">
- *     <td>Semi-active</td>
+ *     <td>Semi-active 半主动端</td>
  *     <td>
+ *       当您希望在读闲置时发送心跳请求。但是，您并不真正关心是否收到响应。
+ *       如果收到保持活动请求，则还应发回其响应。
+ *       请求的数据数据为non-null
+ *       响应的数据数据为non-null
+ *
+ *       并且 timeoutHandler 属性应设置为
+ *       KeepAliveRequestTimeoutHandlerNOOP、
+ *       KeepAliveRequestTimeoutHandlerLOG
+ *       或不影响会话状态也不抛出异常的自定义 KeepAliveRequestTimeoutHandler 实现。
+ *
  *       You want a keep-alive request to be sent when the reader is idle.
  *       However, you don't really care if the response is received or not.
  *       If a keep-alive request is received, its response should
@@ -92,8 +114,11 @@ import org.apache.mina.core.write.WriteRequest;
  *     </td>
  *   </tr>
  *   <tr valign="top">
- *     <td>Passive</td>
+ *     <td>Passive 被动端</td>
  *     <td>
+ *       即当前会话不是发送心跳请求的一端，而是响应心跳的一端，即收到心跳请求则必须响应
+ *       请求的数据需要为null
+ *       响应的数据数据为non-null
  *       You don't want to send a keep-alive request by yourself, but the
  *       response should be sent back if a keep-alive request is received.
  *     </td>
@@ -104,8 +129,14 @@ import org.apache.mina.core.write.WriteRequest;
  *     </td>
  *   </tr>
  *   <tr valign="top">
- *     <td>Deaf Speaker</td>
+ *     <td>Deaf Speaker 装聋作哑</td>
  *     <td>
+ *       您希望在读取数据的一端闲置时（长时间没有收到消息）发送一个心跳请求，但不想发回任何响应，
+ *       即装聋作哑（好像没有收到心跳请求也不响应），即返回响应的方法返回null。
+ *       请求的数据为non-null
+ *       响应的数据需要为null
+ *       同时还需要绑定超时处理器DEAF_SPEAKER
+ *
  *       You want a keep-alive request to be sent when the reader is idle, but
  *       you don't want to send any response back.
  *     </td>
@@ -118,8 +149,11 @@ import org.apache.mina.core.write.WriteRequest;
  *     </td>
  *   </tr>
  *   <tr valign="top">
- *     <td>Silent Listener</td>
+ *     <td>Silent Listener 静默模式</td>
  *     <td>
+ *       不想发送心跳请求，也不想发回心跳响应。则两个创建数据的方法返回null
+ *       请求的数据需要为null
+ *       响应的数据需要为null
  *       You don't want to send a keep-alive request by yourself nor send any
  *       response back.
  *     </td>
@@ -175,6 +209,11 @@ public class KeepAliveFilter extends IoFilterAdapter {
     private volatile boolean forwardEvent;
 
     /**
+     * 学习笔记：即长时间没有读取到消息，则发送一个心跳请求，并使用心跳超时关闭会话处理器。
+     * 默认的心跳请求间隔为60秒一次
+     * 默认的心跳响应超时等待为30秒
+     * 即需要一个消息工厂，一个超时处理器，一个闲置事件类型，两个时间参数
+     *
      * Creates a new instance with the default properties.
      * The default property values are:
      * <ul>
@@ -313,7 +352,6 @@ public class KeepAliveFilter extends IoFilterAdapter {
             throw new IllegalArgumentException("keepAliveRequestInterval must be a positive integer: "
                     + keepAliveRequestInterval);
         }
-        
         requestInterval = keepAliveRequestInterval;
     }
 
@@ -334,7 +372,6 @@ public class KeepAliveFilter extends IoFilterAdapter {
             throw new IllegalArgumentException("keepAliveRequestTimeout must be a positive integer: "
                     + keepAliveRequestTimeout);
         }
-        
         requestTimeout = keepAliveRequestTimeout;
     }
 
@@ -346,6 +383,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：是否需要转发事件到下一个过滤器
+     *
      * @return <tt>true</tt> if and only if this filter forwards
      * a {@link IoEventType#SESSION_IDLE} event to the next filter.
      * By default, the value of this property is <tt>false</tt>.
@@ -355,6 +394,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：是否需要转发事件到下一个过滤器
+     *
      * Sets if this filter needs to forward a
      * {@link IoEventType#SESSION_IDLE} event to the next filter.
      * By default, the value of this property is <tt>false</tt>.
@@ -366,6 +407,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：不能重复添加
+     *
      * {@inheritDoc}
      */
     @Override
@@ -377,6 +420,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：添加心跳过滤器后需要重置会话的状态
+     *
      * {@inheritDoc}
      */
     @Override
@@ -385,6 +430,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：移除心跳过滤器后需要重置会话的状态
+     *
      * {@inheritDoc}
      */
     @Override
@@ -398,18 +445,24 @@ public class KeepAliveFilter extends IoFilterAdapter {
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         try {
+            // 学习笔记：判断接收到的消息是否是特殊的心跳请求消息
             if (messageFactory.isRequest(session, message)) {
+                // 学习笔记：如果是心跳请求，则有消息工厂生成一个心跳响应pong
                 Object pongMessage = messageFactory.getResponse(session, message);
 
+                // 学习笔记：如果心跳响应不为空，则发回心跳响应
                 if (pongMessage != null) {
                     nextFilter.filterWrite(session, new DefaultWriteRequest(pongMessage));
                 }
             }
 
+            // 学习笔记：判断接收到的消息是否是特殊的心跳响应消息
             if (messageFactory.isResponse(session, message)) {
+                // 学习笔记：收到心跳响应则重置会话属性
                 resetStatus(session);
             }
         } finally {
+            // 学习笔记：如果不是心跳消息，则正常交给下一个过滤器
             if (!isKeepAliveMessage(session, message)) {
                 nextFilter.messageReceived(session, message);
             }
@@ -429,7 +482,8 @@ public class KeepAliveFilter extends IoFilterAdapter {
                 message = ((IoBuffer)writeRequest.getMessage()).duplicate().flip();
             }
         }
-        
+
+        // 如果不是心跳消息，则正常交给下一个过滤器
         if (!isKeepAliveMessage(session, message)) {
             nextFilter.messageSent(session, writeRequest);
         }
@@ -440,25 +494,36 @@ public class KeepAliveFilter extends IoFilterAdapter {
      */
     @Override
     public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
+
+        // 学习笔记：会话闲置可能由常规的闲置触发，也有可能是ping心跳请求没有收到pong响应导致的闲置超时引起
         if (status == interestedIdleStatus) {
+            // 学习笔记：如果会话不包含WAITING_FOR_RESPONSE标记，即普通的闲置超时了
             if (!session.containsAttribute(WAITING_FOR_RESPONSE)) {
+
+                // 学习笔记：现在是一个感兴趣的闲置事件，难道是因为会话的对端当机了
+                // 此刻由消息工厂创建一个ping请求消息
                 Object pingMessage = messageFactory.getRequest(session);
-                
+
+                // 学习笔记：如果ping请求消息不为空
                 if (pingMessage != null) {
+                    // 学习笔记：则由nextFilter向对端发送这个ping消息
                     nextFilter.filterWrite(session, new DefaultWriteRequest(pingMessage));
 
                     // If policy is OFF, there's no need to wait for
-                    // the response.
+                    // the response. 如果策略为 OFF，则无需等待响应。
                     if (getRequestTimeoutHandler() != KeepAliveRequestTimeoutHandler.DEAF_SPEAKER) {
                         markStatus(session);
+                        // 学习笔记：如果感兴趣的闲置状态为both，则设置忽略读闲置标记
                         if (interestedIdleStatus == IdleStatus.BOTH_IDLE) {
                             session.setAttribute(IGNORE_READER_IDLE_ONCE);
                         }
                     } else {
+                        // 学习笔记：如果心跳请求的超时处理器是装聋作哑处理器，则无需等待响应，直接重置会话即可
                         resetStatus(session);
                     }
                 }
             } else {
+                // 学习笔记：如果会话属性中存在WAITING_FOR_RESPONSE标记，说明是由ping超时引起的闲置超时
                 handlePingTimeout(session);
             }
         } else if (status == IdleStatus.READER_IDLE) {
@@ -469,27 +534,42 @@ public class KeepAliveFilter extends IoFilterAdapter {
             }
         }
 
+        // 是否需要转发心跳信息的下一个过滤器
         if (forwardEvent) {
             nextFilter.sessionIdle(session, status);
         }
     }
 
+    // 学习笔记：ping心跳超时的处理器
     private void handlePingTimeout(IoSession session) throws Exception {
+        // 心跳请求的超时处理：将心跳超时响应的超时时间设置为RequestInterval，并移除WAITING_FOR_RESPONSE属性
         resetStatus(session);
         KeepAliveRequestTimeoutHandler handler = getRequestTimeoutHandler();
+
+        // 学习笔记：如果是装聋作哑的处理器，则不做任何处理
         if (handler == KeepAliveRequestTimeoutHandler.DEAF_SPEAKER) {
             return;
         }
 
+        // 学习笔记：其他处理器
         handler.keepAliveRequestTimedOut(this, session);
     }
 
+    // 学习笔记：标记会话的读闲置超时时间（即心跳请求超时时间）属性，并设置会话的等待响应属性
+    // 超时时间会在getRequestTimeout和getRequestInterval之间来回切换
+    // 首先getRequestInterval为每次闲置的间隔，即发送ping的间隔
+    // 其次在发送ping消息后，再将read idle设置为getRequestTimeout，即pong的超时时间
     private void markStatus(IoSession session) {
+        // 学习笔记：先将原有的闲置状态事件的时间重置为0
         session.getConfig().setIdleTime(interestedIdleStatus, 0);
+        // 学习笔记：再设置读闲置时间，即接收到pong的超时时间
         session.getConfig().setReaderIdleTime(getRequestTimeout());
+        // 学习笔记：设置WAITING_FOR_RESPONSE标记，表示会话处于ping状态，并等待pong响应
         session.setAttribute(WAITING_FOR_RESPONSE);
     }
 
+    // 学习笔记：重置会话的配置，即现将读闲置和写闲置事件的超时时间归零，仅对感兴趣的闲置状态设置闲置时间。
+    // 会话的感兴趣的闲置时间为心跳的请求间隔，并移除会话的心跳响应的WAITING_FOR_RESPONSE属性（即还没有发送ping消息）
     private void resetStatus(IoSession session) {
         session.getConfig().setReaderIdleTime(0);
         session.getConfig().setWriterIdleTime(0);
@@ -497,6 +577,7 @@ public class KeepAliveFilter extends IoFilterAdapter {
         session.removeAttribute(WAITING_FOR_RESPONSE);
     }
 
+    // 学习笔记：该消息是否心跳消息
     private boolean isKeepAliveMessage(IoSession session, Object message) {
         return messageFactory.isRequest(session, message) || messageFactory.isResponse(session, message);
     }

@@ -88,7 +88,10 @@ public class DefaultSocketSessionConfig extends AbstractSocketSessionConfig {
     }
 
     /**
-     * 初始化宿主对象，如果宿主是一个Acceptor服务端，则让默认的地址重用选项为true，因为服务器端即便重起后仍然需要重用
+     * 初始化宿主对象，如果宿主是一个TCP Acceptor服务端，则强制开启地址重用选项为true，
+     * 因为服务器端即便重起后仍然需要重用。因为这个配置可能用于连接器或者接受者，因此配置上
+     * 可能会略有差异
+     *
      * Initialize this configuration.
      * 
      * @param parent The parent IoService.

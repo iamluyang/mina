@@ -110,7 +110,7 @@ import org.apache.mina.filter.util.ReferenceCountingFilter;
  *
  * @see IoFilterAdapter
  */
-public interface IoFilter {
+public abstract class IoFilter {
     /**
      * 当这个过滤器第一次被添加到ifilterchain时，并由ReferenceCountingFilter调用，
      * 以便您可以初始化共享资源。
@@ -125,7 +125,7 @@ public interface IoFilter {
      * 
      * @throws Exception If an error occurred while processing the event
      */
-    void init() throws Exception;
+    public abstract void init() throws Exception;
 
     /**
      * 当任何ifilterchain不再使用此过滤器时，由ReferenceCountingFilter调用，因此您可以销毁共享资源。
@@ -140,7 +140,7 @@ public interface IoFilter {
      * 
      * @throws Exception If an error occurred while processing the event
      */
-    void destroy() throws Exception;
+    public abstract void destroy() throws Exception;
 
     // --------------------------------------------------
     // 与管理过滤器的添加，删除相关的事件，这些事件
@@ -166,7 +166,7 @@ public interface IoFilter {
      *                   this object until this filter is removed from the chain.
      * @throws Exception If an error occurred while processing the event
      */
-    void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
+    public abstract void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
      * 在将此筛选器添加到指定的父级之后调用。
@@ -185,7 +185,7 @@ public interface IoFilter {
      *                   this object until this filter is removed from the chain.
      * @throws Exception If an error occurred while processing the event
      */
-    void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
+    public abstract void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
      * 在从指定的父级删除此筛选器之前调用。
@@ -204,7 +204,7 @@ public interface IoFilter {
      *                   this object until this filter is removed from the chain.
      * @throws Exception If an error occurred while processing the event
      */
-    void onPreRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
+    public abstract void onPreRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     /**
      * 在从指定的父级删除此筛选器之后调用。
@@ -223,7 +223,7 @@ public interface IoFilter {
      *                   this object until this filter is removed from the chain.
      * @throws Exception If an error occurred while processing the event
      */
-    void onPostRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
+    public abstract void onPostRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception;
 
     // --------------------------------------------------
     // 与IO处理器相关的session事件
@@ -247,7 +247,7 @@ public interface IoFilter {
      * @param session The {@link IoSession} which has received this event
      * @throws Exception If an error occurred while processing the event
      */
-    void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception;
+    public abstract void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
      * 过滤 IoHandler.sessionOpened(IoSession) 会话打开产生的事件。
@@ -260,7 +260,7 @@ public interface IoFilter {
      * @param session The {@link IoSession} which has received this event
      * @throws Exception If an error occurred while processing the event
      */
-    void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception;
+    public abstract void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
      * 过滤 IoHandler.sessionClosed(IoSession) 会话关闭产生的事件。
@@ -273,7 +273,7 @@ public interface IoFilter {
      * @param session The {@link IoSession} which has received this event
      * @throws Exception If an error occurred while processing the event
      */
-    void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception;
+    public abstract void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
      * 过滤 IoHandler.sessionIdle(IoSession,IdleStatus) 会话闲置产生的事件。
@@ -287,7 +287,7 @@ public interface IoFilter {
      * @param status The {@link IdleStatus} type
      * @throws Exception If an error occurred while processing the event
      */
-    void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception;
+    public abstract void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception;
 
     /**
      * 过滤 IoHandler.exceptionCaught(IoSession,Throwable)} 会话异常产生的事件。
@@ -301,7 +301,7 @@ public interface IoFilter {
      * @param cause The exception that cause this event to be received
      * @throws Exception If an error occurred while processing the event
      */
-    void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception;
+    public abstract void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception;
 
     /**
      * 过滤 IoHandler.messageReceived(IoSession,Object) 会话接收数据产生的事件。
@@ -315,7 +315,7 @@ public interface IoFilter {
      * @param message The received message
      * @throws Exception If an error occurred while processing the event
      */
-    void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception;
+    public abstract void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception;
 
     /**
      * 过滤 IoHandler.messageSent(IoSession,Object)} 会话发送数据产生的事件
@@ -329,7 +329,7 @@ public interface IoFilter {
      * @param writeRequest The {@link WriteRequest} that contains the sent message
      * @throws Exception If an error occurred while processing the event
      */
-    void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
+    public abstract void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
 
     /**
      * 过滤 IoHandler.inputClosed(IoSession) 输入关闭产生的事件。
@@ -342,7 +342,7 @@ public interface IoFilter {
      * @param session The {@link IoSession} which has received this event
      * @throws Exception If an error occurred while processing the event
      */
-    void inputClosed(NextFilter nextFilter, IoSession session) throws Exception;
+    public abstract void inputClosed(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
      * 过滤 将事件传播到IoHandler
@@ -356,7 +356,7 @@ public interface IoFilter {
      * @param event The event to propagate
      * @throws Exception If an error occurred while processing the event
      */
-    void event(NextFilter nextFilter, IoSession session, FilterEvent event) throws Exception;
+    public abstract void event(NextFilter nextFilter, IoSession session, FilterEvent event) throws Exception;
 
     // --------------------------------------------------
     // 与IoSession会话相关的事件
@@ -375,7 +375,7 @@ public interface IoFilter {
      *            invocation
      * @throws Exception If an error occurred while processing the event
      */
-    void filterClose(NextFilter nextFilter, IoSession session) throws Exception;
+    public abstract void filterClose(NextFilter nextFilter, IoSession session) throws Exception;
 
     /**
      * 过滤 IoSession.write(Object)方法调用。
@@ -389,7 +389,7 @@ public interface IoFilter {
      * @param writeRequest The {@link WriteRequest} to process
      * @throws Exception If an error occurred while processing the event
      */
-    void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
+    public abstract void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception;
 
     /**
      * 表示ifilterchain中的下一个ifilter。
@@ -398,7 +398,7 @@ public interface IoFilter {
      *
      * Represents the next {@link IoFilter} in {@link IoFilterChain}.
      */
-    interface NextFilter {
+    public interface NextFilter {
 
         /**
          * Forwards <tt>sessionCreated</tt> event to next filter.

@@ -28,6 +28,9 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import java.nio.charset.Charset;
 
 /**
+ * 学习笔记：一个基于使用固定长度的前缀对 Java String 对象进行编码和解码的编码工厂。
+ * 为了避免OutOfMemory攻击，解码器需要设置解码支持的最大长度。
+ *
  * A {@link ProtocolCodecFactory} that performs encoding and decoding
  * of a Java String object using a fixed-length length prefix.
  *
@@ -57,6 +60,11 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：返回编码字符串允许的最大大小。如果编码字符串的大小超过此值，
+     * 编码器将抛出 {@link IllegalArgumentException}。默认值为
+     * PrefixedStringEncoderDEFAULT_MAX_DATA_LENGTH。
+     * 此方法与 PrefixedStringEncoder.setMaxDataLength(int) 的作用相同。
+     *
      * Returns the allowed maximum size of an encoded string.
      * If the size of the encoded String exceeds this value, the encoder
      * will throw a {@link IllegalArgumentException}.
@@ -95,6 +103,11 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：设置在解码数据中指定为数据长度的最大允许值。用于防止对等方的 OutOfMemory 攻击。
+     * 当传入数据中指定的数据长度大于 maxDataLength 时，解码器将抛出 BufferDataException
+     * 默认值为 PrefixedStringDecoderDEFAULT_MAX_DATA_LENGTH。
+     * 此方法与 PrefixedStringDecodersetMaxDataLength(int) 的作用相同。
+     *
      * Sets the maximum allowed value specified as data length in the decoded data
      * <p>
      * Useful for preventing an OutOfMemory attack by the peer.
@@ -111,6 +124,8 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：设置解码器使用的前缀长度 （1、2 或 4）的长度
+     *
      * Sets the length of the prefix used by the decoder
      *
      * @param prefixLength the length of the length prefix (1, 2, or 4)
@@ -120,6 +135,8 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：获取解码器使用的长度前缀（1、2 或 4）的长度
+     *
      * Gets the length of the length prefix (1, 2, or 4) used by the decoder
      *
      * @return length of the length prefix
@@ -129,6 +146,8 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：设置编码器使用的前缀长度
+     *
      * Sets the length of the prefix used by the encoder
      *
      * @param prefixLength the length of the length prefix (1, 2, or 4)
@@ -138,6 +157,8 @@ public class PrefixedStringCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：获取编码器使用的长度前缀（1、2 或 4）的长度
+     *
      * Gets the length of the length prefix (1, 2, or 4) used by the encoder
      *
      * @return length of the length prefix

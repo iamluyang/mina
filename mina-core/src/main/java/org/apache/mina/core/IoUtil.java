@@ -33,6 +33,8 @@ import org.apache.mina.core.session.IoSession;
 /**
  * 一个实用程序类，提供与 {@link IoSession} 和 {@link IoFuture} 相关的各种便捷方法。
  *
+ * 学习笔记：例如向会话的对端发送消息，或者等待多个异步结果
+ *
  * A utility class that provides various convenience methods related with
  * {@link IoSession} and {@link IoFuture}.
  * 

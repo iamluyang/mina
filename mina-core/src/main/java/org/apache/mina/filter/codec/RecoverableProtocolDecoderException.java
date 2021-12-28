@@ -20,6 +20,8 @@
 package org.apache.mina.filter.codec;
 
 /**
+ * 学习笔记：一种可以容错的解码异常，这个异常不会导致exceptionCaught，而是可以继续尝试解码
+ *
  * A special exception that tells the {@link ProtocolDecoder} can keep
  * decoding even after this exception is thrown.
  * <p>

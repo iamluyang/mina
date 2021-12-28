@@ -22,7 +22,7 @@ package org.apache.mina.core.file;
 import java.nio.channels.FileChannel;
 
 /**
- * 指定要发送到远程主机的文件区域。
+ * 指定要发送到远程主机的文件区域的接口
  *
  * Indicates the region of a file to be sent to the remote host.
  *

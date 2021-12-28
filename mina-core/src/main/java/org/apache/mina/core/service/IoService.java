@@ -33,7 +33,7 @@ import org.apache.mina.core.session.IoSessionDataStructureFactory;
 import org.apache.mina.handler.IoHandler;
 
 /**
- * 所有提供I/O服务和管理ioessions的IoAcceptors和IoConnectors的基本接口。
+ * 学习笔记：所有提供I/O服务和管理ioessions的IoAcceptors和IoConnectors的基本接口。
  *
  * Base interface for all {@link IoAcceptor}s and {@link IoConnector}s
  * that provide I/O service and manage {@link IoSession}s.
@@ -41,6 +41,7 @@ import org.apache.mina.handler.IoHandler;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoService {
+
     /**
      * @return the {@link TransportMetadata} that this service runs on.
      */

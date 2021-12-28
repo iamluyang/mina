@@ -23,7 +23,7 @@ import java.io.File;
 import java.nio.channels.FileChannel;
 
 /**
- * 管理要发送到远程主机的文件。我们跟踪当前位置和已经写入的字节数。
+ * 管理要发送到远程主机的文件。可以跟踪当前位置和已经写入的字节数。
  *
  * 学习笔记：这个一个记录文件和文件名的FileRegion的文件对象
  *

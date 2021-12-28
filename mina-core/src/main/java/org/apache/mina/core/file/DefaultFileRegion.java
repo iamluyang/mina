@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 /**
- * 管理要发送到远程主机的文件。我们跟踪当前位置和已经写入的字节数。
+ * 管理要发送到远程主机的文件。可以跟踪当前位置和已经写入的字节数。
  *
  * Manage a File to be sent to a remote host. We keep a track on the current
  * position, and the number of already written bytes.

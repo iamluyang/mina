@@ -36,6 +36,8 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Set;
 
 /**
+ * 学习笔记：IoBuffer的代理类
+ *
  * A {@link IoBuffer} that wraps a buffer and proxies any operations to it.
  * <p>
  * You can think this class like a {@link FileOutputStream}. All operations are

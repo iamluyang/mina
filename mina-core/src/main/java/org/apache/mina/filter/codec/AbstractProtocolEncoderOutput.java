@@ -23,11 +23,15 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
+ * 学习笔记：一个抽象的编码器，内部使用一个消息队列来堆积待编码的数据
+ *
  * A {@link ProtocolEncoderOutput} based on queue.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class AbstractProtocolEncoderOutput implements ProtocolEncoderOutput {
+
+	// 存储编码后的消息队列
 	/** The queue where the decoded messages are stored */
 	protected final Queue<Object> messageQueue = new ArrayDeque<>();
 
@@ -46,7 +50,6 @@ public abstract class AbstractProtocolEncoderOutput implements ProtocolEncoderOu
 		if (message == null) {
 			throw new IllegalArgumentException("message");
 		}
-
 		messageQueue.offer(message);
 	}
 }

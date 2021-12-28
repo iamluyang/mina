@@ -22,6 +22,8 @@ package org.apache.mina.core.session;
 import org.apache.mina.core.future.api.IoFuture;
 
 /**
+ * 学习笔记：定义在会话初始化期间获取 {@link IoSession} 的回调。
+ *
  * Defines a callback for obtaining the {@link IoSession} during
  * session initialization.
  * 

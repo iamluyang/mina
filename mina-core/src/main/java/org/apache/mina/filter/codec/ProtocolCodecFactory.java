@@ -22,6 +22,8 @@ package org.apache.mina.filter.codec;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：创建一对编码器和解码器。工厂方法模式的典型实现。
+ *
  * Provides {@link ProtocolEncoder} and {@link ProtocolDecoder} which translates
  * binary or protocol specific data into message object and vice versa.
  * <p>
@@ -32,7 +34,10 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface ProtocolCodecFactory {
+
     /**
+     * 学习笔记：返回一个新的（或可重用的）ProtocolEncoder 实例，它将消息对象编码为二进制或特定于协议的数据。
+     *
      * Returns a new (or reusable) instance of {@link ProtocolEncoder} which
      * encodes message objects into binary or protocol-specific data.
      * 
@@ -43,6 +48,8 @@ public interface ProtocolCodecFactory {
     ProtocolEncoder getEncoder(IoSession session) throws Exception;
 
     /**
+     * 学习笔记：返回一个新的（或可重用的） ProtocolDecoder 实例，它将二进制或特定于协议的数据解码为消息对象。
+     *
      * Returns a new (or reusable) instance of {@link ProtocolDecoder} which
      * decodes binary or protocol-specific data into message objects.
      * 

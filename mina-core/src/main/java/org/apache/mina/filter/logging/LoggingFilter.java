@@ -29,6 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 记录 MINA 协议事件。可以根据用户的特定要求调整每个事件以使用不同的级别。
+ * 方法已经就绪，允许用户对每个事件使用 get 或 set 方法并传入 {@link IoEventType} 和 {@link LogLevel}。
+ *
+ * 默认情况下，所有事件都记录到 LogLevelINFO 级别，除了
+ * IoFilterAdapter.exceptionCaught(IoFilter.NextFilter, IoSession, Throwable)，记录到 LogLevelWARN。
+ *
  * Logs MINA protocol events.  Each event can be tuned to use a different level based on 
  * the user's specific requirements.  Methods are in place that allow the user to use 
  * either the get or set method for each event and pass in the {@link IoEventType} and 
@@ -42,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public class LoggingFilter extends IoFilterAdapter {
+
     /** The logger name */
     private final String name;
 
@@ -87,7 +94,8 @@ public class LoggingFilter extends IoFilterAdapter {
 
     /**
      * Create a new NoopFilter using a name
-     * 
+     *
+     * 学习笔记：用于创建记录器的名称。如果为空，将默认为“NoopFilter”
      * @param name the name used to create the logger. If null, will default to "NoopFilter"
      */
     public LoggingFilter(String name) {
@@ -212,6 +220,8 @@ public class LoggingFilter extends IoFilterAdapter {
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         // Note: the way the IoBuffer method is implemented, logging an instance of
         // an instance will not change its position. It's safe.
+        // 注意：IoBuffer 方法的实现方式，记录一个实例的实例不会改变它的位置。它是安全的。
+        // 学习笔记：避免改变缓冲区中的状态位置
         log(messageReceivedLevel, "RECEIVED: {}", message);
         nextFilter.messageReceived(session, message);
     }
@@ -221,6 +231,8 @@ public class LoggingFilter extends IoFilterAdapter {
      */
     @Override
     public void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
+        // 注意：IoBuffer 方法的实现方式，记录一个实例的实例不会改变它的位置。它是安全的。
+        // 学习笔记：避免改变缓冲区中的状态位置
         // Note: the way the IoBuffer method is implemented, logging an instance of
         // an instance will not change its position. It's safe.
         log(messageSentLevel, "SENT: {}", writeRequest.getOriginalMessage());

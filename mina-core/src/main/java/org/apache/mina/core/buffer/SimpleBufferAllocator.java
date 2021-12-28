@@ -23,6 +23,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * 一个简单缓冲区分配器
+ *
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
  *
@@ -30,10 +32,12 @@ import java.nio.ByteOrder;
  */
 public class SimpleBufferAllocator implements IoBufferAllocator {
 
+    // 学习笔记：先分配一个NIO缓冲区，再包装一下
     public IoBuffer allocate(int capacity, boolean direct) {
         return wrap(allocateNioBuffer(capacity, direct));
     }
 
+    // 学习笔记：创建NIO缓冲区
     public ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
         ByteBuffer nioBuffer;
         if (direct) {
@@ -44,6 +48,7 @@ public class SimpleBufferAllocator implements IoBufferAllocator {
         return nioBuffer;
     }
 
+    // 学习笔记：包装一个NIO缓冲区
     public IoBuffer wrap(ByteBuffer nioBuffer) {
         return new SimpleBuffer(nioBuffer);
     }
@@ -52,6 +57,7 @@ public class SimpleBufferAllocator implements IoBufferAllocator {
         // Do nothing
     }
 
+    // 一个简单的基于NIO字节缓冲区的缓冲区实现
     private class SimpleBuffer extends AbstractIoBuffer {
         private ByteBuffer buf;
 
@@ -77,13 +83,13 @@ public class SimpleBufferAllocator implements IoBufferAllocator {
         }
 
         @Override
-        protected IoBuffer duplicate0() {
-            return new SimpleBuffer(this, this.buf.duplicate());
+        protected IoBuffer slice0() {
+            return new SimpleBuffer(this, this.buf.slice());
         }
 
         @Override
-        protected IoBuffer slice0() {
-            return new SimpleBuffer(this, this.buf.slice());
+        protected IoBuffer duplicate0() {
+            return new SimpleBuffer(this, this.buf.duplicate());
         }
 
         @Override

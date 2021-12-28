@@ -30,12 +30,18 @@ import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 /**
+ * 学习笔记：将字符串编码为以分隔符结尾的文本行。
+ * 编码器需要指定字符集，行分隔符，已经行的最大长度。
+ * 注意：编码器不允许使用AUTO行分隔符,默认使用UNIX分隔符
+ *
  * A {@link ProtocolEncoder} which encodes a string into a text line
  * which ends with the delimiter.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class TextLineEncoder extends ProtocolEncoderAdapter {
+
+    // 这个属性是用来获取会话上是否绑定了nio中的默认编码器
     private static final AttributeKey ENCODER = new AttributeKey(TextLineEncoder.class, "encoder");
 
     private final Charset charset;
@@ -107,6 +113,7 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
         if (delimiter == null) {
             throw new IllegalArgumentException("delimiter");
         }
+        // 学习笔记：编码的时候需要指定一个特定的分隔符，解码的时候可以使用自动分隔符来分析编码器使用了那种分隔符
         if (LineDelimiter.AUTO.equals(delimiter)) {
             throw new IllegalArgumentException("AUTO delimiter is not allowed for encoder.");
         }
@@ -116,6 +123,9 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
     }
 
     /**
+     * 学习笔记：返回编码行允许的最大大小。如果编码行的大小超过此值，
+     * 编码器将抛出 IllegalArgumentException。默认值为 Integer.MAX_VALUE。
+     *
      * @return the allowed maximum size of the encoded line.
      * If the size of the encoded line exceeds this value, the encoder
      * will throw a {@link IllegalArgumentException}.  The default value
@@ -126,6 +136,9 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
     }
 
     /**
+     * 学习笔记：设置编码行允许的最大大小。如果编码行的大小超过此值，
+     * 编码器将抛出 IllegalArgumentException。默认值为 Integer.MAX_VALUE。
+     *
      * Sets the allowed maximum size of the encoded line.
      * If the size of the encoded line exceeds this value, the encoder
      * will throw a {@link IllegalArgumentException}.  The default value
@@ -137,32 +150,39 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
         if (maxLineLength <= 0) {
             throw new IllegalArgumentException("maxLineLength: " + maxLineLength);
         }
-
         this.maxLineLength = maxLineLength;
     }
 
     /**
+     * 学习笔记：编码的格式为 数据+分隔符
+     *
      * {@inheritDoc}
      */
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         CharsetEncoder encoder = (CharsetEncoder) session.getAttribute(ENCODER);
 
+        // 如果会话中没有绑定字符串编码器，则临时创建编码器，并设置到会话中
         if (encoder == null) {
             encoder = charset.newEncoder();
             session.setAttribute(ENCODER, encoder);
         }
 
+        // 将输入的数据以字符串形式进行编码（message本身可能就是string）
         String value = message == null ? "" : message.toString();
+        // 将要编码的数据丢到IO缓冲区中
         IoBuffer buf = IoBuffer.allocate(value.length()).setAutoExpand(true);
         buf.putString(value, encoder);
 
+        // 检查数据是否超过限制
         if (buf.position() > maxLineLength) {
             throw new IllegalArgumentException("Line length: " + buf.position());
         }
 
+        // 继续添加分隔符
         buf.putString(delimiter.getValue(), encoder);
         buf.flip();
+        // 将编码后数据丢进输出队列
         out.write(buf);
     }
 

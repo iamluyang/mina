@@ -41,8 +41,23 @@ public class WriteException extends IOException {
     /** The mandatory serialVersionUUID */
     private static final long serialVersionUID = -4174407422754524197L;
 
+    // 学习笔记：存储写请求的列表
     /** The list of WriteRequest stored in this exception */
     private final List<WriteRequest> requests;
+
+    /**
+     * @return the list of the failed {@link WriteRequest}, in the order of occurrence.
+     */
+    public List<WriteRequest> getRequests() {
+        return requests;
+    }
+
+    /**
+     * @return the firstly failed {@link WriteRequest}.
+     */
+    public WriteRequest getRequest() {
+        return requests.get(0);
+    }
 
     /**
      * Creates a new WriteException instance.
@@ -69,22 +84,22 @@ public class WriteException extends IOException {
      * Creates a new WriteException instance.
      * 
      * @param request The associated {@link WriteRequest}
-     * @param message The detail message
      * @param cause The Exception's cause
      */
-    public WriteException(WriteRequest request, String message, Throwable cause) {
-        super(message);
+    public WriteException(WriteRequest request, Throwable cause) {
         initCause(cause);
         this.requests = asRequestList(request);
     }
 
     /**
      * Creates a new WriteException instance.
-     * 
+     *
      * @param request The associated {@link WriteRequest}
+     * @param message The detail message
      * @param cause The Exception's cause
      */
-    public WriteException(WriteRequest request, Throwable cause) {
+    public WriteException(WriteRequest request, String message, Throwable cause) {
+        super(message);
         initCause(cause);
         this.requests = asRequestList(request);
     }
@@ -134,20 +149,6 @@ public class WriteException extends IOException {
         this.requests = asRequestList(requests);
     }
 
-    /**
-     * @return the list of the failed {@link WriteRequest}, in the order of occurrence.
-     */
-    public List<WriteRequest> getRequests() {
-        return requests;
-    }
-
-    /**
-     * @return the firstly failed {@link WriteRequest}. 
-     */
-    public WriteRequest getRequest() {
-        return requests.get(0);
-    }
-
     private static List<WriteRequest> asRequestList(Collection<WriteRequest> requests) {
         if (requests == null) {
             throw new IllegalArgumentException("requests");
@@ -172,9 +173,11 @@ public class WriteException extends IOException {
             throw new IllegalArgumentException("request");
         }
 
+        // 学习笔记：从写请求中取出原始的请求数据
         List<WriteRequest> requests = new ArrayList<>(1);
         requests.add(request.getOriginalRequest());
-        
+
+        // 学习笔记：生成一个不可修改的容器，避免修改写请求集合
         return Collections.unmodifiableList(requests);
     }
 }

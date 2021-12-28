@@ -25,12 +25,26 @@ import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
+ * 学习笔记 用于TCP/IP套接字传输的连接器。
+ *
  * {@link IoConnector} for socket transport (TCP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface SocketConnector extends IoConnector {
+
     /**
+     * 学习笔记：为连接器创建的会话的默认配置对象
+     *
+     * @return the default configuration of the new SocketSessions created by
+     * this connect service.
+     */
+    @Override
+    SocketSessionConfig getSessionConfig();
+
+    /**
+     * 学习笔记：默认连接的远程地址
+     *
      * @return the default remote InetSocketAddress to connect to when no argument
      * is specified in {@link #connect()} method.
      * This method overrides the {@link IoConnector#getDefaultRemoteAddress()} method.
@@ -39,13 +53,8 @@ public interface SocketConnector extends IoConnector {
     InetSocketAddress getDefaultRemoteAddress();
 
     /**
-     * @return the default configuration of the new SocketSessions created by 
-     * this connect service.
-     */
-    @Override
-    SocketSessionConfig getSessionConfig();
-    
-    /**
+     * 学习笔记：默认连接的远程地址
+     *
      * Sets the default remote InetSocketAddress to connect to when no argument is
      * specified in {@link #connect()} method.
      * This method overrides the {@link IoConnector#setDefaultRemoteAddress(java.net.SocketAddress)} method.

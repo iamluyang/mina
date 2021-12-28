@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 学习笔记：默认适配器模式的标准写法
+ *
  * An adapter class for {@link IoHandler}.  You can extend this
  * class and selectively override required event handler methods only.  All
  * methods do nothing by default.

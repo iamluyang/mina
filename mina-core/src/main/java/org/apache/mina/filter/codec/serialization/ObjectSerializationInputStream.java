@@ -30,6 +30,8 @@ import org.apache.mina.core.buffer.BufferDataException;
 import org.apache.mina.core.buffer.IoBuffer;
 
 /**
+ * 学习笔记：对象的序列化输入流（底层基于对象输入流），即实际上是将DataInputStream中的数据读取到IO缓冲区，再反序列化成对象
+ *
  * An {@link ObjectInput} and {@link InputStream} that can read the objects encoded
  * by {@link ObjectSerializationEncoder}.
  *
@@ -37,13 +39,15 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public class ObjectSerializationInputStream extends InputStream implements ObjectInput {
 
-    private final DataInputStream in;
-
     private final ClassLoader classLoader;
+
+    private final DataInputStream in;
 
     private int maxObjectSize = 1048576;
 
     /**
+     * 学习笔记：创建 ObjectSerializationInputStream 的新实例，基于指定的输入流
+     *
      * Create a new instance of an ObjectSerializationInputStream
      * @param in The {@link InputStream} to use
      */
@@ -96,8 +100,38 @@ public class ObjectSerializationInputStream extends InputStream implements Objec
         if (maxObjectSize <= 0) {
             throw new IllegalArgumentException("maxObjectSize: " + maxObjectSize);
         }
-
         this.maxObjectSize = maxObjectSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object readObject() throws ClassNotFoundException, IOException {
+
+        // in中的第一个int数据项，即对象的长度，占用了4个字节
+        int objectSize = in.readInt();
+
+        // 检测对象大小
+        if (objectSize <= 0) {
+            throw new StreamCorruptedException("Invalid objectSize: " + objectSize);
+        }
+        if (objectSize > maxObjectSize) {
+            throw new StreamCorruptedException("ObjectSize too big: " + objectSize + " (expected: <= " + maxObjectSize + ')');
+        }
+
+        // 创建反序列化对象所需要的长度，即对象的数据长度+对象长度用一个int表示（4个字节）
+        IoBuffer buf = IoBuffer.allocate(objectSize + 4, false);
+        // buf的格式同样是objectSize+data
+        buf.putInt(objectSize);
+        // 读取in中的剩余数据，跳过4个字节的对象长度，再读取后面的实际对象数据
+        in.readFully(buf.array(), 4, objectSize);
+        // 设置缓冲区的位置和limit，即对象的真实字节长度和4个字节的数据长度
+        buf.position(0);
+        buf.limit(objectSize + 4);
+
+        // 基于buf反序列化对象
+        return buf.getObject(classLoader);
     }
 
     /**
@@ -106,29 +140,6 @@ public class ObjectSerializationInputStream extends InputStream implements Objec
     @Override
     public int read() throws IOException {
         return in.read();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object readObject() throws ClassNotFoundException, IOException {
-        int objectSize = in.readInt();
-        if (objectSize <= 0) {
-            throw new StreamCorruptedException("Invalid objectSize: " + objectSize);
-        }
-        if (objectSize > maxObjectSize) {
-            throw new StreamCorruptedException("ObjectSize too big: " + objectSize + " (expected: <= " + maxObjectSize
-                    + ')');
-        }
-
-        IoBuffer buf = IoBuffer.allocate(objectSize + 4, false);
-        buf.putInt(objectSize);
-        in.readFully(buf.array(), 4, objectSize);
-        buf.position(0);
-        buf.limit(objectSize + 4);
-
-        return buf.getObject(classLoader);
     }
 
     /**

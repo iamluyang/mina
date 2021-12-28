@@ -200,6 +200,69 @@ public class DefaultIoFilterChain implements IoFilterChain {
         return e.getFilter();
     }
 
+    /**
+     * 学习笔记：返回从首部过滤器实例向后遍历到尾部的过滤器（但不包含首尾两个特殊的过滤器）
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Entry> getAll() {
+        List<Entry> list = new ArrayList<>();
+        EntryImpl e = head.nextEntry;
+
+        while (e != tail) {
+            list.add(e);
+            e = e.nextEntry;
+        }
+        return list;
+    }
+
+    /**
+     * 学习笔记：返回从尾部但过滤器实例向前遍历到头部的过滤器（但不包含首尾两个特殊的过滤器）
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Entry> getAllReversed() {
+        List<Entry> list = new ArrayList<>();
+        EntryImpl e = tail.prevEntry;
+
+        while (e != head) {
+            list.add(e);
+            e = e.prevEntry;
+        }
+        return list;
+    }
+
+    /**
+     * 学习笔记：是否存在
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contains(String name) {
+        return getEntry(name) != null;
+    }
+
+    /**
+     * 学习笔记：是否存在
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contains(IoFilter filter) {
+        return getEntry(filter) != null;
+    }
+
+    /**
+     * 学习笔记：是否存在
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contains(Class<? extends IoFilter> filterType) {
+        return getEntry(filterType) != null;
+    }
+
     // --------------------------------------------------
     // 获取指定过滤器的下一个过滤器实例
     // --------------------------------------------------
@@ -612,10 +675,11 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     // --------------------------------------------------
-    // 触发IoHandler事件
+    // 触发IoHandler事件，从head->tail
     // --------------------------------------------------
 
     /**
+     * 学习笔记：如果当前过滤器
      * {@inheritDoc}
      */
     @Override
@@ -625,12 +689,17 @@ public class DefaultIoFilterChain implements IoFilterChain {
 
     private void callNextSessionCreated(Entry entry, IoSession session) {
         try {
+            // 学习笔记：head的过滤器
             IoFilter filter = entry.getFilter();
+            // 学习笔记：head的下一个
             NextFilter nextFilter = entry.getNextFilter();
+            // 学习笔记：触发过滤器链中的过滤器
             filter.sessionCreated(nextFilter, session);
         } catch (Exception e) {
+            // 学习笔记：如果当前过滤器发生异常，则触发异常事件，并且过滤器不向下传递
             fireExceptionCaught(e);
         } catch (Error e) {
+            // 学习笔记：如果当前过滤器发生错误，则触发异常事件，并且向上抛出严重错误
             fireExceptionCaught(e);
             throw e;
         }
@@ -642,14 +711,6 @@ public class DefaultIoFilterChain implements IoFilterChain {
     @Override
     public void fireSessionOpened() {
         callNextSessionOpened(head, session);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void fireEvent(FilterEvent event) {
-        callNextFilterEvent(head, session, event);
     }
 
     private void callNextSessionOpened(Entry entry, IoSession session) {
@@ -672,6 +733,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     public void fireSessionClosed() {
         // Update future.
         try {
+            // 学习笔记：先在当前过滤器链设置close future状态
             session.getCloseFuture().setClosed();
         } catch (Exception e) {
             fireExceptionCaught(e);
@@ -681,6 +743,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
         }
 
         // And start the chain.
+        // 学习笔记：设置完当前会话的future close的状态后才传递给过滤器链中的过滤器
         callNextSessionClosed(head, session);
     }
 
@@ -699,6 +762,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
      */
     @Override
     public void fireSessionIdle(IdleStatus status) {
+        // 学习笔记：先统计会话的idle计数器状态
         session.increaseIdleCount(status, System.currentTimeMillis());
         callNextSessionIdle(head, session, status);
     }
@@ -721,6 +785,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
      */
     @Override
     public void fireMessageReceived(Object message) {
+        // 学习笔记：如果接收的数据是IoBuffer，则会话统计接收到的数据字节数
         if (message instanceof IoBuffer) {
             session.increaseReadBytes(((IoBuffer) message).remaining(), System.currentTimeMillis());
         }
@@ -747,6 +812,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     @Override
     public void fireMessageSent(WriteRequest request) {
         try {
+            // 学习笔记：设置request的异步结果状态为true
             request.getFuture().setWritten();
         } catch (Exception e) {
             fireExceptionCaught(e);
@@ -755,6 +821,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
             throw e;
         }
 
+        // 学习笔记：如果请求没有被编码，则继续传递给过滤器链中的过滤器
         if (!request.isEncoded()) {
             callNextMessageSent(head, session, request);
         }
@@ -783,7 +850,10 @@ public class DefaultIoFilterChain implements IoFilterChain {
 
     private void callNextExceptionCaught(Entry entry, IoSession session, Throwable cause) {
         // Notify the related future.
+        // 学习笔记：如果会话的附加属性包含会话创建属性，表示这是一个正在连接的操作
+        // 连接操作，会话初始化的时候会设置这个属性，当会话打开后会移除这个属性标记
         ConnectFuture future = (ConnectFuture) session.removeAttribute(SESSION_CREATED_FUTURE);
+        // 学习笔记：此刻会话已经打开了，即会话已经处于工作状态，当发生异常时，则传递给整个过滤器链处理
         if (future == null) {
             try {
                 IoFilter filter = entry.getFilter();
@@ -792,19 +862,24 @@ public class DefaultIoFilterChain implements IoFilterChain {
             } catch (Throwable e) {
                 LOGGER.warn("Unexpected exception from exceptionCaught handler.", e);
             }
+        // 学习笔记：如果在连接阶段发生异常，即此刻会话还没打开，则立即关闭掉这个会话，并不传递给过滤器链中的过滤器
         } else {
             // Please note that this place is not the only place that
             // calls ConnectFuture.setException().
+            // 学习笔记：请注意，这个地方并不是唯一一个调用 ConnectFuture.setException() 的地方。
+            // 如果会话不处于正在关闭状态，则调用会话的关闭接口
             if (!session.isClosing()) {
                 // Call the closeNow method only if needed
                 session.closeNow();
             }
-            
+
+            // 学习笔记：如果在连接阶段发生异常，则将异常回调给异步结果
             future.setException(cause);
         }
     }
 
     /**
+     * 学习笔记：input关闭操作
      * {@inheritDoc}
      */
     @Override
@@ -827,6 +902,32 @@ public class DefaultIoFilterChain implements IoFilterChain {
      * {@inheritDoc}
      */
     @Override
+    public void fireEvent(FilterEvent event) {
+        callNextFilterEvent(head, session, event);
+    }
+
+    private void callNextFilterEvent(Entry entry, IoSession session, FilterEvent event) {
+        try {
+            IoFilter filter = entry.getFilter();
+            NextFilter nextFilter = entry.getNextFilter();
+            filter.event(nextFilter, session, event);
+        } catch (Exception e) {
+            fireExceptionCaught(e);
+        } catch (Error e) {
+            fireExceptionCaught(e);
+            throw e;
+        }
+    }
+
+    // --------------------------------------------------
+    // 触发IoSession事件，从tail->head
+    // --------------------------------------------------
+
+    /**
+     * 学习笔记：会话写出操作，会触发从tail到head的过滤器（过滤器从尾部向前遍历）
+     * {@inheritDoc}
+     */
+    @Override
     public void fireFilterWrite(WriteRequest writeRequest) {
         callPreviousFilterWrite(tail, session, writeRequest);
     }
@@ -837,9 +938,11 @@ public class DefaultIoFilterChain implements IoFilterChain {
             NextFilter nextFilter = entry.getNextFilter();
             filter.filterWrite(nextFilter, session, writeRequest);
         } catch (Exception e) {
+            // 学习笔记：如果写出操作抛出异常，则回写异常
             writeRequest.getFuture().setException(e);
             fireExceptionCaught(e);
         } catch (Error e) {
+            // 学习笔记：如果写出操作抛出异常，则回写异常，并且重新抛出错误
             writeRequest.getFuture().setException(e);
             fireExceptionCaught(e);
             throw e;
@@ -847,6 +950,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     /**
+     * 学习笔记：会话关闭操作，则会触发从tail到head的过滤器（过滤器从尾部向前遍历）
      * {@inheritDoc}
      */
     @Override
@@ -865,82 +969,6 @@ public class DefaultIoFilterChain implements IoFilterChain {
             fireExceptionCaught(e);
             throw e;
         }
-    }
-
-    private void callNextFilterEvent(Entry entry, IoSession session, FilterEvent event) {
-        try {
-            IoFilter filter = entry.getFilter();
-            NextFilter nextFilter = entry.getNextFilter();
-            filter.event(nextFilter, session, event);
-        } catch (Exception e) {
-            fireExceptionCaught(e);
-        } catch (Error e) {
-            fireExceptionCaught(e);
-            throw e;
-        }
-    }
-
-    /**
-     * 学习笔记：返回从首部过滤器实例向后遍历到尾部的过滤器（但不包含首尾两个特殊的过滤器）
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Entry> getAll() {
-        List<Entry> list = new ArrayList<>();
-        EntryImpl e = head.nextEntry;
-
-        while (e != tail) {
-            list.add(e);
-            e = e.nextEntry;
-        }
-        return list;
-    }
-
-    /**
-     * 学习笔记：返回从尾部但过滤器实例向前遍历到头部的过滤器（但不包含首尾两个特殊的过滤器）
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Entry> getAllReversed() {
-        List<Entry> list = new ArrayList<>();
-        EntryImpl e = tail.prevEntry;
-
-        while (e != head) {
-            list.add(e);
-            e = e.prevEntry;
-        }
-        return list;
-    }
-
-    /**
-     * 学习笔记：是否存在
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean contains(String name) {
-        return getEntry(name) != null;
-    }
-
-    /**
-     * 学习笔记：是否存在
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean contains(IoFilter filter) {
-        return getEntry(filter) != null;
-    }
-
-    /**
-     * 学习笔记：是否存在
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean contains(Class<? extends IoFilter> filterType) {
-        return getEntry(filterType) != null;
     }
 
     // 学习笔记：打印格式
@@ -978,38 +1006,59 @@ public class DefaultIoFilterChain implements IoFilterChain {
         return buf.toString();
     }
 
+    // --------------------------------------------------
+    // head过滤器是直奔IoHandler处理器的起点，从head过滤器向后遍历到tail过滤器处的IoHandler。
+    // IoFilterAdapter中已经默认实现了向后遍历过滤器的逻辑，head中无需再实现相关代码逻辑
+    //
+    // 但head同时也是直奔IoProcessor的终点，从tail过滤器向前遍历到head过滤器。
+    // 因此在head中实现与IoProcessor相关的2个方法，依此来结束过滤器链的调用。
+    // --------------------------------------------------
+
     private class HeadFilter extends IoFilterAdapter {
+
+        // 学习笔记：当会话写出时，请求从tail过滤器到达这个最后的head过滤器，此刻数据已经被编码成IoBuffer类型了
         @SuppressWarnings("unchecked")
         @Override
         public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
             AbstractIoSession s = (AbstractIoSession) session;
 
             // Maintain counters.
+            // 学习笔记：处理完会话写出写请求后，需要统计会话写出的字节数
             if (writeRequest.getMessage() instanceof IoBuffer) {
                 IoBuffer buffer = (IoBuffer) writeRequest.getMessage();
                 // I/O processor implementation will call buffer.reset()
                 // it after the write operation is finished, because
                 // the buffer will be specified with messageSent event.
+                // IO 处理器实现会在写操作完成后调用 buffer.reset() 它，因为缓冲区将通过 messageSent 事件指定。
                 int remaining = buffer.remaining();
 
+                // 如果IoBuffer中含有数据，则统计会话写出数据的字节数
                 if (remaining > 0) {
                     s.increaseScheduledWriteBytes(remaining);
                 }
             }
 
+            // 学习笔记：会话统计写出的消息数量
             s.increaseScheduledWriteMessages();
 
+            // 学习笔记：获取会话的写出请求队列
             WriteRequestQueue writeRequestQueue = s.getWriteRequestQueue();
 
+            // 学习笔记：如果会话写出没有被挂起
             if (!s.isWriteSuspended()) {
+                // 学习笔记：如果会话的写请求队列为口空，则由会话的IoProcessor直接写出数据
                 if (writeRequestQueue.isEmpty(session)) {
                     // We can write directly the message
                     s.getProcessor().write(s, writeRequest);
                 } else {
+                    // 学习笔记：如果会话的写请求队列不为空，则将写请求进入写队列
                     s.getWriteRequestQueue().offer(s, writeRequest);
+                    // 学习笔记：通过该方法将要写出数据的会话加入调度刷出会话列表
                     s.getProcessor().flush(s);
                 }
             } else {
+                // 学习笔记：如果写请求操作挂起，则先将写请求进入队列，而不立即写出，直到写请求挂起取消，
+                // 在下次写出写请求时候一同刷出，如果一直写挂起，可能导致内存溢出。
                 s.getWriteRequestQueue().offer(s, writeRequest);
             }
         }
@@ -1017,17 +1066,29 @@ public class DefaultIoFilterChain implements IoFilterChain {
         @SuppressWarnings("unchecked")
         @Override
         public void filterClose(NextFilter nextFilter, IoSession session) throws Exception {
+            // 学习笔记：当会话关闭时，请求从tail过滤器到达这个最后的head过滤器，从IoProcessor中移除session对象
             ((AbstractIoSession) session).getProcessor().remove(session);
         }
     }
 
+    // --------------------------------------------------
+    // tail过滤器是handler处理器的终点，从head向后遍历到tail此处的IoHandler。
+    // 因此在tail中实现与handler相关的九个方法，依此来结束过滤器链的调用。
+    //
+    // 但tail同时也是IoProcessor的起点，从tail过滤器向前遍历到head过滤器。
+    // IoFilterAdapter中已经默认实现了向前遍历过滤器的逻辑，tail中无需再实现相关代码逻辑
+    // --------------------------------------------------
+
     private static class TailFilter extends IoFilterAdapter {
 
+        // 学习笔记：调用会话的终端处理器，结束会话创建事件
         @Override
 		public void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception {
 			session.getHandler().sessionCreated(session);
 		}
 
+        // 学习笔记：调用会话的终端处理器，结束会话打开事件，如果在handler中处理完最后一个会话打开事件，
+        // 则移除会话中的会话创建异步属性，并且回调设置会话结果
 		@Override
 		public void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception {
 			try {
@@ -1042,6 +1103,13 @@ public class DefaultIoFilterChain implements IoFilterChain {
 			}
 		}
 
+        // 学习笔记：调用会话的终端处理器，结束会话闲置事件
+        @Override
+        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
+            session.getHandler().sessionIdle(session, status);
+        }
+
+        // 学习笔记：调用会话的终端处理器，结束会话关闭事件
         @Override
         public void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
             AbstractIoSession s = (AbstractIoSession) session;
@@ -1049,16 +1117,20 @@ public class DefaultIoFilterChain implements IoFilterChain {
             try {
                 s.getHandler().sessionClosed(session);
             } finally {
+                // 学习笔记：当会话关闭后释放会话的写请求队列
                 try {
                     s.getWriteRequestQueue().dispose(session);
                 } finally {
                     try {
+                        // 学习笔记：当会话关闭后释放会话的属性集合
                         s.getAttributeMap().dispose(session);
                     } finally {
                         try {
                             // Remove all filters.
+                            // 学习笔记：当会话关闭后释放会话的过滤器集合
                             session.getFilterChain().clear();
                         } finally {
+                            // 学习笔记：当会话关闭后，如果会话设置了读操作，则会话提供关闭读操作的异步结果
                             if (s.getConfig().isUseReadOperation()) {
                                 s.offerClosedReadFuture();
                             }
@@ -1068,15 +1140,10 @@ public class DefaultIoFilterChain implements IoFilterChain {
             }
         }
 
-        @Override
-        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
-            session.getHandler().sessionIdle(session, status);
-        }
-
+        // 学习笔记：调用会话的终端处理器，结束会话异常事件
         @Override
         public void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception {
             AbstractIoSession s = (AbstractIoSession) session;
-
             try {
                 s.getHandler().exceptionCaught(s, cause);
             } finally {
@@ -1086,34 +1153,35 @@ public class DefaultIoFilterChain implements IoFilterChain {
             }
         }
 
-        @Override
-        public void inputClosed(NextFilter nextFilter, IoSession session) throws Exception {
-            session.getHandler().inputClosed(session);
-        }
-
+        // 学习笔记：调用会话的终端处理器，结束会话接收事件，并且统计接收的消息数量和统计吞吐量
         @Override
         public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
             AbstractIoSession s = (AbstractIoSession) session;
 
+            // 学习笔记：如果接收到的消息是IoBuffer，并且消息缓冲区没有剩余字节，则仅统计消息的数量，而不统计字节数
             if (message instanceof IoBuffer && !((IoBuffer) message).hasRemaining()) {
                 s.increaseReadMessages(System.currentTimeMillis());
             }
 
             // Update the statistics
+            // 学习笔记：业务层的会话处理器接收到消息后统计吞吐量
             if (session.getService() instanceof AbstractIoService) {
                 ((AbstractIoService) session.getService()).getStatistics().updateThroughput(System.currentTimeMillis());
             }
 
             // Propagate the message
+            // 学习笔记：业务层的处理器接收消息
             try {
                 session.getHandler().messageReceived(s, message);
             } finally {
+                // 学习笔记：如果会话开启了读操作，则会话收集接收到的消息
                 if (s.getConfig().isUseReadOperation()) {
                     s.offerReadFuture(message);
                 }
             }
         }
 
+        // 学习笔记：调用会话的终端处理器，结束会话发送事件，并且统计写出的消息数量和统计吞吐量
         @Override
         public void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
             long now = System.currentTimeMillis();
@@ -1127,7 +1195,14 @@ public class DefaultIoFilterChain implements IoFilterChain {
             // Propagate the message
             session.getHandler().messageSent(session, writeRequest.getOriginalMessage());
         }
-        
+
+        // 学习笔记：调用会话的终端处理器，结束input关闭事件
+        @Override
+        public void inputClosed(NextFilter nextFilter, IoSession session) throws Exception {
+            session.getHandler().inputClosed(session);
+        }
+
+        // 学习笔记：调用会话的终端处理器，结束event关闭事件
         @Override
         public void event(NextFilter nextFilter, IoSession session, FilterEvent event) throws Exception {
             session.getHandler().event(session, event);

@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public class BlacklistFilter extends IoFilterAdapter {
+
     /** The list of blocked addresses */
     private final List<Subnet> blacklist = new CopyOnWriteArrayList<Subnet>();
 
@@ -128,6 +129,8 @@ public class BlacklistFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于ip地址的黑名单
+     *
      * Blocks the specified endpoint.
      * 
      * @param address The address to block
@@ -141,6 +144,8 @@ public class BlacklistFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于ip掩码的黑名单
+     *
      * Blocks the specified subnet.
      * 
      * @param subnet The subnet to block
@@ -154,6 +159,8 @@ public class BlacklistFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记： 移除黑名单（ip）
+     *
      * Unblocks the specified endpoint.
      * 
      * @param address The address to unblock
@@ -167,6 +174,8 @@ public class BlacklistFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记： 移除黑名单（掩码）
+     *
      * Unblocks the specified subnet.
      * 
      * @param subnet The subnet to unblock
@@ -257,12 +266,17 @@ public class BlacklistFilter extends IoFilterAdapter {
         }
     }
 
+    // 学习笔记：被block的会话直接关闭
     private void blockSession(IoSession session) {
         LOGGER.warn("Remote address in the blacklist; closing.");
         session.closeNow();
     }
 
+    // 学习笔记：判断是否是黑名单
     private boolean isBlocked(IoSession session) {
+
+        // 如果是服务器端，相当于拒绝客户端的连接
+        // 如果是客户端，相当于禁止连接特定的服务器端
         SocketAddress remoteAddress = session.getRemoteAddress();
 
         if (remoteAddress instanceof InetSocketAddress) {

@@ -25,12 +25,26 @@ import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 
 /**
+ * 学习笔记：基于UDP传输的连接器
+ *
  * {@link IoConnector} for datagram transport (UDP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface DatagramConnector extends IoConnector {
+
     /**
+     * 学习笔记：数据报会话配置
+     *
+     * @return the default configuration of the new DatagramSessions created by
+     * this connect service.
+     */
+    @Override
+    DatagramSessionConfig getSessionConfig();
+
+    /**
+     * 学习笔记：默认的远程地址
+     *
      * @return the default remote InetSocketAddress to connect to when no argument
      * is specified in {@link #connect()} method.
      * This method overrides the {@link IoConnector#getDefaultRemoteAddress()} method.
@@ -39,13 +53,8 @@ public interface DatagramConnector extends IoConnector {
     InetSocketAddress getDefaultRemoteAddress();
 
     /**
-     * @return the default configuration of the new FatagramSessions created by 
-     * this connect service.
-     */
-    @Override
-    DatagramSessionConfig getSessionConfig();
-    
-    /**
+     * 学习笔记：默认的远程地址
+     *
      * Sets the default remote InetSocketAddress to connect to when no argument is
      * specified in {@link #connect()} method.
      * This method overrides the {@link IoConnector#setDefaultRemoteAddress(java.net.SocketAddress)} method.

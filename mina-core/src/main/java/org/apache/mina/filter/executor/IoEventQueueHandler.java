@@ -24,6 +24,9 @@ import java.util.EventListener;
 import org.apache.mina.core.session.IoEvent;
 
 /**
+ * 学习笔记：监听和过滤发生在 有序线程池执行器 {@link OrderedThreadPoolExecutor} 和
+ * 无序线程池执行器 {@link UnorderedThreadPoolExecutor} 中的所有事件队列操作。
+ *
  * Listens and filters all event queue operations occurring in
  * {@link OrderedThreadPoolExecutor} and {@link UnorderedThreadPoolExecutor}.
  *
@@ -32,6 +35,8 @@ import org.apache.mina.core.session.IoEvent;
 public interface IoEventQueueHandler extends EventListener {
 
     /**
+     * 一个虚拟处理程序，它总是接受不做任何特别事情的事件。
+     *
      * A dummy handler which always accepts event doing nothing particular.
      */
     IoEventQueueHandler NOOP = new IoEventQueueHandler() {
@@ -61,6 +66,8 @@ public interface IoEventQueueHandler extends EventListener {
     };
 
     /**
+     * 学习笔记：判断是否能够接收指定的事件
+     *
      * @return <tt>true</tt> if and only if the specified <tt>event</tt> is
      * allowed to be offered to the event queue.  The <tt>event</tt> is dropped
      * if <tt>false</tt> is returned.
@@ -71,6 +78,8 @@ public interface IoEventQueueHandler extends EventListener {
     boolean accept(Object source, IoEvent event);
 
     /**
+     * 指定的event提供给事件队列，之后会被调用。
+     *
      * Invoked after the specified <tt>event</tt> has been offered to the
      * event queue.
      * 
@@ -80,6 +89,8 @@ public interface IoEventQueueHandler extends EventListener {
     void offered(Object source, IoEvent event);
 
     /**
+     * 学习笔记：在从事件队列中轮询指定的 event 后调用。
+     *
      * Invoked after the specified <tt>event</tt> has been polled from the
      * event queue.
      * 

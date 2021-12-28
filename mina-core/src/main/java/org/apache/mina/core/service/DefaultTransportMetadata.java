@@ -27,6 +27,8 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.util.IdentityHashSet;
 
 /**
+ * 学习笔记：默认的传输协议元数据
+ *
  * A default immutable implementation of {@link TransportMetadata}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -115,6 +117,22 @@ public class DefaultTransportMetadata implements TransportMetadata {
      * {@inheritDoc}
      */
     @Override
+    public String getProviderName() {
+        return providerName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Class<? extends SocketAddress> getAddressType() {
         return addressType;
     }
@@ -133,22 +151,6 @@ public class DefaultTransportMetadata implements TransportMetadata {
     @Override
     public Class<? extends IoSessionConfig> getSessionConfigType() {
         return sessionConfigType;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getProviderName() {
-        return providerName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return name;
     }
 
     /**

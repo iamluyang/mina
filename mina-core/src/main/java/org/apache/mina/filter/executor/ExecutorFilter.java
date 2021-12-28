@@ -110,33 +110,44 @@ import org.apache.mina.core.write.WriteRequest;
  * @org.apache.xbean.XBean
  */
 public class ExecutorFilter extends IoFilterAdapter {
+
+    // 支持并发的事件
     /** The list of handled events */
     private EnumSet<IoEventType> eventTypes;
 
+    // 执行事件任务的线程池
     /** The associated executor */
     private Executor executor;
 
+    // 线程池类型
     /** A flag set if the executor can be managed */
     private boolean manageableExecutor;
 
+    // 线程池最大大小
     /** The default pool size */
     private static final int DEFAULT_MAX_POOL_SIZE = 16;
 
+    // 线程池的初始大小
     /** The number of thread to create at startup */
     private static final int BASE_THREAD_NUMBER = 0;
 
+    // 线程的活跃时间
     /** The default KeepAlive time, in seconds */
     private static final long DEFAULT_KEEPALIVE_TIME = 30;
 
-    /** 
+    /**
+     * 用于判断 Executor 是否已在构造函数中创建或作为参数传递。在第二种情况下，可以管理执行器状态。
+     *
      * A set of flags used to tell if the Executor has been created 
      * in the constructor or passed as an argument. In the second case, 
      * the executor state can be managed.
      **/
     private static final boolean MANAGEABLE_EXECUTOR = true;
 
+    // 执行器的类型
     private static final boolean NOT_MANAGEABLE_EXECUTOR = false;
 
+    // 默认支持并发执行的事件
     /** A list of default EventTypes to be handled by the executor */
     private static final IoEventType[] DEFAULT_EVENT_SET = new IoEventType[] { 
         IoEventType.EXCEPTION_CAUGHT, 
@@ -147,6 +158,8 @@ public class ExecutorFilter extends IoFilterAdapter {
         IoEventType.SESSION_OPENED };
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}, no thread in the pool, and a 
      * maximum of 16 threads in the pool. All the event will be handled 
@@ -162,6 +175,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}, no thread in the pool, but 
      * a maximum of threads in the pool is given. All the event will be handled 
@@ -179,6 +194,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}, a number of thread to start with, a  
      * maximum of threads the pool can contain. All the event will be handled 
@@ -197,6 +214,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -215,6 +234,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -235,6 +256,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -255,6 +278,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -276,6 +301,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器，不使用事件队列限制器，使用默认线程工厂，其他参数使用默认值
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -291,6 +318,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器，不使用事件队列限制器，使用默认线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -307,6 +336,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池的执行过滤器，不使用事件队列限制器，使用默认线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -324,6 +355,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池是执行过滤器，不使用事件队列限制器，使用默认线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -344,6 +377,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池是执行过滤器，事件队列限制器，使用默认线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -365,6 +400,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池是执行过滤器，不带事件队列限制器，使用制定线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -386,6 +423,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：基于有序线程池是执行过滤器，并且带一个事件队列限制器，使用自定义线程工厂
+     *
      * (Convenience constructor) Creates a new instance with a new
      * {@link OrderedThreadPoolExecutor}.
      * 
@@ -429,20 +468,25 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：创建事件类型列表
+     *
      * Create an EnumSet from an array of EventTypes, and set the associated
      * eventTypes field.
      *
      * @param eventTypes The array of handled events
      */
     private void initEventTypes(IoEventType... eventTypes) {
+        // 数据校验，不能为空
         if ((eventTypes == null) || (eventTypes.length == 0)) {
             eventTypes = DEFAULT_EVENT_SET;
         }
 
         // Copy the list of handled events in the event set
+        // 复制事件列表
         this.eventTypes = EnumSet.of(eventTypes[0], eventTypes);
 
         // Check that we don't have the SESSION_CREATED event in the set
+        // 学习笔记：会话创建事件不允许并发执行
         if (this.eventTypes.contains(IoEventType.SESSION_CREATED)) {
             this.eventTypes = null;
             throw new IllegalArgumentException(IoEventType.SESSION_CREATED + " is not allowed.");
@@ -450,6 +494,9 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 创建 ExecutorFilter 的新实例。这个私有构造函数被所有公共构造函数调用。
+     * 需要一个线程池，一组需要并发执行的事件类型列表
+     *
      * Creates a new instance of ExecutorFilter. This private constructor is called by all
      * the public constructor.
      *
@@ -468,6 +515,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：关闭线程池
+     *
      * Shuts down the underlying executor if this filter hase been created via
      * a convenience constructor.
      */
@@ -479,6 +528,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：底层的线程池
+     *
      * @return the underlying {@link Executor} instance this filter uses.
      */
     public final Executor getExecutor() {
@@ -486,6 +537,8 @@ public class ExecutorFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：通过线程池来执行过滤器中的事件
+     *
      * Fires the specified event through the underlying executor.
      * 
      * @param event The filtered event
@@ -505,6 +558,9 @@ public class ExecutorFilter extends IoFilterAdapter {
         }
     }
 
+    // ---------------------------------------------------------------------
+    // 前往IoHandler的事件
+    // ---------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -583,6 +639,9 @@ public class ExecutorFilter extends IoFilterAdapter {
         }
     }
 
+    // ---------------------------------------------------------------------
+    // 会话的事件
+    // ---------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */

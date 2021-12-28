@@ -34,6 +34,8 @@ import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 
 /**
+ * 学习笔记：一个key存储的工厂
+ *
  * A factory that creates and configures a new {@link KeyStore} instance.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

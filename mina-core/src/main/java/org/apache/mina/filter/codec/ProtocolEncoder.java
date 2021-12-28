@@ -23,6 +23,11 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：将更高级别的消息对象编码为二进制或特定于协议的数据。
+ * MINA 使用从会话写入队列中弹出的消息调用 encode(IoSession, Object, ProtocolEncoderOutput) 方法，
+ * 然后编码器实现将编码的消息（通常是 {@link IoBuffer}s）放入 {@link ProtocolEncoderOutput} 中调用
+ * ProtocolEncoderOutput.write(Object)。
+ *
  * Encodes higher-level message objects into binary or protocol-specific data.
  * MINA invokes {@link #encode(IoSession, Object, ProtocolEncoderOutput)}
  * method with message which is popped from the session write queue, and then
@@ -40,6 +45,10 @@ import org.apache.mina.core.session.IoSession;
 public interface ProtocolEncoder {
 
     /**
+     * 学习笔记：将更高级别的消息对象编码为二进制或特定于协议的数据。
+     * MINA 使用从会话写入队列中弹出的消息调用 encode(IoSession, Object, ProtocolEncoderOutput) 方法，
+     * 然后编码器实现将编码的消息（通常是 IoBuffers）放入 ProtocolEncoderOutput。
+     *
      * Encodes higher-level message objects into binary or protocol-specific data.
      * MINA invokes {@link #encode(IoSession, Object, ProtocolEncoderOutput)}
      * method with message which is popped from the session write queue, and then
@@ -54,6 +63,8 @@ public interface ProtocolEncoder {
     void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception;
 
     /**
+     * 学习笔记：释放与此编码器相关的所有资源。
+     *
      * Releases all resources related with this encoder.
      *
      * @param session The current Session

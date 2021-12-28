@@ -32,18 +32,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 学习笔记：实现在您的通信流中生成随机字节和 PDU 修改。
+ *
  * An {@link IoFilter} implementation generating random bytes and PDU modification in
  * your communication streams.
  * It's quite simple to use :
  * <code>ErrorGeneratingFilter egf = new ErrorGeneratingFilter();</code>
+ * 学习笔记：改变数据的概率
  * For activate the change of some bytes in your {@link IoBuffer}, for a probability of 200 out
  * of 1000 {@link IoBuffer} processed :
  * <code>egf.setChangeByteProbability(200);</code>
+ * 学习笔记：插入数据的概率
  * For activate the insertion of some bytes in your {@link IoBuffer}, for a
  * probability of 200 out of 1000 :
  * <code>egf.setInsertByteProbability(200);</code>
+ * 学习笔记：删除数据的概率
  * And for the removing of some bytes :
  * <code>egf.setRemoveByteProbability(200);</code>
+ *
+ * 学习笔记：激活写入或读取的错误生成
  * You can activate the error generation for write or read with the
  * following methods :
  * <code>egf.setManipulateReads(true);
@@ -53,16 +60,23 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public class ErrorGeneratingFilter extends IoFilterAdapter {
+
+    // 删除字节的概率
     private int removeByteProbability = 0;
 
+    // 插入字节的概率
     private int insertByteProbability = 0;
 
+    // 改变字节的概率
     private int changeByteProbability = 0;
 
+    // 删除PDU字节的概率
     private int removePduProbability = 0;
 
+    // 重复PDU字节的概率
     private int duplicatePduProbability = 0;
 
+    // 重新发送 Pdu Laster 概率
     private int resendPduLasterProbability = 0;
 
     private int maxInsertByte = 10;
@@ -77,34 +91,44 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
 
     @Override
     public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
+
+        // 学习笔记：是否开启写数据错乱
         if (manipulateWrites) {
             // manipulate bytes
+            // 学习笔记：如果写出的数据是缓冲区对象的处理逻辑
             if (writeRequest.getMessage() instanceof IoBuffer) {
                 manipulateIoBuffer(session, (IoBuffer) writeRequest.getMessage());
+                // 学习笔记：插入乱序数据到写请求中
                 IoBuffer buffer = insertBytesToNewIoBuffer(session, (IoBuffer) writeRequest.getMessage());
-                
+
+                // 学习笔记：如果生成了写乱序数据，则重新生成一个写请求作为错误数据对象
                 if (buffer != null) {
                     writeRequest = new DefaultWriteRequest(buffer, writeRequest.getFuture(),
                             writeRequest.getDestination());
                 }
                 // manipulate PDU
             } else {
+                // 学习笔记：如果写出的数据不是一个缓冲区对象
+                // 学习笔记：重复 Pdu 概率
                 if (duplicatePduProbability > rng.nextInt()) {
                     nextFilter.filterWrite(session, writeRequest);
                 }
 
+                // 学习笔记：重新发送 Pdu Laster 概率
                 if (resendPduLasterProbability > rng.nextInt()) {
                     // store it somewhere and trigger a write execution for
                     // later
                     // TODO
                 }
-                
+
+                // 学习笔记：删除 Pdu 概率
                 if (removePduProbability > rng.nextInt()) {
                     return;
                 }
             }
         }
-        
+
+        // 学习笔记：将错误的数据继续发送到下一个过滤器
         nextFilter.filterWrite(session, writeRequest);
     }
 
@@ -112,14 +136,17 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         if (manipulateReads && (message instanceof IoBuffer)) {
             // manipulate bytes
+            // 学习笔记：如果启动了读数据乱序，则生成新的数据
             manipulateIoBuffer(session, (IoBuffer) message);
             IoBuffer buffer = insertBytesToNewIoBuffer(session, (IoBuffer) message);
-            
+
+            // 学习笔记：用生成的数据替代原始数据
             if (buffer != null) {
                 message = buffer;
             }
         }
-        
+
+        // 学习笔记：将生成的数据发送到下一个过滤器
         nextFilter.messageReceived(session, message);
     }
 
@@ -127,17 +154,25 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
         if (insertByteProbability > rng.nextInt(1000)) {
             logger.info(buffer.getHexDump());
             // where to insert bytes ?
+            // 学习笔记：随机生成一个插入数据的位置
             int pos = rng.nextInt(buffer.remaining()) - 1;
 
             // how many byte to insert ?
+            // 学习笔记：最多插入多少个错乱数据
             int count = rng.nextInt(maxInsertByte - 1) + 1;
 
+            // 学习笔记：分配一个新的缓冲区来做错误数据
             IoBuffer newBuff = IoBuffer.allocate(buffer.remaining() + count);
+
+            // 学习笔记：获取buffer的随机位置前面的数据
             for (int i = 0; i < pos; i++)
                 newBuff.put(buffer.get());
+
+            // 插入count个随机数据
             for (int i = 0; i < count; i++) {
                 newBuff.put((byte) (rng.nextInt(256)));
             }
+            // 学习笔记：获取buffer的随机位置后面的数据
             while (buffer.remaining() > 0) {
                 newBuff.put(buffer.get());
             }
@@ -192,6 +227,48 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：是否需要激活读取操作
+     *
+     * @return The number of manipulated reads
+     */
+    public boolean isManipulateReads() {
+        return manipulateReads;
+    }
+
+    /**
+     * 学习笔记：如果要将错误应用于读取 {@link IoBuffer}，请设置为 true
+     *
+     * Set to true if you want to apply error to the read {@link IoBuffer}
+     *
+     * @param manipulateReads The number of manipulated reads
+     */
+    public void setManipulateReads(boolean manipulateReads) {
+        this.manipulateReads = manipulateReads;
+    }
+
+    /**
+     * 学习笔记：是否需要激活操纵写入
+     *
+     * @return If manipulated writes are expected or not
+     */
+    public boolean isManipulateWrites() {
+        return manipulateWrites;
+    }
+
+    /**
+     * 学习笔记：如果要将错误应用于写入的 {@link IoBuffer}，请设置为 true
+     *
+     * Set to true if you want to apply error to the written {@link IoBuffer}
+     *
+     * @param manipulateWrites If manipulated writes are expected or not
+     */
+    public void setManipulateWrites(boolean manipulateWrites) {
+        this.manipulateWrites = manipulateWrites;
+    }
+
+    /**
+     * 学习笔记：字节改变的概率
+     *
      * @return The probably that a byte changes
      */
     public int getChangeByteProbability() {
@@ -199,6 +276,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置更改字节错误的概率。如果此概率 > 0，过滤器将修改已处理 {@link IoBuffer} 的随机字节数。
+     *
      * Set the probability for the change byte error.
      * If this probability is &gt; 0 the filter will modify a random number of byte
      * of the processed {@link IoBuffer}.
@@ -209,6 +288,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：产生重复PDU的概率
+     *
      * @return The probability for generating duplicated PDU
      */
     public int getDuplicatePduProbability() {
@@ -216,6 +297,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：产生重复PDU的概率
+     *
      * not functional ATM
      * @param duplicatePduProbability The probability for generating duplicated PDU
      */
@@ -224,6 +307,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：插入字节错误的概率。
+     *
      * @return the probability for the insert byte error.
      */
     public int getInsertByteProbability() {
@@ -231,6 +316,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置插入字节错误的概率。如果此概率 > 0，过滤器将在处理后的 {@link IoBuffer} 中插入一个随机字节数。
+     *
      * Set the probability for the insert byte error.
      * If this probability is &gt; 0 the filter will insert a random number of byte
      * in the processed {@link IoBuffer}.
@@ -241,38 +328,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
-     * @return The number of manipulated reads
-     */
-    public boolean isManipulateReads() {
-        return manipulateReads;
-    }
-
-    /**
-     * Set to true if you want to apply error to the read {@link IoBuffer}
-     * 
-     * @param manipulateReads The number of manipulated reads
-     */
-    public void setManipulateReads(boolean manipulateReads) {
-        this.manipulateReads = manipulateReads;
-    }
-
-    /**
-     * @return If manipulated writes are expected or not
-     */
-    public boolean isManipulateWrites() {
-        return manipulateWrites;
-    }
-
-    /**
-     * Set to true if you want to apply error to the written {@link IoBuffer}
-     * 
-     * @param manipulateWrites If manipulated writes are expected or not
-     */
-    public void setManipulateWrites(boolean manipulateWrites) {
-        this.manipulateWrites = manipulateWrites;
-    }
-
-    /**
+     * 学习笔记：删除字节错误的概率
+     *
      * @return The probability for the remove byte error
      */
     public int getRemoveByteProbability() {
@@ -280,6 +337,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置删除字节错误的概率。如果此概率 > 0，过滤器将删除处理后的 {@link IoBuffer} 中的随机字节数。
+     *
      * Set the probability for the remove byte error.
      * If this probability is &gt; 0 the filter will remove a random number of byte
      * in the processed {@link IoBuffer}.
@@ -291,6 +350,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：PDU 移除概率
+     *
      * @return The PDU removal probability
      */
     public int getRemovePduProbability() {
@@ -298,6 +359,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：PDU 移除概率
+     *
      * not functional ATM
      * @param removePduProbability The PDU removal probability
      */
@@ -306,6 +369,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：重发前的延迟
+     *
      * @return The delay before a resend
      */
     public int getResendPduLasterProbability() {
@@ -313,6 +378,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：无法正常工作的 ATM
+     *
      * not functional ATM
      * @param resendPduLasterProbability The delay before a resend
      */
@@ -321,6 +388,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：{@link IoBuffer} 中插入的最大字节数
+     *
      * @return maximum bytes inserted in a {@link IoBuffer}
      */
     public int getMaxInsertByte() {
@@ -328,6 +397,8 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
+     * 学习笔记：设置过滤器可以在 {@link IoBuffer} 中插入的最大字节数。默认值为 10。
+     *
      * Set the maximum number of byte the filter can insert in a {@link IoBuffer}.
      * The default value is 10.
      * @param maxInsertByte maximum bytes inserted in a {@link IoBuffer} 

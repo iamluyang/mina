@@ -32,13 +32,24 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 
 /**
+ * 学习笔记：基于数据报的会话实现。
+ *
+ *
  * An {@link IoSession} for datagram transport (UDP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 class NioDatagramSession extends NioSession {
-    static final TransportMetadata METADATA = new DefaultTransportMetadata("nio", "datagram", true, false,
-            InetSocketAddress.class, DatagramSessionConfig.class, IoBuffer.class);
+
+    static final TransportMetadata METADATA =
+            new DefaultTransportMetadata(
+                    "nio", // nio
+                    "datagram", // 数据报
+                    true,  // 无连接的协议
+                    false, // 数据报不分片
+                    InetSocketAddress.class, // 地址类型
+                    DatagramSessionConfig.class, // 数据报会话配置
+                    IoBuffer.class); // Io缓冲区类型
 
     private final InetSocketAddress localAddress;
 
@@ -64,14 +75,8 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DatagramSessionConfig getConfig() {
-        return (DatagramSessionConfig) config;
-    }
-
-    /**
+     * 学习笔记：获取会话底层的数据报通道
+     *
      * {@inheritDoc}
      */
     @Override
@@ -80,6 +85,16 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
+     * 学习笔记：获取会话的配置信息
+     * {@inheritDoc}
+     */
+    @Override
+    public DatagramSessionConfig getConfig() {
+        return (DatagramSessionConfig) config;
+    }
+
+    /**
+     * 学习笔记：获取协议属性
      * {@inheritDoc}
      */
     @Override
@@ -88,6 +103,7 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
+     * 学习笔记：即会话的对端会话地址
      * {@inheritDoc}
      */
     @Override
@@ -96,6 +112,7 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
+     * 学习笔记：即会话的本地地址
      * {@inheritDoc}
      */
     @Override
@@ -104,6 +121,9 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
+     * 学习笔记：获取服务地址，如果会话的宿主是连接器，则为远程服务器的地址。
+     * 如果会话的宿主为接收器，则为接收器bind绑定的地址。
+     *
      * {@inheritDoc}
      */
     @Override

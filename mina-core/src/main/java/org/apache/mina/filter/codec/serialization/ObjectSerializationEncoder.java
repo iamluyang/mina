@@ -29,12 +29,16 @@ import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 /**
+ * 学习笔记：使用 IoBuffer.putObject(Object) 序列化 Serializable Java 对象的 ProtocolEncoder。
+ *
  * A {@link ProtocolEncoder} which serializes {@link Serializable} Java objects
  * using {@link IoBuffer#putObject(Object)}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ObjectSerializationEncoder extends ProtocolEncoderAdapter {
+
+    // 学习笔记：对象的最大值
     private int maxObjectSize = Integer.MAX_VALUE; // 2GB
 
     /**
@@ -45,6 +49,9 @@ public class ObjectSerializationEncoder extends ProtocolEncoderAdapter {
     }
 
     /**
+     * 学习笔记：返回编码对象允许的最大大小。如果编码对象的大小超过此值，
+     * 则此编码器将抛出 IllegalArgumentException。默认值为 Integer.MAX_VALUE。
+     *
      * @return the allowed maximum size of the encoded object.
      * If the size of the encoded object exceeds this value, this encoder
      * will throw a {@link IllegalArgumentException}.  The default value
@@ -79,17 +86,24 @@ public class ObjectSerializationEncoder extends ProtocolEncoderAdapter {
             throw new NotSerializableException();
         }
 
+        // 学习笔记：使用IO缓冲区序列化message
         IoBuffer buf = IoBuffer.allocate(64);
         buf.setAutoExpand(true);
         buf.putObject(message);
 
+        // 协议格式：数据长度（int） + 实际数据
+        // 学习笔记：即缓冲区中的数据长度，这里的4表示用一个int类型记录序列化对象的长度
         int objectSize = buf.position() - 4;
+        // 学习笔记：由于buf写入序列化对象后返回的position包含了一个字节的长度，所以要减去4个字节才是对象的真正长度
         if (objectSize > maxObjectSize) {
             throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
                     + ')');
         }
 
+        // 学习笔记：翻转读写模式
         buf.flip();
+
+        // 学习笔记：将序列化的数据丢进输出队列
         out.write(buf);
     }
 }

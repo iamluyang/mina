@@ -24,6 +24,8 @@ import org.apache.mina.core.session.IoSession;
 /**
  * 存储writerequest队列到一个IoSession
  *
+ * 学习笔记：如果session设置了写挂起，则写请求先放到这个队列中，等写挂起取消后再一次刷出所有写请求
+ *
  * Stores {@link WriteRequest}s which are queued to an {@link IoSession}.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -31,7 +33,7 @@ import org.apache.mina.core.session.IoSession;
 public interface WriteRequestQueue {
 
     /**
-     * 获取会话队列中可用的第一个请求。
+     * 学习笔记：获取会话队列中可用的第一个请求。
      *
      * Get the first request available in the queue for a session.
      * @param session The session
@@ -40,7 +42,7 @@ public interface WriteRequestQueue {
     WriteRequest poll(IoSession session);
 
     /**
-     * 向会话写入队列添加一个新的WriteRequest
+     * 学习笔记：向会话写入队列添加一个新的WriteRequest
      *
      * Add a new WriteRequest to the session write's queue
      * @param session The session
@@ -49,7 +51,7 @@ public interface WriteRequestQueue {
     void offer(IoSession session, WriteRequest writeRequest);
 
     /**
-     * 告诉会话的WriteRequest队列是否为空
+     * 学习笔记：告诉会话的WriteRequest队列是否为空
      *
      * Tells if the WriteRequest queue is empty or not for a session
      * @param session The session to check
@@ -58,7 +60,14 @@ public interface WriteRequestQueue {
     boolean isEmpty(IoSession session);
 
     /**
-     * 从会话队列中删除所有请求。
+     * 学习笔记：当前存储在队列中的对象的数量。
+     *
+     * @return the number of objects currently stored in the queue.
+     */
+    int size();
+
+    /**
+     * 学习笔记：从会话队列中删除所有请求。
      *
      * Removes all the requests from this session's queue.
      * @param session The associated session
@@ -66,18 +75,11 @@ public interface WriteRequestQueue {
     void clear(IoSession session);
 
     /**
-     * 处理与指定会话关联的任何发布。断开连接时调用此方法。
+     * 学习笔记：处理与指定会话关联的任何发布。断开连接时调用此方法。
      *
      * Disposes any releases associated with the specified session.
      * This method is invoked on disconnection.
      * @param session The associated session
      */
     void dispose(IoSession session);
-
-    /**
-     * 当前存储在队列中的对象的数量。
-     * 
-     * @return the number of objects currently stored in the queue.
-     */
-    int size();
 }

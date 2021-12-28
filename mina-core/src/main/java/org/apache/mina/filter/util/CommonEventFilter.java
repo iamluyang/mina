@@ -28,12 +28,16 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.FilterEvent;
 
 /**
+ * 学习笔记：当你想要创建一个过滤器来围绕所有 11 个 IoEvents 包装相同的逻辑时扩展这个类
+ * 基于IoFilterEvent事件来触发过滤器
+ *
  * Extend this class when you want to create a filter that
  * wraps the same logic around all 11 IoEvents
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class CommonEventFilter extends IoFilterAdapter {
+
     protected abstract void filter(IoFilterEvent event) throws Exception;
 
     /**

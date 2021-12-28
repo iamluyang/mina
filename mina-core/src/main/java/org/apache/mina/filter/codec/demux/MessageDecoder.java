@@ -24,6 +24,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
+ * 学习笔记：解码某种类型的消息。 我们没有为 MessageDecoder 提供任何 dispose 方法，
+ * 因为如果您有很多消息类型要处理，它会给您带来性能损失。
+ *
  * Decodes a certain type of messages.
  * <p>
  * We didn't provide any <tt>dispose</tt> method for {@link MessageDecoder}
@@ -36,6 +39,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @see MessageDecoderFactory
  */
 public interface MessageDecoder {
+
     /**
      * Represents a result from {@link #decodable(IoSession, IoBuffer)} and
      * {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}.  Please
@@ -58,6 +62,8 @@ public interface MessageDecoder {
     MessageDecoderResult NOT_OK = MessageDecoderResult.NOT_OK;
 
     /**
+     * 学习笔记：检查指定的缓冲区是否可由此解码器解码。
+     *
      * Checks the specified buffer is decodable by this decoder.
      *
      * @param session The current session
@@ -71,6 +77,10 @@ public interface MessageDecoder {
     MessageDecoderResult decodable(IoSession session, IoBuffer in);
 
     /**
+     * 学习笔记：将二进制或特定于协议的内容解码为更高级别的消息对象。
+     * MINA 调用 decode(IoSession, IoBuffer, ProtocolDecoderOutput) 方法读取数据，
+     * 然后解码器实现将解码后的消息放入 ProtocolDecoderOutput。
+     *
      * Decodes binary or protocol-specific content into higher-level message objects.
      * MINA invokes {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}
      * method with read data, and then the decoder implementation puts decoded
@@ -87,6 +97,10 @@ public interface MessageDecoder {
     MessageDecoderResult decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception;
 
     /**
+     * 学习笔记：当指定的 session 被关闭时，释放此解码器。
+     * 当您处理不指定消息长度的协议时，此方法很有用，例如没有 content-length  标头的 HTTP 响应。
+     * 实现这个方法来处理 decode(IoSession, IoBuffer, ProtocolDecoderOutput) 方法没有完全处理的剩余数据。
+     *
      * Invoked when the specified <tt>session</tt> is closed while this decoder was
      * parsing the data.  This method is useful when you deal with the protocol which doesn't
      * specify the length of a message such as HTTP response without <tt>content-length</tt>

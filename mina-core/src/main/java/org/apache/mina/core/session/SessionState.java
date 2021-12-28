@@ -20,6 +20,8 @@
 package org.apache.mina.core.session;
 
 /**
+ * 学习笔记：会话状态。一个会话可以处于三种不同的状态：
+ *
  * The session state. A session can be in three different state :
  * <ul>
  *   <li>OPENING : The session has not been fully created</li>
@@ -30,12 +32,16 @@ package org.apache.mina.core.session;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public enum SessionState {
+
+    // 会话尚未完全创建
     /** Session being created, not yet completed */
     OPENING, 
-    
+
+    // 会话已打开
     /** Opened session */
     OPENED, 
-    
+
+    // 会议即将结束
     /** A session being closed */
     CLOSING
 }

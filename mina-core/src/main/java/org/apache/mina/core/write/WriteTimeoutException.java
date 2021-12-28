@@ -25,6 +25,7 @@ import org.apache.mina.core.session.IoSessionConfig;
 
 
 /**
+ * 学习笔记：会话写操作超时抛出的异常。
  * 当IoSessionConfig.getWriteTimeout()秒未刷新写入缓冲区时抛出的异常。
  *
  * An exception which is thrown when write buffer is not flushed for
@@ -80,19 +81,19 @@ public class WriteTimeoutException extends WriteException {
      * Create a new WriteTimeoutException instance
      * 
      * @param request The {@link WriteRequest} for which we have had a timeout
-     * @param message The error message
      */
-    public WriteTimeoutException(WriteRequest request, String message) {
-        super(request, message);
+    public WriteTimeoutException(WriteRequest request) {
+        super(request);
     }
 
     /**
      * Create a new WriteTimeoutException instance
-     * 
+     *
      * @param request The {@link WriteRequest} for which we have had a timeout
+     * @param message The error message
      */
-    public WriteTimeoutException(WriteRequest request) {
-        super(request);
+    public WriteTimeoutException(WriteRequest request, String message) {
+        super(request, message);
     }
 
     /**
