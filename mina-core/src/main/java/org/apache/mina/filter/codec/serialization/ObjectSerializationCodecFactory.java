@@ -29,7 +29,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  * 学习笔记：序列化和反序列化 Java 对象的 ProtocolCodecFactory。
  * 当您必须在没有任何特定编解码器的情况下快速构建应用程序原型时，此编解码器非常有用。
  *
- * 即：一种通用的基于java对象序列化和反序列化的协议处理器
+ * 即：一种通用的基于java对象序列化和反序列化的协议处理器。抽象工厂的一个实现。
  *
  * A {@link ProtocolCodecFactory} that serializes and deserializes Java objects.
  * This codec is very useful when you have to prototype your application rapidly

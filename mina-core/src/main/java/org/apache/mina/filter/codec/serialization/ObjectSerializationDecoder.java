@@ -29,7 +29,9 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
- * 学习笔记：使用 IoBuffer.getObject(ClassLoader) 反序列化 Serializable Java 对象的 ProtocolDecoder。
+ * 学习笔记：使用 IoBuffer.getObject(ClassLoader) 反序列化解码 Serializable Java 对象的 ProtocolDecoder。
+ *
+ * 当前解码器基于累积协议解码器来累积接收到的消息字节。
  *
  * A {@link ProtocolDecoder} which deserializes {@link Serializable} Java
  * objects using {@link IoBuffer#getObject(ClassLoader)}.
@@ -96,7 +98,6 @@ public class ObjectSerializationDecoder extends CumulativeProtocolDecoder {
         if (maxObjectSize <= 0) {
             throw new IllegalArgumentException("maxObjectSize: " + maxObjectSize);
         }
-
         this.maxObjectSize = maxObjectSize;
     }
 
@@ -110,7 +111,7 @@ public class ObjectSerializationDecoder extends CumulativeProtocolDecoder {
             return false;
         }
 
-        // 学习笔记：反序列化对象
+        // 学习笔记：如果累积的数据足够支持这次解码，则从in中解码，并将解码后的高级消息放进解码输出队列。
         out.write(in.getObject(classLoader));
         return true;
     }

@@ -22,9 +22,9 @@ package org.apache.mina.example.proxy;
 import java.nio.charset.Charset;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

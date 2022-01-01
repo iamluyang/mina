@@ -33,7 +33,10 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoServiceListener extends EventListener {
+
     /**
+     * 学习笔记：服务自身的激活事件
+     *
      * Invoked when a new service is activated by an {@link IoService}.
      *
      * @param service the {@link IoService}
@@ -42,6 +45,8 @@ public interface IoServiceListener extends EventListener {
     void serviceActivated(IoService service) throws Exception;
 
     /**
+     * 学习笔记：服务自身的闲置事件
+     *
      * Invoked when a service is idle.
      * 
      * @param service the {@link IoService}
@@ -51,6 +56,8 @@ public interface IoServiceListener extends EventListener {
     void serviceIdle(IoService service, IdleStatus idleStatus) throws Exception;
 
     /**
+     * 学习笔记：服务自身的停用事件
+     *
      * Invoked when a service is deactivated by an {@link IoService}.
      *
      * @param service the {@link IoService}
@@ -59,6 +66,8 @@ public interface IoServiceListener extends EventListener {
     void serviceDeactivated(IoService service) throws Exception;
 
     /**
+     * 学习笔记：服务可以认为是会话的宿主，因此可以监听会话的创建事件
+     *
      * Invoked when a new session is created by an {@link IoService}.
      *
      * @param session the new session
@@ -67,6 +76,8 @@ public interface IoServiceListener extends EventListener {
     void sessionCreated(IoSession session) throws Exception;
 
     /**
+     * 学习笔记：服务可以认为是会话的宿主，因此可以监听会话的关闭事件
+     *
      * Invoked when a new session is closed by an {@link IoService}.
      * 
      * @param session the new session
@@ -75,6 +86,7 @@ public interface IoServiceListener extends EventListener {
     void sessionClosed(IoSession session) throws Exception;
 
     /**
+     * 学习笔记：服务可以认为是会话的宿主，因此可以监听会话的销毁事件
      * Invoked when a session is being destroyed by an {@link IoService}.
      * 
      * @param session the session to be destroyed

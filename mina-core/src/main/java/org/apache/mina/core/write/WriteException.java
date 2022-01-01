@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.mina.util.MapBackedSet;
 
 /**
- * 当一个或多个写操作失败时引发的异常。
+ * 当一个或多个写操作失败时引发的异常，并记录下产生异常的写请求。
  *
  * An exception which is thrown when one or more write operations failed.
  *

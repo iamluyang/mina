@@ -24,17 +24,20 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
- * 学习笔记：该类将测量 {@link IoFilterAdapter} 类中的方法执行所需的时间。
- * 该类逻辑的基本前提是在方法开始时获取当前时间，调用nextFilter上的方法，然后再次获取当前时间。如何使用过滤器的一个例子是
+ * 学习笔记：该类将测量 IoFilterAdapter 类中的方法执行所需的时间。
+ * 该类逻辑的基本前提是在方法开始时获取当前时间，调用nextFilter上的方法，
+ * 然后再次获取当前时间。如何使用过滤器的一个例子是
+ * ProfilerTimerFilter profiler = new ProfilerTimerFilter(TimeUnit.MILLISECOND, IoEventType.MESSAGE_RECEIVED);
+ * chain.addFirst("Profiler", profiler);
  *
- * 仅仅检测6个事件，不分析异常事件，InputClose，Event事件。默认只关注消息的接收和发生的性能剖析
+ * 该过滤器仅仅检测6个事件，不分析异常事件，InputClose，Event事件的profiler。默认只关注消息的接收和发生的性能剖析
  *
  * This class will measure the time it takes for a method in the {@link IoFilterAdapter} class to execute. The basic
  * premise of the logic in this class is to get the current time at the beginning of the method, call method on
@@ -141,6 +144,8 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
     }
 
     /**
+	 * 学习笔记：为要分析性能的事件创建状态对象并开启分析开关
+	 *
      * Create the profilers for a list of {@link IoEventType}.
      * 
      * @param eventTypes

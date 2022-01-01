@@ -19,20 +19,25 @@
  */
 package org.apache.mina.handler.chain;
 
-import org.apache.mina.handler.IoHandler;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：在messageReceived事件上执行 IoHandlerChain 的 链式IoHandler。
+ *
  * An {@link IoHandler} which executes an {@link IoHandlerChain}
  * on a <tt>messageReceived</tt> event.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ChainedIoHandler extends IoHandlerAdapter {
+
+    // io处理器链
     private final IoHandlerChain chain;
 
     /**
+     * 学习笔记：使用一个默认的链式处理器。
      * Creates a new instance which contains an empty {@link IoHandlerChain}.
      */
     public ChainedIoHandler() {
@@ -40,6 +45,8 @@ public class ChainedIoHandler extends IoHandlerAdapter {
     }
 
     /**
+     * 学习笔记：传递一个指定的链式处理器。
+     *
      * Creates a new instance which executes the specified
      * {@link IoHandlerChain} on a <tt>messageReceived</tt> event.
      *
@@ -49,11 +56,12 @@ public class ChainedIoHandler extends IoHandlerAdapter {
         if (chain == null) {
             throw new IllegalArgumentException("chain");
         }
-        
         this.chain = chain;
     }
 
     /**
+     * 学习笔记：返回链式处理器。
+     *
      * @return the {@link IoHandlerCommand} this handler will use to
      * handle <tt>messageReceived</tt> events.
      */
@@ -62,6 +70,8 @@ public class ChainedIoHandler extends IoHandlerAdapter {
     }
 
     /**
+     * 学习笔记：由链式处理器来处理接收到的消息
+     *
      * Handles the specified <tt>messageReceived</tt> event with the
      * {@link IoHandlerCommand} or {@link IoHandlerChain} you specified
      * in the constructor.

@@ -24,13 +24,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.mina.handler.IoHandler;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.UnknownMessageTypeException;
 import org.apache.mina.util.IdentityHashSet;
 
 /**
+ * 学习笔记：一个IoHandler将messageReceived事件路由到适当的MessageHandler 。
+ *
+ * 您可以使用addReceivedMessageHandler(Class, MessageHandler)和removeReceivedMessageHandler(Class)自由注册和注销MessageHandler 。
+ * 当message通过类的messageReceived(IoSession, Object)方法收到message对象。根据消息类型查找特定的MessageHandler消息处理类。
+ *
+ * 如果不能用消息类型（即message.getClass() ）找到MessageHandler实例，则将按深度优先顺序搜索由直接类实现的接口。 如果找不到任何接口的匹配项，
+ * 将递归地重复搜索直接类的超类（即message.getClass().getSuperclass() ）。
+ *
  * A {@link IoHandler} that demuxes <code>messageReceived</code> events
  * to the appropriate {@link MessageHandler}.
  * <p>
@@ -50,6 +58,7 @@ import org.apache.mina.util.IdentityHashSet;
  * <p>
  * Consider the following type hierarchy (<code>Cx</code> are classes while
  * <code>Ix</code> are interfaces):
+ * 学习笔记：查找匹配类的策略：下图纵向是类的层次，横向是接口。可以看成是一棵树，进行深度优先顺序搜索。
  * <pre>
  *     C3 - I7 - I9
  *      |    |   /\
@@ -74,24 +83,33 @@ import org.apache.mina.util.IdentityHashSet;
  */
 public class DemuxingIoHandler extends IoHandlerAdapter {
 
+    // 接收消息事件的处理器注册表缓存，即之前已经查找到的消息到处理器的映射，避免再次查找整个注册表。
     private final Map<Class<?>, MessageHandler<?>> receivedMessageHandlerCache = new ConcurrentHashMap<>();
 
+    // 接收消息事件的处理器注册表
     private final Map<Class<?>, MessageHandler<?>> receivedMessageHandlers = new ConcurrentHashMap<>();
 
+    // 发送消息事件的处理器注册表，即之前已经查找到的消息到处理器的映射，避免再次查找整个注册表。
     private final Map<Class<?>, MessageHandler<?>> sentMessageHandlerCache = new ConcurrentHashMap<>();
 
+    // 发送消息事件的处理器注册表
     private final Map<Class<?>, MessageHandler<?>> sentMessageHandlers = new ConcurrentHashMap<>();
 
+    // 异常事件的处理器注册表，即之前已经查找到的消息到处理器的映射，避免再次查找整个注册表。
     private final Map<Class<?>, ExceptionHandler<?>> exceptionHandlerCache = new ConcurrentHashMap<>();
 
+    // 异常事件的处理器注册表
     private final Map<Class<?>, ExceptionHandler<?>> exceptionHandlers = new ConcurrentHashMap<>();
 
     /**
+     * 学习笔记：复合的消息接收事件，消息发送事件，异常事件的处理器。
      * Creates a new instance with no registered {@link MessageHandler}s.
      */
     public DemuxingIoHandler() {
         // Do nothing
     }
+
+    // ---------------------------------------------------------------------------
 
     /**
      * Registers a {@link MessageHandler} that handles the received messages of
@@ -105,8 +123,9 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
      */
     @SuppressWarnings("unchecked")
     public <E> MessageHandler<? super E> addReceivedMessageHandler(Class<E> type, MessageHandler<? super E> handler) {
+        // 学习笔记：注册新的处理器前，需要清除一下缓存，避免新注册的消息处理和缓存中的处理器有冲突
         receivedMessageHandlerCache.clear();
-        
+        // 学习笔记：将消息类型与消息处理器进行映射注册
         return (MessageHandler<? super E>) receivedMessageHandlers.put(type, handler);
     }
 
@@ -120,12 +139,17 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
      */
     @SuppressWarnings("unchecked")
     public <E> MessageHandler<? super E> removeReceivedMessageHandler(Class<E> type) {
+        // 学习笔记：移除消息处理器时，需要清除缓存中的处理器。
         receivedMessageHandlerCache.clear();
-        
+        // 学习笔记：注销消息和消息处理器的映射
         return (MessageHandler<? super E>) receivedMessageHandlers.remove(type);
     }
 
+    // ---------------------------------------------------------------------------
+
     /**
+     * 学习笔记：同上。
+     *
      * Registers a {@link MessageHandler} that handles the sent messages of the
      * specified <code>type</code>.
      *
@@ -138,11 +162,12 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     @SuppressWarnings("unchecked")
     public <E> MessageHandler<? super E> addSentMessageHandler(Class<E> type, MessageHandler<? super E> handler) {
         sentMessageHandlerCache.clear();
-        
         return (MessageHandler<? super E>) sentMessageHandlers.put(type, handler);
     }
 
     /**
+     * 学习笔记：同上。
+     *
      * Deregisters a {@link MessageHandler} that handles the sent messages of
      * the specified <code>type</code>.
      *
@@ -153,11 +178,14 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     @SuppressWarnings("unchecked")
     public <E> MessageHandler<? super E> removeSentMessageHandler(Class<E> type) {
         sentMessageHandlerCache.clear();
-        
         return (MessageHandler<? super E>) sentMessageHandlers.remove(type);
     }
 
+    // ---------------------------------------------------------------------------
+
     /**
+     * 学习笔记：同上。
+     *
      * Registers a {@link MessageHandler} that receives the messages of
      * the specified <code>type</code>.
      *
@@ -168,14 +196,14 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
      *         the specified <tt>type</tt>.  <tt>null</tt> otherwise.
      */
     @SuppressWarnings("unchecked")
-    public <E extends Throwable> ExceptionHandler<? super E> addExceptionHandler(Class<E> type,
-            ExceptionHandler<? super E> handler) {
+    public <E extends Throwable> ExceptionHandler<? super E> addExceptionHandler(Class<E> type, ExceptionHandler<? super E> handler) {
         exceptionHandlerCache.clear();
-        
         return (ExceptionHandler<? super E>) exceptionHandlers.put(type, handler);
     }
 
     /**
+     * 学习笔记：同上。
+     *
      * Deregisters a {@link MessageHandler} that receives the messages of
      * the specified <code>type</code>.
      *
@@ -186,11 +214,14 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     @SuppressWarnings("unchecked")
     public <E extends Throwable> ExceptionHandler<? super E> removeExceptionHandler(Class<E> type) {
         exceptionHandlerCache.clear();
-        
         return (ExceptionHandler<? super E>) exceptionHandlers.remove(type);
     }
 
+    // ---------------------------------------------------------------------------
+
     /**
+     * 学习笔记：查询消息类型对应的消息接收处理器
+     *
      * @return the {@link MessageHandler} which is registered to process
      * the specified <code>type</code>.
      * @param <E> The message handler's type
@@ -202,6 +233,8 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     }
 
     /**
+     * 学习笔记：查询所有消息接收处理器，使用一个不可修改的容器包装一下原始的数据，避免外部修改这个容器。
+     *
      * @return the {@link Map} which contains all messageType-{@link MessageHandler}
      * pairs registered to this handler for received messages.
      */
@@ -224,6 +257,11 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     public Map<Class<?>, ExceptionHandler<?>> getExceptionHandlerMap() {
         return Collections.unmodifiableMap(exceptionHandlers);
     }
+
+    // ---------------------------------------------------------------------------
+    // 学习笔记：消息接收事件，消息发送事件，异常处理事件的业务逻辑就是查找出合适的消息处理器。
+    // 再委派消息处理器来处理对应的消息和异常事件。
+    // ---------------------------------------------------------------------------
 
     /**
      * Forwards the received events into the appropriate {@link MessageHandler}
@@ -291,6 +329,10 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // 根据消息类型，异常类型来查找对应的消息处理器和异常处理器
+    // ---------------------------------------------------------------------------
+
     protected MessageHandler<Object> findReceivedMessageHandler(Class<?> type) {
         return findReceivedMessageHandler(type, null);
     }
@@ -305,8 +347,7 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
 
     @SuppressWarnings("unchecked")
     private MessageHandler<Object> findReceivedMessageHandler(Class<?> type, Set<Class<?>> triedClasses) {
-        return (MessageHandler<Object>) findHandler(receivedMessageHandlers, receivedMessageHandlerCache, type,
-                triedClasses);
+        return (MessageHandler<Object>) findHandler(receivedMessageHandlers, receivedMessageHandlerCache, type, triedClasses);
     }
 
     @SuppressWarnings("unchecked")
@@ -320,6 +361,7 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
     }
 
     @SuppressWarnings("unchecked")
+    // 学习笔记：基于深度优先查找策略，根据类的层次结构和实现的接口来查找匹配的处理器
     private Object findHandler(Map<Class<?>,?> handlers, Map handlerCache, Class<?> type, Set<Class<?>> triedClasses) {
         if ((triedClasses != null) && (triedClasses.contains(type))) {
             return null;

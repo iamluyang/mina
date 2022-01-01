@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.transport.socket.config.impl.AbstractDatagramSessionConfig;
+import org.apache.mina.transport.socket.AbstractDatagramSessionConfig;
 
 /**
  * 学习笔记：NIO数据报的会话配置类

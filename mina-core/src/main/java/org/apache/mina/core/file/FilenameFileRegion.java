@@ -23,9 +23,10 @@ import java.io.File;
 import java.nio.channels.FileChannel;
 
 /**
- * 管理要发送到远程主机的文件。可以跟踪当前位置和已经写入的字节数。
+ * 管理要发送到远程主机的文件。可以跟踪当前位置和已经写出的字节数。
  *
- * 学习笔记：这个一个记录文件和文件名的FileRegion的文件对象
+ * 学习笔记：这是一个记录文件和文件名的FileRegion的文件对象。它和DefaultFileRegion
+ * 的区别在于DefaultFileRegion只传入文件通道对象，而FilenameFileRegion传入文件对象
  *
  * Manage a File to be sent to a remote host. We keep a track on the current
  * position, and the number of already written bytes.

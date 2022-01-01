@@ -39,46 +39,6 @@ public class WriteTimeoutException extends WriteException {
 
     /**
      * Create a new WriteTimeoutException instance
-     *
-     * @param requests The {@link WriteRequest}s for which we have had a timeout
-     */
-    public WriteTimeoutException(Collection<WriteRequest> requests) {
-        super(requests);
-    }
-
-    /**
-     * Create a new WriteTimeoutException instance
-     * 
-     * @param requests The {@link WriteRequest}s for which we have had a timeout
-     * @param message The error message
-     */
-    public WriteTimeoutException(Collection<WriteRequest> requests, String message) {
-        super(requests, message);
-    }
-
-    /**
-     * Create a new WriteTimeoutException instance
-     * 
-     * @param requests The {@link WriteRequest}s for which we have had a timeout
-     * @param cause The original exception
-     */
-    public WriteTimeoutException(Collection<WriteRequest> requests, Throwable cause) {
-        super(requests, cause);
-    }
-
-    /**
-     * Create a new WriteTimeoutException instance
-     *
-     * @param requests The {@link WriteRequest}s for which we have had a timeout
-     * @param message The error message
-     * @param cause The original exception
-     */
-    public WriteTimeoutException(Collection<WriteRequest> requests, String message, Throwable cause) {
-        super(requests, message, cause);
-    }
-
-    /**
-     * Create a new WriteTimeoutException instance
      * 
      * @param request The {@link WriteRequest} for which we have had a timeout
      */
@@ -116,4 +76,45 @@ public class WriteTimeoutException extends WriteException {
     public WriteTimeoutException(WriteRequest request, String message, Throwable cause) {
         super(request, message, cause);
     }
+
+    /**
+     * Create a new WriteTimeoutException instance
+     *
+     * @param requests The {@link WriteRequest}s for which we have had a timeout
+     */
+    public WriteTimeoutException(Collection<WriteRequest> requests) {
+        super(requests);
+    }
+
+    /**
+     * Create a new WriteTimeoutException instance
+     *
+     * @param requests The {@link WriteRequest}s for which we have had a timeout
+     * @param message The error message
+     */
+    public WriteTimeoutException(Collection<WriteRequest> requests, String message) {
+        super(requests, message);
+    }
+
+    /**
+     * Create a new WriteTimeoutException instance
+     *
+     * @param requests The {@link WriteRequest}s for which we have had a timeout
+     * @param cause The original exception
+     */
+    public WriteTimeoutException(Collection<WriteRequest> requests, Throwable cause) {
+        super(requests, cause);
+    }
+
+    /**
+     * Create a new WriteTimeoutException instance
+     *
+     * @param requests The {@link WriteRequest}s for which we have had a timeout
+     * @param message The error message
+     * @param cause The original exception
+     */
+    public WriteTimeoutException(Collection<WriteRequest> requests, String message, Throwable cause) {
+        super(requests, message, cause);
+    }
+
 }

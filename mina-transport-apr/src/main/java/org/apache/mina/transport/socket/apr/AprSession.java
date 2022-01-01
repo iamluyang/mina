@@ -21,8 +21,8 @@ package org.apache.mina.transport.socket.apr;
 
 import java.net.InetSocketAddress;
 
-import org.apache.mina.core.filterchain.impl.DefaultIoFilterChain;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.filterchain.DefaultIoFilterChain;
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.AbstractIoSession;

@@ -19,10 +19,10 @@
  */
 package org.apache.mina.filter.util;
 
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 
 /**
- * 学习笔记：一个 Noop 过滤器。它什么都不做，因为所有的方法都已经在超类中实现了
+ * 学习笔记：一个 Noop 过滤器。它什么都不做，因为所有的方法都已经在默认适配器类中实现了。
  *
  * A Noop filter. It does nothing, as all the method are already implemented
  * in the super class.

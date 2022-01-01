@@ -23,8 +23,8 @@ import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.future.api.IoFutureListener;
-import org.apache.mina.core.future.api.WriteFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -36,7 +36,7 @@ import org.apache.mina.core.session.IoSession;
  */
 public class DefaultWriteRequest implements WriteRequest {
 
-    // 一条空消息
+    // 一条空消息，避免使用空引用
     /** An empty message */
     public static final byte[] EMPTY_MESSAGE = new byte[] {};
 
@@ -172,12 +172,12 @@ public class DefaultWriteRequest implements WriteRequest {
         }
     };
 
-    // 学习笔记：最终将写入远程对等方的消息
+    // 学习笔记：最终要写入远程对等方的消息，一般是编码后的IoBuffer数据类型
     /** The message that will ultimately be written to the remote peer */
     private Object message;
 
     /**
-     * 学习笔记：由 IoHandler 编写的原始消息。 它将在 messageSent 事件中发回
+     * 学习笔记：会话写出的原始消息对象。
      *
      * The original message as it was written by the IoHandler. It will be sent back
      * in the messageSent event 
@@ -188,7 +188,7 @@ public class DefaultWriteRequest implements WriteRequest {
     /** The associated Future */
     private final WriteFuture future;
 
-    // 学习笔记：对等目标（没用？？？）
+    // 学习笔记：对端目标地址（没用？？？）
     /** The peer destination (useless ???) */
     private final SocketAddress destination;
 
@@ -223,7 +223,7 @@ public class DefaultWriteRequest implements WriteRequest {
     }
 
     /**
-     * 创建一个新实例
+     * 创建一个新的写请求实例
      *
      * 学习笔记：一般无需设置目的地址
      * Creates a new instance.
@@ -268,6 +268,18 @@ public class DefaultWriteRequest implements WriteRequest {
      * {@inheritDoc}
      */
     @Override
+    public Object getOriginalMessage() {
+        if (originalMessage != null) {
+            return originalMessage;
+        } else {
+            return message;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object getMessage() {
         return message;
     }
@@ -284,29 +296,8 @@ public class DefaultWriteRequest implements WriteRequest {
      * {@inheritDoc}
      */
     @Override
-    public Object getOriginalMessage() {
-        if (originalMessage != null) {
-            return originalMessage;
-        } else {
-            return message;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public SocketAddress getDestination() {
         return destination;
-    }
-
-    /**
-     * 学习笔记：默认不做编码
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isEncoded() {
-        return false;
     }
 
     /**
@@ -315,6 +306,15 @@ public class DefaultWriteRequest implements WriteRequest {
     @Override
     public WriteRequest getOriginalRequest() {
         return this;
+    }
+
+    /**
+     * 学习笔记：写请求中的消息是否被编码器编码
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEncoded() {
+        return false;
     }
 
     @Override

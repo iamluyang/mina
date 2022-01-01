@@ -28,6 +28,8 @@ import org.apache.mina.core.session.IoSession;
  * 然后编码器实现将编码的消息（通常是 {@link IoBuffer}s）放入 {@link ProtocolEncoderOutput} 中调用
  * ProtocolEncoderOutput.write(Object)。
  *
+ * 学习笔记：MINA中被编码的对象来自会话的写出消息队列中的数据。编码后的数据被扔进协议编码输出队列。
+ *
  * Encodes higher-level message objects into binary or protocol-specific data.
  * MINA invokes {@link #encode(IoSession, Object, ProtocolEncoderOutput)}
  * method with message which is popped from the session write queue, and then
@@ -63,7 +65,7 @@ public interface ProtocolEncoder {
     void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception;
 
     /**
-     * 学习笔记：释放与此编码器相关的所有资源。
+     * 学习笔记：释放会话与此编码器相关的所有资源。
      *
      * Releases all resources related with this encoder.
      *

@@ -21,8 +21,8 @@ package org.apache.mina.core.write;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.future.api.WriteFuture;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -50,7 +50,7 @@ public interface WriteRequest {
     WriteRequest getOriginalRequest();
 
     /**
-     * 学习笔记：在任何筛选器转换之前发送到会话的原始消息。
+     * 学习笔记：在任何过滤器转换之前发送到会话的原始消息。
      *
      * @return the original message which was sent to the session, before
      * any filter transformation.
@@ -58,14 +58,14 @@ public interface WriteRequest {
     Object getOriginalMessage();
 
     /**
-     * 学习笔记：要写入的消息对象。
+     * 学习笔记：写入的消息对象。
      *
      * @return a message object to be written.
      */
     Object getMessage();
 
     /**
-     * 学习笔记：在经过筛选器处理后设置已修改的消息。
+     * 学习笔记：在经过过滤器处理后设置的已修改的消息。
      *
      * Set the modified message after it has been processed by a filter.
      * @param modifiedMessage The modified message
@@ -82,7 +82,7 @@ public interface WriteRequest {
     SocketAddress getDestination();
 
     /**
-     * 学习笔记：告诉当前消息是否已被编码
+     * 学习笔记：告诉当前消息是否已被编码器编码
      *
      * Tells if the current message has been encoded
      *

@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**
- * 学习笔记：会话的初始化过滤器
+ * 学习笔记：这个过滤器在会话创建时，将过滤器中预先安排好的属性复制给会话真正的属性容器
  *
  * An {@link IoFilter} that sets initial attributes when a new
  * {@link IoSession} is created.  By default, the attribute map is empty when
@@ -156,7 +156,7 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
     }
 
     /**
-     * 学习笔记：会话创建时刻，将属性复制给会话
+     * 学习笔记：会话创建时，将过滤器中预先安排好的属性复制给会话真正的属性容器
      *
      * Puts all pre-configured attributes into the actual session attribute
      * map and forward the event to the next filter.

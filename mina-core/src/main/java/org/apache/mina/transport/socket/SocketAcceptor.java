@@ -24,7 +24,6 @@ import java.net.ServerSocket;
 import java.util.Set;
 
 import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * 学习笔记：基于TCP协议的接收者。此类处理传入的基于 TCP 的套接字的连接

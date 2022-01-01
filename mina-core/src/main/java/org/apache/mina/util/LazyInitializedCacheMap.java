@@ -44,6 +44,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @since MINA 2.0.0-M2
  */
 public class LazyInitializedCacheMap<K, V> implements Map<K, V> {
+
     private ConcurrentMap<K, LazyInitializer<V>> cache;
 
     /**

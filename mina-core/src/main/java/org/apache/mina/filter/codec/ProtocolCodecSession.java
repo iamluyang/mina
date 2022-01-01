@@ -22,11 +22,13 @@ package org.apache.mina.filter.codec;
 import java.util.Queue;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：它对于单元测试编解码器和重用编解码器用于非网络使用（例如序列化）很有用。
+ *
  * A virtual {@link IoSession} that provides {@link ProtocolEncoderOutput}
  * and {@link ProtocolDecoderOutput}.  It is useful for unit-testing
  * codec and reusing codec for non-network-use (e.g. serialization).

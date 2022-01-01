@@ -34,10 +34,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
-import org.apache.mina.core.future.api.IoFutureListener;
-import org.apache.mina.core.future.api.WriteFuture;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;

@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 /**
- * 管理要发送到远程主机的文件。可以跟踪当前位置和已经写入的字节数。
+ * 管理要发送到远程主机的文件通道。可以跟踪当前要写出的位置和已经写出的字节数。
  *
  * Manage a File to be sent to a remote host. We keep a track on the current
  * position, and the number of already written bytes.
@@ -33,24 +33,24 @@ import java.nio.channels.FileChannel;
  */
 public class DefaultFileRegion implements FileRegion {
 
-    // 用于管理文件的通道
+    // 学习笔记：封装的文件的通道
     /** The channel used to manage the file */
     private final FileChannel channel;
 
-    // 文件中的原始位置，final表示之后不会被修改
+    // 学习笔记：文件中的原始位置，final表示之后不会被修改
     /** The original position in the file */
     private final long originalPosition;
 
-    // 文件中的当前位置，会随着数据逐渐写出而递增
+    // 学习笔记：文件中的当前位置，会随着数据逐渐写出而递增
     /** The position in teh file */
     private long position;
 
-    // 待写的剩余字节数
+    // 学习笔记：待写的剩余字节数
     /** The number of bytes remaining to write */
     private long remainingBytes;
 
     /**
-     * 学习笔记：创建一个新的defaultfilereregion实例
+     * 学习笔记：创建一个新的defaultfilereregion实例，默认读文件的起始位置为0，要读取的数据长度为文件的长度
      * Creates a new DefaultFileRegion instance
      * 
      * @param channel The channel mapped over the file
@@ -61,7 +61,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 学习笔记：创建一个新的defaultfilereregion实例
+     * 学习笔记：创建一个新的defaultfilereregion实例，可以自定义读取文件的起始位置，并指定要读取的文件数据长度
      * Creates a new DefaultFileRegion instance
      * 
      * @param channel The channel mapped over the file 映射到文件上的通道
@@ -85,7 +85,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 学习笔记：当前文件关联的通道
+     * 学习笔记：当前关联的文件通道
      *
      * {@inheritDoc}
      */
@@ -95,7 +95,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 学习笔记：文件当前写出的位置
+     * 学习笔记：文件通道准备写出的文件位置
      * {@inheritDoc}
      */
     @Override
@@ -104,7 +104,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 学习笔记：当前位置减去初始位置，即写出的数据长度
+     * 学习笔记：当前位置减去初始位置，即已经写出的数据长度
      * {@inheritDoc}
      */
     @Override
@@ -113,16 +113,7 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
-     * 学习笔记：剩余还没有写出的数据
-     * {@inheritDoc}
-     */
-    @Override
-    public long getRemainingBytes() {
-        return remainingBytes;
-    }
-
-    /**
-     * 学习笔记：更新当前写出的位置向前移动，因此剩余字节数也会减少
+     * 学习笔记：更新当前写出的位置向前移动，因此剩余字节数也会减少。
      *
      * {@inheritDoc}
      */
@@ -133,6 +124,17 @@ public class DefaultFileRegion implements FileRegion {
     }
 
     /**
+     * 学习笔记：剩余还没有写出的数据，这个值是由update方法被动更新的。
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRemainingBytes() {
+        return remainingBytes;
+    }
+
+    /**
+     * 学习笔记：该包装器没有保存文件的名称。
+     *
      * {@inheritDoc}
      */
     @Override

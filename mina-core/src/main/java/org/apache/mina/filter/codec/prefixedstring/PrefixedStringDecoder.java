@@ -29,8 +29,8 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import java.nio.charset.Charset;
 
 /**
- * 学习笔记：使用固定长度的前缀对字符串进行解码。默认前缀长度为4（其他可选长度为1，2），
- * 数据的最大长度为2048。
+ * 学习笔记：使用固定长度的前缀对字符串进行解码。前缀长度为4（其他可选长度为1，2），表示用几个字节表示数据长度。，
+ * 数据的最大长度为2048。同样使用累积消息解码器。
  *
  * A {@link ProtocolDecoder} which decodes a String using a fixed-length length prefix.
  *
@@ -44,10 +44,13 @@ public class PrefixedStringDecoder extends CumulativeProtocolDecoder {
     /** The default maximum data length */ 
     public static final int DEFAULT_MAX_DATA_LENGTH = 2048;
 
+    // 编码的字符集
     private final Charset charset;
 
+    // 数据长度字段
     private int prefixLength = DEFAULT_PREFIX_LENGTH;
 
+    // 最大数据长度
     private int maxDataLength = DEFAULT_MAX_DATA_LENGTH;
 
     /**
@@ -130,12 +133,13 @@ public class PrefixedStringDecoder extends CumulativeProtocolDecoder {
     @Override
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
 
-        // 学习笔记：对收到的消息检查是否有指定的前缀长度，如果数据符合前缀长度，则取出数据，再丢到解码输出队列中
+        // 学习笔记：对收到的消息检查前缀中的数据长度字段，如果数据足够解码，则返回解码后的消息，再丢到解码输出队列中
         if (in.prefixedDataAvailable(prefixLength, maxDataLength)) {
             String msg = in.getPrefixedString(prefixLength, charset.newDecoder());
             out.write(msg);
             return true;
         }
+
         // 学习笔记：解码的数据不符合前缀长度
         return false;
     }

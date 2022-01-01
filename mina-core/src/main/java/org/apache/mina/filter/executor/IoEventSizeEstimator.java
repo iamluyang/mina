@@ -22,7 +22,7 @@ package org.apache.mina.filter.executor;
 import org.apache.mina.core.session.IoEvent;
 
 /**
- * 学习笔记：估计指定的 {@link IoEvent} 在当前 JVM 中占用的内存量。
+ * 学习笔记：估计指定的 {@link IoEvent} 在当前 JVM 中占用的内存量的工具。
  *
  * Estimates the amount of memory that the specified {@link IoEvent} occupies
  * in the current JVM.

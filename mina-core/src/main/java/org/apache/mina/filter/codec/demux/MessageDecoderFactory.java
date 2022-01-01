@@ -20,7 +20,7 @@
 package org.apache.mina.filter.codec.demux;
 
 /**
- * 学习笔记：创建 {@link MessageDecoder} 新实例的工厂。
+ * 学习笔记：创建 {@link MessageDecoder} 实例的工厂。
  *
  * A factory that creates a new instance of {@link MessageDecoder}.
  *
@@ -29,6 +29,7 @@ package org.apache.mina.filter.codec.demux;
  * @see DemuxingProtocolDecoder
  */
 public interface MessageDecoderFactory {
+
     /**
      * Creates a new message decoder.
      * 

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.proxy.ProxyAuthException;
 import org.apache.mina.proxy.session.ProxyIoSession;
 import org.apache.mina.proxy.utils.StringUtilities;

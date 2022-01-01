@@ -22,7 +22,7 @@ package org.apache.mina.filter.codec;
 import org.apache.mina.core.session.IoSession;
 
 /**
- * 学习笔记：创建一对编码器和解码器。工厂方法模式的典型实现。
+ * 学习笔记：创建一对编码器和解码器。工厂方法模式的典型实现
  *
  * Provides {@link ProtocolEncoder} and {@link ProtocolDecoder} which translates
  * binary or protocol specific data into message object and vice versa.

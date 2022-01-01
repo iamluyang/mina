@@ -28,7 +28,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
- * 学习笔记：一个复合 ProtocolDecoder，它将传入的 IoBuffer 解码请求多路分解为适当的 MessageDecoder。
+ * 学习笔记：一个多路 ProtocolDecoder，它将传入的 IoBuffer 解码请求多路分解为适当的 MessageDecoder。
  *
  * A composite {@link ProtocolDecoder} that demultiplexes incoming {@link IoBuffer}
  * decoding requests into an appropriate {@link MessageDecoder}.

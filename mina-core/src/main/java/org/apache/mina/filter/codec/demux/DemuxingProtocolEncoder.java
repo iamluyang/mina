@@ -32,9 +32,11 @@ import org.apache.mina.util.CopyOnWriteMap;
 import org.apache.mina.util.IdentityHashSet;
 
 /**
- * 学习笔记：一个复合 ProtocolEncoder，它将传入的消息编码请求多路分解为适当的 MessageEncoder。
+ * 学习笔记：一个复合的 ProtocolEncoder，它将传入的消息编码请求多路分解到适当的 MessageEncoder。
  * 处理通过 MessageEncoder 获取的资源。
  * 覆盖 dispose(IoSession)}方法。请不要忘记调用super.dispose()。
+ *
+ * 学习笔记：事实上内部使用的是消息到编码器工厂之间的映射。
  *
  * A composite {@link ProtocolEncoder} that demultiplexes incoming message
  * encoding requests into an appropriate {@link MessageEncoder}.
@@ -54,10 +56,10 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     private static final AttributeKey STATE = new AttributeKey(DemuxingProtocolEncoder.class, "state");
 
     @SuppressWarnings("rawtypes")
-    // 学习笔记：编码器工厂容器
+    // 学习笔记：用来注册消息类型和编码器工厂的注册容器
     private final Map<Class<?>, MessageEncoderFactory> type2encoderFactory = new CopyOnWriteMap<>();
 
-    // 空参
+    // 学习笔记：用于默认构造函数反射时候用的空参数
     private static final Class<?>[] EMPTY_PARAMS = new Class[0];
 
     /**
@@ -70,12 +72,13 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void addMessageEncoder(Class<?> messageType, Class<? extends MessageEncoder> encoderClass) {
+
         if (encoderClass == null) {
             throw new IllegalArgumentException("encoderClass");
         }
 
         try {
-            // 判断该编码器是否存在默认构造器，即能否反射出实例
+            // 学习笔记：判断该编码器是否存在默认构造器，即之后能否使用默认构造器反射出编码器实例。
             encoderClass.getConstructor(EMPTY_PARAMS);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("The specified class doesn't have a public default constructor.");
@@ -84,11 +87,12 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
         boolean registered = false;
         
         if (MessageEncoder.class.isAssignableFrom(encoderClass)) {
-            // 使用基于该构造器的消息编码工厂来封装编码器，并映射到消息类型，完成编码器的注册
+            // 学习笔记：使用基于默认构造器反射的消息编码工厂来封装编码器，并映射到消息类型，最终完成编码器的注册
             addMessageEncoder(messageType, new DefaultConstructorMessageEncoderFactory(encoderClass));
             registered = true;
         }
 
+        // 学习笔记：注册编码器失败
         if (!registered) {
             throw new IllegalArgumentException("Unregisterable type: " + encoderClass);
         }
@@ -118,6 +122,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
      * @param factory The encoder factory
      */
     public <T> void addMessageEncoder(Class<T> messageType, MessageEncoderFactory<? super T> factory) {
+
         if (messageType == null) {
             throw new IllegalArgumentException("messageType");
         }
@@ -126,12 +131,12 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
             throw new IllegalArgumentException("factory");
         }
 
+        // 学习笔记：注册编码器的时候需要保证线程安全
         synchronized (type2encoderFactory) {
             if (type2encoderFactory.containsKey(messageType)) {
                 throw new IllegalStateException("The specified message type (" + messageType.getName()
                         + ") is registered already.");
             }
-
             type2encoderFactory.put(messageType, factory);
         }
     }
@@ -175,12 +180,15 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
      * @param messageTypes The message types
      * @param factory The encoder factory
      */
-    public <T> void addMessageEncoder(Iterable<Class<? extends T>> messageTypes,
-            MessageEncoderFactory<? super T> factory) {
+    public <T> void addMessageEncoder(Iterable<Class<? extends T>> messageTypes, MessageEncoderFactory<? super T> factory) {
         for (Class<? extends T> messageType : messageTypes) {
             addMessageEncoder(messageType, factory);
         }
     }
+
+    // -----------------------------------------------------------------
+    // 在注册的编码器中查找适合当前消息的编码器，编码的过程就是查找合适编码器的过程
+    // -----------------------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -189,26 +197,27 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         State state = getState(session);
         MessageEncoder<Object> encoder = findEncoder(state, message.getClass());
-        // 使用消息编码器，编码消息
+        // 学习笔记：找到了消息对应的编码器
         if (encoder != null) {
-            // out为消息编码的输出队列
             encoder.encode(session, message, out);
         } else {
+            // 学习笔记：当无法找到合适的编码器抛出异常
             throw new UnknownMessageTypeException("No message encoder found for message: " + message);
         }
     }
 
-    // 根据消息类型查找消息编码器
+    // 学习笔记：根据消息类型查找消息编码器
     protected MessageEncoder<Object> findEncoder(State state, Class<?> type) {
         return findEncoder(state, type, null);
     }
 
     @SuppressWarnings("unchecked")
     private MessageEncoder<Object> findEncoder(State state, Class<?> type, Set<Class<?>> triedClasses) {
+
         @SuppressWarnings("rawtypes")
         MessageEncoder encoder;
 
-        // triedClasses为已经查找过的列表，即消息的黑名单，无需再查找消息编码器
+        // triedClasses为已经查找过的列表
         if (triedClasses != null && triedClasses.contains(type)) {
             return null;
         }
@@ -279,20 +288,17 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
         return encoder;
     }
 
-    /**
-     * 学习笔记：释放会话上的状态
-     * {@inheritDoc}
-     */
-    @Override
-    public void dispose(IoSession session) throws Exception {
-        session.removeAttribute(STATE);
-    }
+    // -----------------------------------------------------------------
+    // 编码器中的状态值，实际是消息和编码器
+    // -----------------------------------------------------------------
 
-    // 学习笔记：在会话上绑定状态
+    // 学习笔记：查询或在会话上绑定状态属性
     private State getState(IoSession session) throws Exception {
+        // 学习笔记：先乐观的用getAttribute取出数据，因为大部分时候能获取状态属性，因此不必用setAttributeIfAbsent。
         State state = (State) session.getAttribute(STATE);
         if (state == null) {
             state = new State();
+            // 学习笔记：如果设置state的时候已经存在该对象，则使用已经存在的对象，避免并发访问的问题。
             State oldState = (State) session.setAttributeIfAbsent(STATE, state);
             if (oldState != null) {
                 state = oldState;
@@ -302,6 +308,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     }
 
     private class State {
+
         @SuppressWarnings("rawtypes")
         private final ConcurrentHashMap<Class<?>, MessageEncoder> findEncoderCache = new ConcurrentHashMap<>();
 
@@ -310,14 +317,33 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
 
         @SuppressWarnings("rawtypes")
         private State() throws Exception {
+            // 构造函数初始化时生成消息和编码器的映射关系
             for (Map.Entry<Class<?>, MessageEncoderFactory> e : type2encoderFactory.entrySet()) {
                 type2encoder.put(e.getKey(), e.getValue().getEncoder());
             }
         }
     }
 
-    // 学习笔记：单利的消息编码器工厂
+    // -----------------------------------------------------------------
+    // 释放编码器的资源
+    // -----------------------------------------------------------------
+
+    /**
+     * 学习笔记：释放会话上的状态属性
+     * {@inheritDoc}
+     */
+    @Override
+    public void dispose(IoSession session) throws Exception {
+        session.removeAttribute(STATE);
+    }
+
+    // -----------------------------------------------------------------
+    // 默认的消息编码工厂
+    // -----------------------------------------------------------------
+
+    // 学习笔记：单例的消息编码器工厂，每次请求都返回内部的同一个实例。如果编码器是线程安全的话，可以考虑这个编码器工厂。
     private static class SingletonMessageEncoderFactory<T> implements MessageEncoderFactory<T> {
+
         private final MessageEncoder<T> encoder;
 
         private SingletonMessageEncoderFactory(MessageEncoder<T> encoder) {
@@ -337,8 +363,9 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
         }
     }
 
-    // 学习笔记：基于反射构造器的消息编码器工厂
+    // 学习笔记：基于反射构造器的消息编码器工厂，每次请求都返回一个反射得到的新实例。如果编码器不是线程安全的话，可以考虑这个编码器工厂。
     private static class DefaultConstructorMessageEncoderFactory<T> implements MessageEncoderFactory<T> {
+
         private final Class<MessageEncoder<T>> encoderClass;
 
         private DefaultConstructorMessageEncoderFactory(Class<MessageEncoder<T>> encoderClass) {

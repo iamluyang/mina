@@ -27,6 +27,10 @@ import org.apache.mina.core.session.IoSession;
  * MINA 使用读取数据调用 decode(IoSession, IoBuffer, ProtocolDecoderOutput)方法，
  * 然后解码器实现通过调用 ProtocolDecoderOutput.write(Object) 将解码后的消息放入 ProtocolDecoderOutput
  *
+ * 学习笔记：从会话底层socket通道读取的字节数据，被解码成更高级的消息对象。解码后的数据被放进协议解码消息输出队列。
+ * 一般来说不能立即解码从socket通道读取的数据，因为不能保证每次都读取到完整的数据，因此会使用一个具有累积读取到的
+ * 数据的累积解码器，直到累积的数据足以解码出更高级的消息对象。
+ *
  * Decodes binary or protocol-specific data into higher-level message objects.
  * MINA invokes {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}
  * method with read data, and then the decoder implementation puts decoded
@@ -80,7 +84,7 @@ public interface ProtocolDecoder {
     void finishDecode(IoSession session, ProtocolDecoderOutput out) throws Exception;
 
     /**
-     * 学习笔记：释放与此解码器相关的所有资源。
+     * 学习笔记：释放会话与此解码器相关的所有资源。
      *
      * Releases all resources related with this decoder.
      *

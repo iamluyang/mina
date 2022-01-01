@@ -19,15 +19,16 @@
  */
 package org.apache.mina.filter.util;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
- * 学习笔记：IoFilter的包装器，用于跟踪此过滤器的使用次数，并在第一次引用过滤器时init，在释放最后一个引用时触发destroy。
+ * 学习笔记：IoFilter的包装器，用于跟踪此过滤器的使用次数，并在第一次引用过滤器时触发init方法，
+ * 在释放最后一个引用时触发destroy方法。
  *
  * An {@link IoFilter}s wrapper that keeps track of the number of usages of this filter and will call init/destroy
  * when the filter is not in use.
@@ -59,7 +60,8 @@ public class ReferenceCountingFilter extends IoFilterAdapter {
     /**
      * 学习笔记：如果一个过滤器被引用计数器包装代理，并且被包装的过滤器从未初始化过，
      * 则该过滤器的init方法会被首次调用。如果该引用计数过滤器被多次添加，则内部的
-     * count计数器会累加，并多次触发自身的过滤器的预添加事件
+     * count计数器会累加，并多次触发自身的过滤器的预添加事件。也就是说该过滤器添加到
+     * 多个宿主过滤器链中。
      *
      * {@inheritDoc}
      */
@@ -91,7 +93,8 @@ public class ReferenceCountingFilter extends IoFilterAdapter {
     /**
      * 学习笔记：如果一个过滤器被引用计数器包装代理，则会触发被包装的过滤器的后置移除事件，
      * 如果该引用计数器包装类被移除了多次，则count计数器递减，当count为0时，即该引用计数
-     * 器包装类没有被任何父类所持有，则会触发被包装的filter的destroy方法
+     * 器包装类没有被任何父类所持有，则会触发被包装的filter的destroy方法。也就是说该过滤
+     * 器添从多个宿主过滤器链中移除。
      *
      * {@inheritDoc}
      */

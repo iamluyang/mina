@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.logging.LoggingFilter;

@@ -19,9 +19,9 @@
  */
 package org.apache.mina.util;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterChain;
 
 /**
  * Bogus implementation of {@link IoFilter} to test

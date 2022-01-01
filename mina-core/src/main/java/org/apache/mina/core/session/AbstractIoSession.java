@@ -35,17 +35,17 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.file.DefaultFileRegion;
 import org.apache.mina.core.file.FilenameFileRegion;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.core.future.api.CloseFuture;
-import org.apache.mina.core.future.impl.DefaultCloseFuture;
-import org.apache.mina.core.future.impl.DefaultReadFuture;
-import org.apache.mina.core.future.impl.DefaultWriteFuture;
-import org.apache.mina.core.future.api.IoFutureListener;
-import org.apache.mina.core.future.api.ReadFuture;
-import org.apache.mina.core.future.api.WriteFuture;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.DefaultCloseFuture;
+import org.apache.mina.core.future.DefaultReadFuture;
+import org.apache.mina.core.future.DefaultWriteFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.ReadFuture;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.AbstractIoService;
 import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
@@ -927,16 +927,15 @@ public abstract class AbstractIoSession implements IoSession {
         ReadFuture future;
 
         synchronized (readyReadFutures) {
-            // 每次从等待读队列中获取一个异步结果，如果存在则立即返回等待队列中的结果
+            // 从等待读队列中获取一个异步结果，如果存在则立即返回其中的一个读future
             future = waitingReadFutures.poll();
 
-            // 如果等待队列中不存在等待读的结果，则创建一个新的准备读结果放进准备队列
+            // 如果等待队列中不存在等待读的结果，则创建一个新的已读结果放进已读队列
             if (future == null) {
                 future = new DefaultReadFuture(this);
                 readyReadFutures.offer(future);
             }
         }
-
         return future;
     }
 

@@ -25,7 +25,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 
 /**
- * 学习笔记：使用CIDR设置子网地址，只支持IPV4
+ * 学习笔记：使用 CIDR？设置子网地址，只支持IPV4
  *
  * A IP subnet using the CIDR notation. Currently, only IP version 4
  * address are supported.

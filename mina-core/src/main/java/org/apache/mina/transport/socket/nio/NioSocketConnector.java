@@ -35,9 +35,9 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.config.impl.DefaultSocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketConnector;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * 学习笔记：基于TCP的连接器

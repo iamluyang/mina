@@ -21,7 +21,7 @@ package org.apache.mina.example.echoserver;
 
 import java.net.InetSocketAddress;
 
-import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.example.echoserver.ssl.BogusSslContextFactory;
 import org.apache.mina.filter.compression.CompressionFilter;
 import org.apache.mina.filter.ssl.SSLFilter;

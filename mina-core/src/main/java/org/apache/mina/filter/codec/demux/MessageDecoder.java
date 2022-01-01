@@ -27,6 +27,8 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * 学习笔记：解码某种类型的消息。 我们没有为 MessageDecoder 提供任何 dispose 方法，
  * 因为如果您有很多消息类型要处理，它会给您带来性能损失。
  *
+ * 简单来说：就是多路协议解码器的子解码器，它的接口看上去和协议解码器是差不多，只是缺少了dispose 方法。
+ *
  * Decodes a certain type of messages.
  * <p>
  * We didn't provide any <tt>dispose</tt> method for {@link MessageDecoder}

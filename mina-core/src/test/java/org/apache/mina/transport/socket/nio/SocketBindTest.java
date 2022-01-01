@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.transport.AbstractBindTest;
+import org.apache.mina.transport.socket.AbstractBindTest;
 
 /**
  * Tests {@link NioSocketAcceptor} resource leakage.

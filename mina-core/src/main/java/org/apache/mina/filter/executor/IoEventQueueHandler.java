@@ -25,7 +25,7 @@ import org.apache.mina.core.session.IoEvent;
 
 /**
  * 学习笔记：监听和过滤发生在 有序线程池执行器 {@link OrderedThreadPoolExecutor} 和
- * 无序线程池执行器 {@link UnorderedThreadPoolExecutor} 中的所有事件队列操作。
+ * 无序线程池执行器 {@link UnorderedThreadPoolExecutor} 中的所有事件队列的操作。
  *
  * Listens and filters all event queue operations occurring in
  * {@link OrderedThreadPoolExecutor} and {@link UnorderedThreadPoolExecutor}.
@@ -78,7 +78,7 @@ public interface IoEventQueueHandler extends EventListener {
     boolean accept(Object source, IoEvent event);
 
     /**
-     * 指定的event提供给事件队列，之后会被调用。
+     * 指定的event提供给事件队列，之后会被线程池调用。
      *
      * Invoked after the specified <tt>event</tt> has been offered to the
      * event queue.
@@ -89,7 +89,7 @@ public interface IoEventQueueHandler extends EventListener {
     void offered(Object source, IoEvent event);
 
     /**
-     * 学习笔记：在从事件队列中轮询指定的 event 后调用。
+     * 学习笔记：在从事件队列中轮询指定的 event 后被线程池调用。
      *
      * Invoked after the specified <tt>event</tt> has been polled from the
      * event queue.

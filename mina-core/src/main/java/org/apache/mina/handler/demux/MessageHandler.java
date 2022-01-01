@@ -22,6 +22,9 @@ package org.apache.mina.handler.demux;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：一个消息处理器接口，它既可以处理消息接收事件，也可以处理消息发送事件，取决于注册到
+ * 到复合IoHandler的那个接口。默认存在一个什么也不做的NOOP消息处理器。
+ *
  * A handler interface that {@link DemuxingIoHandler} forwards
  * <tt>messageReceived</tt> or <tt>messageSent</tt> events to.  You have to
  * register your handler with the type of the message you want to get notified
@@ -32,6 +35,7 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface MessageHandler<M> {
+
     /**
      * A {@link MessageHandler} that does nothing.  This is useful when
      * you want to ignore a message of a specific type silently.

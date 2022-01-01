@@ -20,7 +20,7 @@
 package org.apache.mina.filter.codec.demux;
 
 /**
- * 学习笔记：创建 {@link MessageEncoder} 新实例的工厂。
+ * 学习笔记：创建 {@link MessageEncoder} 实例的工厂。
  *
  * A factory that creates a new instance of {@link MessageEncoder}.
  *
@@ -31,6 +31,7 @@ package org.apache.mina.filter.codec.demux;
  * @param <T> the message type
  */
 public interface MessageEncoderFactory<T> {
+
     /**
      * Creates a new message encoder.
      * 

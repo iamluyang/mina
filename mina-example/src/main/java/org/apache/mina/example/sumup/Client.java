@@ -22,7 +22,7 @@ package org.apache.mina.example.sumup;
 import java.net.InetSocketAddress;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.sumup.codec.SumUpProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;

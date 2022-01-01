@@ -28,14 +28,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.core.future.api.IoFuture;
-import org.apache.mina.core.future.api.IoFutureListener;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.ExceptionMonitor;
 
 /**
- * 学习笔记：即平常写的监听器的Provide，管理监听器，并触发监听器的入口。
+ * 学习笔记：即服务监听器的Provider，管理监听器，并触发监听器的入口。
  *
  * 但这个Support不仅仅管理监听器，还管理会话
  *
@@ -62,7 +62,7 @@ public class IoServiceListenerSupport {
     /**  Read only version of {@link #managedSessions}. */
     private final Map<Long, IoSession> readOnlyManagedSessions = Collections.unmodifiableMap(managedSessions);
 
-    // 标识服务但状态
+    // 标识服务的状态
     private final AtomicBoolean activated = new AtomicBoolean();
 
     // 标识服务的启动时间

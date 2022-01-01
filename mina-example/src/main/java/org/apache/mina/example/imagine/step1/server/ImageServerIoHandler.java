@@ -19,11 +19,11 @@
  */
 package org.apache.mina.example.imagine.step1.server;
 
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.imagine.step1.ImageRequest;
 import org.apache.mina.example.imagine.step1.ImageResponse;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

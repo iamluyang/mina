@@ -19,8 +19,8 @@
  */
 package org.apache.mina.filter.util;
 
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
-import org.apache.mina.core.filterchain.api.IoFilterEvent;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterEvent;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
@@ -28,8 +28,7 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.FilterEvent;
 
 /**
- * 学习笔记：当你想要创建一个过滤器来围绕所有 11 个 IoEvents 包装相同的逻辑时扩展这个类
- * 基于IoFilterEvent事件来触发过滤器
+ * 学习笔记：当你想要创建一个过滤器另所以11个Io事件执行相同的逻辑，则可以使用这个过滤器作为基类。
  *
  * Extend this class when you want to create a filter that
  * wraps the same logic around all 11 IoEvents

@@ -72,7 +72,7 @@ public interface IoSessionConfig {
     void setReadBufferSize(int readBufferSize);
 
     /**
-     * 学习笔记：I/O 处理器每次读取分配的读取缓冲区的最小大小。
+     * 学习笔记：I/O 处理器为每次读取分配的读取缓冲区的最小大小。
      * I/O 处理器不会将读取缓冲区大小减小到小于该属性值的值。
      *
      * @return the minimum size of the read buffer that I/O processor
@@ -94,7 +94,7 @@ public interface IoSessionConfig {
     void setMinReadBufferSize(int minReadBufferSize);
 
     /**
-     * 学习笔记：I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * 学习笔记：I/O 处理器为每次读取分配的读取缓冲区的最大大小。
      * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
      *
      * @return the maximum size of the read buffer that I/O processor
@@ -104,7 +104,7 @@ public interface IoSessionConfig {
     int getMaxReadBufferSize();
 
     /**
-     * 学习笔记：设置 I/O 处理器每次读取分配的读取缓冲区的最大大小。
+     * 学习笔记：设置 I/O 处理器为每次读取分配的读取缓冲区的最大大小。
      * I/O 处理器不会将读取缓冲区大小增加到大于此属性值的值。
      *
      * Sets the maximum size of the read buffer that I/O processor

@@ -38,21 +38,23 @@ import java.io.PrintWriter;
  */
 public class LineDelimiter {
 
+    // 学习笔记：自动获取当前操作系统的换行符
     /** the line delimiter constant of the current O/S. */
     public static final LineDelimiter DEFAULT;
 
-    // 计算当前操作系统上的默认分隔符
+    // 学习笔记：计算当前操作系统上的默认分隔符
     /** Compute the default delimiter on the current OS */
     static {
+        // 学习笔记：模拟向字节输出流中输出一个换行，再把这个换行符的字节读出来。
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(bout, true);
-        out.println();// 输出一个换行
+        out.println();// 强行输出一个换行符
         DEFAULT = new LineDelimiter(new String(bout.toByteArray()));
     }
 
     /**
      * 学习笔记：一个特殊的行分隔符，用于在TextLineDecoder 中自动检测 EOL。
-     * 如果使用此分隔符，TextLineDecoder 会将 '\r' 和 '\n' 视为分隔符。
+     * 如果使用此分隔符，TextLineDecoder 会将 '\r' 和 '\n' 都视为分隔符。
      *
      * A special line delimiter which is used for auto-detection of
      * EOL in {@link TextLineDecoder}.  If this delimiter is used,

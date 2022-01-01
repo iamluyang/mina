@@ -19,7 +19,7 @@
  */
 package org.apache.mina.proxy.handlers.http.basic;
 
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.proxy.ProxyAuthException;
 import org.apache.mina.proxy.handlers.http.AbstractAuthLogicHandler;
 import org.apache.mina.proxy.handlers.http.HttpProxyRequest;

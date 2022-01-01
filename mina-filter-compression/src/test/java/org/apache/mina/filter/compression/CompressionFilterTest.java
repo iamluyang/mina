@@ -22,8 +22,8 @@ package org.apache.mina.filter.compression;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;

@@ -30,7 +30,10 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class ProtocolEncoderAdapter implements ProtocolEncoder {
+
     /**
+     * 学习笔记：默认适配器方法
+     *
      * Override this method dispose all resources related with this encoder.
      * The default implementation does nothing.
      */

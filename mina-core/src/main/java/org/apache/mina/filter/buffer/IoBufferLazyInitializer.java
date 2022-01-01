@@ -23,7 +23,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.util.LazyInitializer;
 
 /**
- * 学习笔记：延迟加载io缓冲区对象
+ * 学习笔记：支持延迟初始化对象的延迟初始化器
  *
  * An {@link LazyInitializer} implementation that initializes an 
  * {@link IoBuffer} only when needed.
@@ -34,11 +34,15 @@ import org.apache.mina.util.LazyInitializer;
 public class IoBufferLazyInitializer extends LazyInitializer<IoBuffer> {
 
     /**
+     * 学习笔记：为Io缓冲区对象分配的缓冲区大小
+     *
      * The buffer size allocated for each new session's buffer.
      */
     private int bufferSize;
 
     /**
+     * 学习笔记：在构造函数中设置好需要分配的缓冲区大小。
+     *
      * Constructor which sets allocated buffer size to <code>bufferSize</code>.
      * 
      * @param bufferSize the new buffer size
@@ -48,6 +52,8 @@ public class IoBufferLazyInitializer extends LazyInitializer<IoBuffer> {
     }
 
     /**
+     * 学习笔记：在真正需要获取缓冲区对象的时候初始化出该对象。
+     *
      * {@inheritDoc}
      */
     public IoBuffer init() {

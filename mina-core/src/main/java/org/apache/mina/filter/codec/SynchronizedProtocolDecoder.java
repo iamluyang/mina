@@ -38,6 +38,8 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class SynchronizedProtocolDecoder implements ProtocolDecoder {
+
+    // 学习笔记：被包装的解码器
     private final ProtocolDecoder decoder;
 
     /**
@@ -49,7 +51,6 @@ public class SynchronizedProtocolDecoder implements ProtocolDecoder {
         if (decoder == null) {
             throw new IllegalArgumentException("decoder");
         }
-        
         this.decoder = decoder;
     }
 
@@ -61,6 +62,8 @@ public class SynchronizedProtocolDecoder implements ProtocolDecoder {
     }
 
     /**
+     * 学习笔记：代理类同步被包装对象的方法。
+     *
      * {@inheritDoc}
      */
     @Override
@@ -71,6 +74,8 @@ public class SynchronizedProtocolDecoder implements ProtocolDecoder {
     }
 
     /**
+     * 学习笔记：代理类同步被包装对象的方法。
+     *
      * {@inheritDoc}
      */
     @Override
@@ -81,6 +86,8 @@ public class SynchronizedProtocolDecoder implements ProtocolDecoder {
     }
 
     /**
+     * 学习笔记：代理类同步被包装对象的方法。
+     *
      * {@inheritDoc}
      */
     @Override

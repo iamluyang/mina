@@ -24,7 +24,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
- * 学习笔记：消息解码器的结果。默认有OK，NEED_DATA，NOT_OK三种结果
+ * 学习笔记：消息解码器的结果。默认有OK，NEED_DATA，NOT_OK三种结果状态。
  *
  * Represents results from {@link MessageDecoder}.
  *

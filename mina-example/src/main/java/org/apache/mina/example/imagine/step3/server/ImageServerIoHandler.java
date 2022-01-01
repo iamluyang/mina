@@ -27,11 +27,11 @@ import java.awt.image.BufferedImage;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.imagine.step1.ImageRequest;
 import org.apache.mina.example.imagine.step1.ImageResponse;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.integration.jmx.IoSessionMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -21,7 +21,7 @@ package org.apache.mina.example.haiku;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
 /**

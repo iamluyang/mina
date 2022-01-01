@@ -19,7 +19,7 @@
  */
 package org.apache.mina.proxy.session;
 
-import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 

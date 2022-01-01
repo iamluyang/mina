@@ -20,7 +20,7 @@
 package org.apache.mina.filter.logging;
 
 /**
- * 学习笔记：日志过滤器中事件的日志级别
+ * 学习笔记：日志过滤器中的事件日志级别
  *
  * Defines a logging level.
  * 

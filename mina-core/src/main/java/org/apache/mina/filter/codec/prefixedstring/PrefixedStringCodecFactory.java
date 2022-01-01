@@ -28,7 +28,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import java.nio.charset.Charset;
 
 /**
- * 学习笔记：一个基于使用固定长度的前缀对 Java String 对象进行编码和解码的编码工厂。
+ * 学习笔记：一个基于使用固定长度的前缀对 Java String 对象进行编码和解码的编码工厂。一个抽象工厂的实现。
  * 为了避免OutOfMemory攻击，解码器需要设置解码支持的最大长度。
  *
  * A {@link ProtocolCodecFactory} that performs encoding and decoding

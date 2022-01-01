@@ -34,6 +34,7 @@ public class ProtocolDecoderException extends ProtocolCodecException {
 
     private static final long serialVersionUID = 3545799879533408565L;
 
+    // 学习笔记：消息的十六进制转储
     private String hexdump;
 
     /**
@@ -106,7 +107,6 @@ public class ProtocolDecoderException extends ProtocolCodecException {
         if (this.hexdump != null) {
             throw new IllegalStateException("Hexdump cannot be set more than once.");
         }
-        
         this.hexdump = hexdump;
     }
 }

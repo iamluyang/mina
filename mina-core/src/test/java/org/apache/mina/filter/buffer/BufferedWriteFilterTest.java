@@ -22,7 +22,7 @@ package org.apache.mina.filter.buffer;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;

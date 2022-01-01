@@ -20,10 +20,10 @@
 package org.apache.mina.filter.keepalive;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;

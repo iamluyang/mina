@@ -23,14 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.mina.core.IoUtil;
-import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.core.filterchain.api.IoFilterChainBuilder;
-import org.apache.mina.core.future.api.WriteFuture;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilterChainBuilder;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
-import org.apache.mina.handler.IoHandler;
 
 /**
  * 学习笔记：所有提供I/O服务和管理ioessions的IoAcceptors和IoConnectors的基本接口。
@@ -171,7 +170,7 @@ public interface IoService {
     /**
      * Writes the specified {@code message} to all the {@link IoSession}s
      * managed by this service.  This method is a convenience shortcut for
-     * {@link IoUtil#broadcast(Object, Collection)}.
+     * {@link IoUtil# broadcast(Object, Collection)}.
      * 
      * @param message the message to broadcast
      * @return The set of WriteFuture associated to the message being broadcasted

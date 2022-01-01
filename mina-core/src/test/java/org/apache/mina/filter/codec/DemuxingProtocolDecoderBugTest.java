@@ -27,7 +27,7 @@ import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.file.FileRegion;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.easymock.EasyMock;
 import org.junit.Test;
 

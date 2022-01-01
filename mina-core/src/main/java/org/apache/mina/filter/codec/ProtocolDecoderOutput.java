@@ -19,12 +19,14 @@
  */
 package org.apache.mina.filter.codec;
 
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**
- * 学习笔记：回调 ProtocolDecoder 以生成解码消息。
- * ProtocolDecoder 必须为每个解码的消息调用 write(Object)
+ * 学习笔记：调用 ProtocolDecoder 以生成解码消息。并调用
+ * ProtocolDecoderOutput的write(Object message)方法
+ * 将解码后的消息写入当前解码输出容器。
+ *
  *
  * Callback for {@link ProtocolDecoder} to generate decoded messages.
  * {@link ProtocolDecoder} must call {@link #write(Object)} for each decoded
@@ -35,8 +37,8 @@ import org.apache.mina.core.session.IoSession;
 public interface ProtocolDecoderOutput {
 
     /**
-     * 学习笔记：回调 ProtocolDecoder 以生成解码消息。
-     * ProtocolDecoder 必须为每个解码的消息调用 write(Object)
+     * 学习笔记：将解码后的高级消息对象写入协议解码输出容器。
+     *
      *
      * Callback for {@link ProtocolDecoder} to generate decoded messages.
      * {@link ProtocolDecoder} must call {@link #write(Object)} for each
@@ -47,7 +49,7 @@ public interface ProtocolDecoderOutput {
     void write(Object message);
 
     /**
-     * 学习笔记：将通过 write(Object) 编写的所有消息刷新到下一个过滤器
+     * 学习笔记：将通过 write(Object) 写入的解码后的消息继续刷新到下一个过滤器的消息接收事件。并最终到达IoHandler。
      *
      * Flushes all messages you wrote via {@link #write(Object)} to
      * the next filter.

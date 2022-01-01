@@ -28,7 +28,7 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
- * 学习笔记：在文本行数据和Java字符串对象之间执行编码和解码的协议编码工厂 ProtocolCodecFactory。
+ * 学习笔记：在文本行数据和Java字符串对象之间执行编码和解码的协议编码工厂 ProtocolCodecFactory。一个抽象工厂的实现。
  * 此编解码器在您使用基于文本的协议（如 SMTP 和 IMAP）时尤其有用。
  *
  * A {@link ProtocolCodecFactory} that performs encoding and decoding between

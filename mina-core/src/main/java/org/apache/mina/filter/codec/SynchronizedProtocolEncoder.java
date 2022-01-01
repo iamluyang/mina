@@ -37,6 +37,7 @@ import org.apache.mina.core.session.IoSession;
  */
 public class SynchronizedProtocolEncoder implements ProtocolEncoder {
 
+    // 学习笔记：被包装的编码器
     private final ProtocolEncoder encoder;
 
     /**
@@ -58,6 +59,7 @@ public class SynchronizedProtocolEncoder implements ProtocolEncoder {
     }
 
     /**
+     * 学习笔记：代理类同步被包装对象的方法。
      * {@inheritDoc}
      */
     @Override
@@ -68,6 +70,8 @@ public class SynchronizedProtocolEncoder implements ProtocolEncoder {
     }
 
     /**
+     * 学习笔记：同时
+     *
      * {@inheritDoc}
      */
     @Override

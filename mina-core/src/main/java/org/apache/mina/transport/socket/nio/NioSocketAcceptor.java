@@ -39,9 +39,9 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.config.impl.DefaultSocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * 学习笔记：此类处理传入的基于 TCPIP 的套接字连接。由线程池，IO处理器，会话配置构成

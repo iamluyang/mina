@@ -21,7 +21,7 @@ package org.apache.mina.handler.multiton;
 
 import java.io.IOException;
 
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.FilterEvent;

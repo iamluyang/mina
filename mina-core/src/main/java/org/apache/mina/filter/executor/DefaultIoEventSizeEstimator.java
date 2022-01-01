@@ -31,7 +31,7 @@ import org.apache.mina.core.session.IoEvent;
 import org.apache.mina.core.write.WriteRequest;
 
 /**
- * 学习笔记：一个用来估计java对象的实现
+ * 学习笔记：一个用来估计java对象大小的默认实现
  *
  * A default {@link IoEventSizeEstimator} implementation.
  * <p>
@@ -169,7 +169,7 @@ public class DefaultIoEventSizeEstimator implements IoEventSizeEstimator {
         return answer;
     }
 
-    // 将对象的长度对齐为8字节的倍速
+    // 将对象的长度对齐为8字节的倍数
     private static int align(int size) {
         if (size % 8 != 0) {
             size /= 8;

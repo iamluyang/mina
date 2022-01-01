@@ -33,8 +33,8 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.SimpleIoProcessorPool;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.DatagramConnector;
-import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
-import org.apache.mina.transport.socket.config.impl.DefaultDatagramSessionConfig;
+import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.DefaultDatagramSessionConfig;
 
 /**
  * 学习笔记：基于UDP的连接器,内部基于NioProcessor，NioSession，DatagramChannel
@@ -44,7 +44,7 @@ import org.apache.mina.transport.socket.config.impl.DefaultDatagramSessionConfig
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSession, DatagramChannel> implements
-DatagramConnector {
+        DatagramConnector {
 
     /**
      * Creates a new instance.

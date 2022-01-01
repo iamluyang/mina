@@ -25,8 +25,10 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
- * 学习笔记：一个方便的 ProtocolCodecFactory，它提供 DemuxingProtocolEncoder 和 DemuxingProtocolDecoder 作为一对。
- * DemuxingProtocolEncoder和DemuxingProtocolDecoder将传入的消息和缓冲区解复用到适当的MessageEncoder 和 MessageDecoder。
+ * 一个方便的 ProtocolCodecFactory，它提供 DemuxingProtocolEncoder 和 DemuxingProtocolDecoder 作为一对。
+ * DemuxingProtocolEncoder和DemuxingProtocolDecoder将传入的消息和缓冲区分流到适当的MessageEncoder 和 MessageDecoder。
+ *
+ * 学习笔记：简单来说这是一个可以根据消息类型动态选择合适编码器和解码器的复合协议工厂。
  *
  * A convenience {@link ProtocolCodecFactory} that provides {@link DemuxingProtocolEncoder}
  * and {@link DemuxingProtocolDecoder} as a pair.
@@ -39,9 +41,15 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
 
+    // 分路的协议编码器
     private final DemuxingProtocolEncoder encoder = new DemuxingProtocolEncoder();
 
+    // 分路的协议解码器
     private final DemuxingProtocolDecoder decoder = new DemuxingProtocolDecoder();
+
+    // ------------------------------------------------------------------------------
+    // 返回协议编码器和解码器
+    // ------------------------------------------------------------------------------
 
     /**
      * {@inheritDoc}
@@ -59,7 +67,13 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
         return decoder;
     }
 
+    // ------------------------------------------------------------------------------
+    // 为协议编码器注册子的消息编码器或编码器工厂
+    // ------------------------------------------------------------------------------
+
     /**
+     * 学习笔记：为指定的消息类型映射一个消息编码器类型
+     *
      * Adds a new message encoder for a given message type
      * 
      * @param messageType The message type
@@ -70,6 +84,8 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：为指定的消息类型映射一个消息编码器实例
+     *
      * Adds a new message encoder for a given message type
      * 
      * @param <T> The message type
@@ -81,6 +97,8 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：为指定的消息类型映射一个消息编码器工厂
+     *
      * Adds a new message encoder for a given message type
      * 
      * @param <T> The message type
@@ -92,6 +110,8 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：为指定的一组消息类型映射一个消息编码器类型
+     *
      * Adds a new message encoder for a list of message types
      * 
      * @param messageTypes The message types
@@ -104,6 +124,8 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：为指定的一组消息类型映射一个消息编码器实例
+     *
      * Adds a new message encoder for a list of message types
      * 
      * @param <T> The message type
@@ -117,20 +139,26 @@ public class DemuxingProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
     /**
+     * 学习笔记：为指定的一组消息类型映射一个消息编码器工厂
+     *
      * Adds a new message encoder for a list of message types
      * 
      * @param <T> The message type
      * @param messageTypes The messages types
      * @param factory The associated encoder factory
      */
-    public <T> void addMessageEncoder(Iterable<Class<? extends T>> messageTypes,
-            MessageEncoderFactory<? super T> factory) {
+    public <T> void addMessageEncoder(Iterable<Class<? extends T>> messageTypes, MessageEncoderFactory<? super T> factory) {
         for (Class<? extends T> messageType : messageTypes) {
             addMessageEncoder(messageType, factory);
         }
     }
 
+    // ------------------------------------------------------------------------------
+    // 为协议解码器注册子的消息解码器或解码器工厂
+    // ------------------------------------------------------------------------------
+
     /**
+     *
      * Adds a new message decoder
      * 
      * @param decoderClass The associated decoder class

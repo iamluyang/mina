@@ -19,8 +19,8 @@
  */
 package org.apache.mina.filter.logging;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 记录 MINA 协议事件。可以根据用户的特定要求调整每个事件以使用不同的级别。
  * 方法已经就绪，允许用户对每个事件使用 get 或 set 方法并传入 {@link IoEventType} 和 {@link LogLevel}。
  *
- * 默认情况下，所有事件都记录到 LogLevelINFO 级别，除了
+ * 默认情况下，所有事件都记录到 LogLevel.INFO 级别，除了
  * IoFilterAdapter.exceptionCaught(IoFilter.NextFilter, IoSession, Throwable)，记录到 LogLevelWARN。
  *
  * Logs MINA protocol events.  Each event can be tuned to use a different level based on 

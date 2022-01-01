@@ -20,8 +20,8 @@
 package org.apache.mina.example.echoserver;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.handler.IoHandler;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;

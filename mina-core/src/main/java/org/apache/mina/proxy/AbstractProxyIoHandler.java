@@ -19,8 +19,8 @@
  */
 package org.apache.mina.proxy;
 
-import org.apache.mina.handler.IoHandler;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.proxy.handlers.socks.SocksProxyRequest;
 import org.apache.mina.proxy.session.ProxyIoSession;

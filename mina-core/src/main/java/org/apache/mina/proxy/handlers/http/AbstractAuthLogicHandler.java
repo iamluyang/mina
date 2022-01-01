@@ -22,7 +22,7 @@ package org.apache.mina.proxy.handlers.http;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.proxy.ProxyAuthException;
 import org.apache.mina.proxy.handlers.ProxyRequest;
 import org.apache.mina.proxy.session.ProxyIoSession;

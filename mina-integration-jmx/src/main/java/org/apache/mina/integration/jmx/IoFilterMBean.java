@@ -16,7 +16,7 @@
  */
 package org.apache.mina.integration.jmx;
 
-import org.apache.mina.core.filterchain.api.IoFilter;
+import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**

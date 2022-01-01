@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 学习笔记：服务的统计信息类。包含读写字节的吞吐量，读写消息的吞吐量，读写最大字节吞吐量，读写最大消息吞吐量。
  * 读写字节合计，读写消息合计，最近一次的读写时间，调度的写字节和消息，最近一次计算吞吐量的时间
  *
+ *
  * Provides usage statistics for an {@link AbstractIoService} instance.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
@@ -34,67 +35,91 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class IoServiceStatistics {
 
+    // 学习笔记：统计服务的宿主
     private IoService service;
 
+    // 学习笔记：读字节吞吐量
     /** The number of bytes read per second */
     private double readBytesThroughput;
 
+    // 学习笔记：写字节吞吐量
     /** The number of bytes written per second */
     private double writtenBytesThroughput;
 
+    // 学习笔记：读消息吞吐量
     /** The number of messages read per second */
     private double readMessagesThroughput;
 
+    // 学习笔记：写消息吞吐量
     /** The number of messages written per second */
     private double writtenMessagesThroughput;
 
+    // 学习笔记：最大读字节吞吐量
     /** The biggest number of bytes read per second */
     private double largestReadBytesThroughput;
 
+    // 学习笔记：最大写字节吞吐量
     /** The biggest number of bytes written per second */
     private double largestWrittenBytesThroughput;
 
+    // 学习笔记：最大读消息吞吐量
     /** The biggest number of messages read per second */
     private double largestReadMessagesThroughput;
 
+    // 学习笔记：最大写消息吞吐量
     /** The biggest number of messages written per second */
     private double largestWrittenMessagesThroughput;
 
-    /** The number of read bytes since the service has been started */
-    private long readBytes;
-
-    /** The number of written bytes since the service has been started */
-    private long writtenBytes;
-
-    /** The number of read messages since the service has been started */
-    private long readMessages;
-
-    /** The number of written messages since the service has been started */
-    private long writtenMessages;
-
+    // 学习笔记：最近读数据的时间
     /** The time the last read operation occurred */
     private long lastReadTime;
 
+    // 学习笔记：最近写数据的时间
     /** The time the last write operation occurred */
     private long lastWriteTime;
 
+    // 学习笔记：已经读到的字数量
+    /** The number of read bytes since the service has been started */
+    private long readBytes;
+
+    // 学习笔记：已经写出的字数量
+    /** The number of written bytes since the service has been started */
+    private long writtenBytes;
+
+    // 学习笔记：读到的消息数量
+    /** The number of read messages since the service has been started */
+    private long readMessages;
+
+    // 学习笔记：写出的消息数量
+    /** The number of written messages since the service has been started */
+    private long writtenMessages;
+
+    // 上一次计算吞吐量时已经读取到的字节数，用来和当前读到的字节数计算差值
     private long lastReadBytes;
 
+    // 同上
     private long lastWrittenBytes;
 
+    // 同上
     private long lastReadMessages;
 
+    // 同上
     private long lastWrittenMessages;
 
-    private long lastThroughputCalculationTime;
-
+    // 学习笔记：准备写出的字节数量
     private int scheduledWriteBytes;
 
+    // 学习笔记：准备写出的消息个数
     private int scheduledWriteMessages;
 
+    // 学习笔记：最近计算吞吐量的时间
+    private long lastThroughputCalculationTime;
+
+    // 学习笔记：计算吞吐量间隔时间
     /** The time (in second) between the computation of the service's statistics */
     private final AtomicInteger throughputCalculationInterval = new AtomicInteger(3);
 
+    // 学习笔记：计算吞吐量时候的同步锁
     private final Lock throughputCalculationLock = new ReentrantLock();
 
     /**
@@ -105,6 +130,8 @@ public class IoServiceStatistics {
     public IoServiceStatistics(IoService service) {
         this.service = service;
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return The maximum number of sessions which were being managed at the
@@ -122,6 +149,8 @@ public class IoServiceStatistics {
     public final long getCumulativeManagedSessionCount() {
         return ((AbstractIoService)service).getListeners().getCumulativeManagedSessionCount();
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return the time in millis when the last I/O operation (read or write)
@@ -163,6 +192,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * @return The number of bytes this service has read so far
      */
@@ -189,6 +220,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * @return The number of messages this services has read so far
      */
@@ -214,6 +247,8 @@ public class IoServiceStatistics {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return The number of read bytes per second.
@@ -243,6 +278,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * @return The number of read messages per second.
      */
@@ -270,6 +307,8 @@ public class IoServiceStatistics {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return The maximum number of bytes read per second since the service has
@@ -299,6 +338,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * @return The maximum number of messages read per second since the service
      *         has been started.
@@ -326,6 +367,8 @@ public class IoServiceStatistics {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return the interval (seconds) between each throughput calculation. The
@@ -356,6 +399,8 @@ public class IoServiceStatistics {
 
         this.throughputCalculationInterval.set(throughputCalculationInterval);
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * Sets last time at which a read occurred on the service.
@@ -389,6 +434,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * Resets the throughput counters of the service if no session is currently
      * managed.
@@ -401,6 +448,8 @@ public class IoServiceStatistics {
             writtenMessagesThroughput = 0;
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * Updates the throughput counters.
@@ -450,6 +499,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * Increases the count of read bytes by <code>nbBytesRead</code> and sets
      * the last read time to <code>currentTime</code>.
@@ -488,6 +539,8 @@ public class IoServiceStatistics {
         }
     }
 
+    // ---------------------------------------------------------------------
+
     /**
      * Increases the count of written bytes by <code>nbBytesWritten</code> and
      * sets the last write time to <code>currentTime</code>.
@@ -511,7 +564,7 @@ public class IoServiceStatistics {
     /**
      * Increases the count of written messages by 1 and sets the last write time
      * to <code>currentTime</code>.
-     * 
+     *
      * @param currentTime
      *            The date the message were written
      */
@@ -520,11 +573,14 @@ public class IoServiceStatistics {
 
         try {
             writtenMessages++;
+            // 学习笔记：更新最近一次写出数据的时间
             lastWriteTime = currentTime;
         } finally {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return The count of bytes scheduled for write.
@@ -553,6 +609,8 @@ public class IoServiceStatistics {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * @return the count of messages scheduled for write.
@@ -592,6 +650,8 @@ public class IoServiceStatistics {
             throughputCalculationLock.unlock();
         }
     }
+
+    // ---------------------------------------------------------------------
 
     /**
      * Sets the time at which throughput counters where updated.

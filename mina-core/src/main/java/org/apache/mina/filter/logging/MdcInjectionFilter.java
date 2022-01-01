@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.mina.core.filterchain.api.IoFilterEvent;
+import org.apache.mina.core.filterchain.IoFilterEvent;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.util.CommonEventFilter;

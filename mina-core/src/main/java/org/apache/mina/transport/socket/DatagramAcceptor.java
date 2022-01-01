@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionRecycler;
-import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
 
 /**
  * 学习笔记：基于UDP的连接器

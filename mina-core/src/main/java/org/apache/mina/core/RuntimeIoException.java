@@ -25,7 +25,7 @@ import java.io.IOException;
  * 未经检查的IOException版本。
  * 请注意， RuntimeIoException与IOException不同之处在于它不会触发强制会话关闭，而IOException强制断开连接。
  *
- * 学习笔记：运行时的Io异常，该异常不会导致会话关闭
+ * 学习笔记：运行时的Io异常，该异常不会导致会话关闭。
  *
  * A unchecked version of {@link IOException}.
  * <p>

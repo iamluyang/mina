@@ -22,6 +22,9 @@ package org.apache.mina.handler.demux;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * 学习笔记：处理异常的处理器，可以把它注册到复合处理器中。
+ * 默认提供两个内置的异常处理器，一个什么都不做，一个关闭会话。
+ *
  * A handler interface that {@link DemuxingIoHandler} forwards
  * <code>exceptionCaught</code> events to.  You have to register your
  * handler with the type of exception you want to get notified using

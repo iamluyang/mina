@@ -35,7 +35,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.RecoverableProtocolDecoderException;
 
 /**
- * 学习笔记：将文本行解码为字符串。
+ * 学习笔记：将文本行解码成字符串。
  * 注意：编码器不允许使用AUTO行分隔符,默认使用UNIX分隔符，而解码器允许使用AUTO模式
  *
  * A {@link ProtocolDecoder} which decodes a text line into a string.

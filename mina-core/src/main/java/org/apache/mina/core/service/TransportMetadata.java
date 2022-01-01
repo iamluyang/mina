@@ -65,7 +65,7 @@ public interface TransportMetadata {
     boolean hasFragmentation();
 
     /**
-     * 学习笔记：获取服务的地址（客户端或者服务器）
+     * 学习笔记：获取服务的地址类型
      *
      * @return the address type of the service.
      */

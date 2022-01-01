@@ -22,7 +22,7 @@ package org.apache.mina.transport.vmpipe;
 import java.net.SocketAddress;
 
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.transport.AbstractBindTest;
+import org.apache.mina.transport.socket.AbstractBindTest;
 
 /**
  * Tests {@link VmPipeAcceptor} bind and unbind.

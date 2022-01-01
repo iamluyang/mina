@@ -30,7 +30,7 @@ import org.apache.mina.core.buffer.BufferDataException;
 import org.apache.mina.core.buffer.IoBuffer;
 
 /**
- * 学习笔记：对象的序列化输入流（底层基于对象输入流），即实际上是将DataInputStream中的数据读取到IO缓冲区，再反序列化成对象
+ * 学习笔记：对象的序列化输入流（底层基于对象输入流），即实际上是将DataInputStream中的数据读取到IO缓冲区，再读取到DataInputStream
  *
  * An {@link ObjectInput} and {@link InputStream} that can read the objects encoded
  * by {@link ObjectSerializationEncoder}.

@@ -23,7 +23,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
- * 学习笔记：一个抽象的 MessageDecoder 实现，适用于不需要实现
+ * 学习笔记：一个抽象的 MessageDecoder 实现，适用于不需要实现。典型的默认适配器模式。
  * MessageDecoder.finishDecode(IoSession, ProtocolDecoderOutput) 方法的人。
  *
  * An abstract {@link MessageDecoder} implementation for those who don't need to

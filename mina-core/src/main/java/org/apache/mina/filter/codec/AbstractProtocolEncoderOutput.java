@@ -23,7 +23,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
- * 学习笔记：一个抽象的编码器，内部使用一个消息队列来堆积待编码的数据
+ * 学习笔记：将编码后的消息输出到当前协议编码输出容器，通过协议编码输出容器的write方法写入内部的编码消息队列。
  *
  * A {@link ProtocolEncoderOutput} based on queue.
  *
@@ -43,6 +43,7 @@ public abstract class AbstractProtocolEncoderOutput implements ProtocolEncoderOu
 	}
 
 	/**
+	 * 学习笔记：将编码后的消息写出到当前协议编码输出队列。
 	 * {@inheritDoc}
 	 */
 	@Override

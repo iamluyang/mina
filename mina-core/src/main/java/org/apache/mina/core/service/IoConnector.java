@@ -21,10 +21,9 @@ package org.apache.mina.core.service;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.handler.IoHandler;
 
 /**
  * 学习笔记：连接器终端，于服务器通信的一端。

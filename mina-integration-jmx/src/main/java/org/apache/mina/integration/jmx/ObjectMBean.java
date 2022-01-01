@@ -72,12 +72,12 @@ import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.TypeConverter;
 
-import org.apache.mina.core.filterchain.impl.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterChain;
-import org.apache.mina.core.filterchain.api.IoFilterChainBuilder;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;

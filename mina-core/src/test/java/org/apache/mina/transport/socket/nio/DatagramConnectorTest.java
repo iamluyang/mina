@@ -21,7 +21,7 @@ package org.apache.mina.transport.socket.nio;
 
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.transport.AbstractConnectorTest;
+import org.apache.mina.transport.socket.AbstractConnectorTest;
 
 /**
  * Tests {@link NioDatagramConnector}.

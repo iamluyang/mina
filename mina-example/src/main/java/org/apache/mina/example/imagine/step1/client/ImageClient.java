@@ -20,8 +20,8 @@
 package org.apache.mina.example.imagine.step1.client;
 
 import org.apache.mina.core.RuntimeIoException;
-import org.apache.mina.core.future.api.ConnectFuture;
-import org.apache.mina.handler.IoHandlerAdapter;
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.example.imagine.step1.ImageRequest;
 import org.apache.mina.example.imagine.step1.ImageResponse;

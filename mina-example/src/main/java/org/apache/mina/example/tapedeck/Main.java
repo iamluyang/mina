@@ -21,7 +21,7 @@ package org.apache.mina.example.tapedeck;
 
 import java.net.InetSocketAddress;
 
-import org.apache.mina.handler.IoHandler;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineEncoder;
 import org.apache.mina.filter.logging.LoggingFilter;

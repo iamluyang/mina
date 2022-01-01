@@ -27,6 +27,8 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * 学习笔记：对某种类型的消息进行编码。 我们没有为 MessageEncoder 提供任何 dispose 方法，
  * 因为如果您有很多消息类型要处理，它会给您带来性能损失。
  *
+ * 简单来说：就是多路协议编码器的子编码器。它的接口看上去和协议编码器是差不多，只是缺少了dispose 方法。
+ *
  * Encodes a certain type of messages.
  * <p>
  * We didn't provide any <tt>dispose</tt> method for {@link MessageEncoder}

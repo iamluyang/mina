@@ -29,7 +29,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 /**
- * 学习笔记：使用 IoBuffer.putObject(Object) 序列化 Serializable Java 对象的 ProtocolEncoder。
+ * 学习笔记：使用 IoBuffer.putObject(Object) 序列化编码 Serializable Java 对象的 ProtocolEncoder。
  *
  * A {@link ProtocolEncoder} which serializes {@link Serializable} Java objects
  * using {@link IoBuffer#putObject(Object)}.
@@ -73,7 +73,6 @@ public class ObjectSerializationEncoder extends ProtocolEncoderAdapter {
         if (maxObjectSize <= 0) {
             throw new IllegalArgumentException("maxObjectSize: " + maxObjectSize);
         }
-
         this.maxObjectSize = maxObjectSize;
     }
 
@@ -103,7 +102,8 @@ public class ObjectSerializationEncoder extends ProtocolEncoderAdapter {
         // 学习笔记：翻转读写模式
         buf.flip();
 
-        // 学习笔记：将序列化的数据丢进输出队列
+        // 学习笔记：将序列化的数据丢进输出队列，编码的时候一般不需要多次累积，一次就能完成整个对象的编码。
+        // 这就是为什么没有累积编码器的原因。
         out.write(buf);
     }
 }

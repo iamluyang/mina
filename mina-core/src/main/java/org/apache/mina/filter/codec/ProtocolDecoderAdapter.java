@@ -33,6 +33,8 @@ import org.apache.mina.core.session.IoSession;
 public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 
     /**
+     * 学习笔记：默认适配器方法
+     *
      * Override this method to deal with the closed connection.
      * The default implementation does nothing.
      */
@@ -42,6 +44,8 @@ public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
     }
 
     /**
+     * 学习笔记：默认适配器方法
+     *
      * Override this method to dispose all resources related with this decoder.
      * The default implementation does nothing.
      */

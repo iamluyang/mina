@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import org.apache.mina.core.buffer.IoBuffer;
 
 /**
- * 学习笔记： 对象序列化输出流（底层基于对象输出流），实际上是将需要序列化的对象放入IO缓冲区，在复制到（底层基于对象输出流）
+ * 学习笔记： 对象序列化输出流（底层基于对象输出流），实际上是将需要序列化的对象放入IO缓冲区，再写到DataOutputStream
  *
  * An {@link ObjectOutput} and {@link OutputStream} that can write the objects as
  * the serialized form that {@link ObjectSerializationDecoder} can decode.

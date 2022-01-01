@@ -26,7 +26,7 @@ import org.apache.mina.core.file.FileRegion;
  * 回调 ProtocolEncoder 以生成编码消息，例如IoBuffers.
  * ProtocolEncoder 必须为每个编码的消息调用 write(Object)。
  *
- * 即编码器编码后的消息，会通过write写出到ProtocolEncoderOutput的队列
+ * 学习笔记：即编码器编码后的消息，会通过write写出到ProtocolEncoderOutput的队列
  *
  * Callback for {@link ProtocolEncoder} to generate encoded messages such as
  * {@link IoBuffer}s. {@link ProtocolEncoder} must call {@link #write(Object)}
@@ -37,6 +37,8 @@ import org.apache.mina.core.file.FileRegion;
 public interface ProtocolEncoderOutput {
 
 	/**
+	 * 学习笔记：将编码后的消息写出到当前协议编码输出队列。
+	 *
 	 * Callback for {@link ProtocolEncoder} to generate an encoded message such as
 	 * an {@link IoBuffer}. {@link ProtocolEncoder} must call {@link #write(Object)}
 	 * for each encoded message.

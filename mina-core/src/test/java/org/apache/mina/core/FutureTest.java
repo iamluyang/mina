@@ -21,11 +21,11 @@ package org.apache.mina.core;
 
 import java.io.IOException;
 
-import org.apache.mina.core.future.impl.DefaultCloseFuture;
-import org.apache.mina.core.future.impl.DefaultConnectFuture;
-import org.apache.mina.core.future.impl.DefaultWriteFuture;
-import org.apache.mina.core.future.api.IoFuture;
-import org.apache.mina.core.future.api.IoFutureListener;
+import org.apache.mina.core.future.DefaultCloseFuture;
+import org.apache.mina.core.future.DefaultConnectFuture;
+import org.apache.mina.core.future.DefaultWriteFuture;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;

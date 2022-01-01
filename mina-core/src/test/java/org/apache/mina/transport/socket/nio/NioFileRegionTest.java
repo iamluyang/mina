@@ -21,7 +21,7 @@ package org.apache.mina.transport.socket.nio;
 
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.transport.AbstractFileRegionTest;
+import org.apache.mina.transport.socket.AbstractFileRegionTest;
 
 /**
  * TODO Add documentation

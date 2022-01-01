@@ -22,11 +22,13 @@ package org.apache.mina.filter.codec;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.apache.mina.core.filterchain.api.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 
 /**
- * 学习笔记：一个抽象的解码器，内部使用一个消息队列来堆积待解码的数据
+ * 学习笔记：将解码后的消息输出到当前队列。解码的消息即从对端接收到网络字节数据，解码后得到高级消息对象。
+ * 得到解码后的消息对象后，协议解码输出队列还负责将解码后的消息刷出到下一个接收消息的过滤器，并最终到达
+ * IoHandler。
  *
  * A {@link ProtocolDecoderOutput} based on queue.
  *
@@ -46,6 +48,8 @@ public abstract class AbstractProtocolDecoderOutput implements ProtocolDecoderOu
 	}
 
 	/**
+	 * 学习笔记：将解码后的高级消息对象写入协议解码输出队列。
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -57,7 +61,7 @@ public abstract class AbstractProtocolDecoderOutput implements ProtocolDecoderOu
 	}
 
 	/**
-	 * 学习笔记：将通过 write(Object) 编写的所有消息刷新到下一个过滤器，即接收消息的事件
+	 * 学习笔记：将通过 write(Object) 写入的解码后的消息继续刷新到下一个过滤器的消息接收事件。并最终到达IoHandler。
 	 *
 	 * {@inheritDoc}
 	 */

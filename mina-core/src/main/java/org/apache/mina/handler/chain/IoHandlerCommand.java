@@ -22,6 +22,13 @@ package org.apache.mina.handler.chain;
 import org.apache.mina.core.session.IoSession;
 
 /**
+ * IoHandlerCommand 封装了要执行的处理工作单元，其目的是检查和/或修改由 IoSession 提供的自定义属性表示的事务的状态。
+ * 单个 IoHandlerCommand 可以组合成一个 IoHandlerChain，这允许它们完成所需的处理或将进一步处理委托给IoHandlerChain
+ * 中的下一个 IoHandlerCommand。
+ *
+ * IoHandlerCommand 实现通常在IoSession 中检索和存储状态信息，该信息作为参数传递给 execute(NextCommand,IoSession,Object)} 方法，
+ * 使用自定义会话属性。如果您认为获取属性是一个乏味的过程，您可以创建一个包含所有属性的 getter 和 setter 的 bean，并将 bean 存储为会话属性：
+ *
  * <p>A {@link IoHandlerCommand} encapsulates a unit of processing work to be
  * performed, whose purpose is to examine and/or modify the state of a
  * transaction that is represented by custom attributes provided by
@@ -57,6 +64,9 @@ import org.apache.mina.core.session.IoSession;
  */
 public interface IoHandlerCommand {
     /**
+     * 学习笔记：执行要执行的处理工作单元。此 IoHandlerCommand 可以完成所需的处理并返回以停止处理，
+     * 或者通过调用 NextCommandexecute(IoSession,Object)。
+     *
      * <p>Execute a unit of processing work to be performed.  This
      * {@link IoHandlerCommand} may either complete the required processing
      * and just return to stop the processing, or delegate remaining
@@ -76,6 +86,9 @@ public interface IoHandlerCommand {
     void execute(NextCommand next, IoSession session, Object message) throws Exception;
 
     /**
+     * 学习笔记：表示对 IoHandlerChain 的下一个 IoHandlerCommand 的间接引用。
+     * 该接口提供了一种将请求转发到下一个 {@link IoHandlerCommand} 的方法。
+     *
      * Represents an indirect reference to the next {@link IoHandlerCommand} of
      * the {@link IoHandlerChain}.  This interface provides a way to forward
      * the request to the next {@link IoHandlerCommand}.

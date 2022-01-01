@@ -44,10 +44,13 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
     // 这个属性是用来获取会话上是否绑定了nio中的默认编码器
     private static final AttributeKey ENCODER = new AttributeKey(TextLineEncoder.class, "encoder");
 
+    // 编码的字符集
     private final Charset charset;
 
+    // 数据的分隔符
     private final LineDelimiter delimiter;
 
+    // 数据的最大值
     private int maxLineLength = Integer.MAX_VALUE;
 
     /**
@@ -160,6 +163,7 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
      */
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
+
         CharsetEncoder encoder = (CharsetEncoder) session.getAttribute(ENCODER);
 
         // 如果会话中没有绑定字符串编码器，则临时创建编码器，并设置到会话中
@@ -174,15 +178,18 @@ public class TextLineEncoder extends ProtocolEncoderAdapter {
         IoBuffer buf = IoBuffer.allocate(value.length()).setAutoExpand(true);
         buf.putString(value, encoder);
 
-        // 检查数据是否超过限制
+        // 检查数据是否超过最大限制
         if (buf.position() > maxLineLength) {
             throw new IllegalArgumentException("Line length: " + buf.position());
         }
 
         // 继续添加分隔符
         buf.putString(delimiter.getValue(), encoder);
+
+        // 翻转操作
         buf.flip();
-        // 将编码后数据丢进输出队列
+
+        // 将编码后数据丢进编码输出队列
         out.write(buf);
     }
 

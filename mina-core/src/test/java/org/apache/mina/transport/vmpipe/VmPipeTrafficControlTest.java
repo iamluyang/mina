@@ -21,10 +21,10 @@ package org.apache.mina.transport.vmpipe;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.future.api.ConnectFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.handler.IoHandler;
-import org.apache.mina.transport.AbstractTrafficControlTest;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.transport.socket.AbstractTrafficControlTest;
 
 /**
  * Tests suspending and resuming reads and writes for the VM pipe transport

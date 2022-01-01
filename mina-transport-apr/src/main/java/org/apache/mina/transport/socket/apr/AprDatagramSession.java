@@ -28,13 +28,13 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.config.impl.AbstractDatagramSessionConfig;
-import org.apache.mina.transport.socket.config.api.DatagramSessionConfig;
+import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.AbstractDatagramSessionConfig;
 import org.apache.tomcat.jni.Socket;
 
 /**
  * An {@link IoSession} for APR UDP datagram based session.
- * It's implementing the usual common features for {@link DatagramSessionConfig}. 
+ * It's implementing the usual common features for {@link DatagramSessionConfig}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */

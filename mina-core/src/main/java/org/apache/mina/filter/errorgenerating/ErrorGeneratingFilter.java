@@ -23,8 +23,8 @@ package org.apache.mina.filter.errorgenerating;
 import java.util.Random;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.api.IoFilter;
-import org.apache.mina.core.filterchain.api.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
@@ -32,7 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 学习笔记：实现在您的通信流中生成随机字节和 PDU 修改。
+ * 学习笔记：这个过滤器的实现会在过滤器接收和写出数据时模拟iobuffer数据被破坏的场景。
+ * 可能是数据中的字节丢了，多了，改变了。
  *
  * An {@link IoFilter} implementation generating random bytes and PDU modification in
  * your communication streams.
@@ -81,8 +82,10 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
 
     private int maxInsertByte = 10;
 
+    // 是否开启写错误
     private boolean manipulateWrites = false;
 
+    // 是否开启读错误
     private boolean manipulateReads = false;
 
     private Random rng = new Random();
@@ -369,7 +372,7 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
-     * 学习笔记：重发前的延迟
+     * 学习笔记：重新发送 Pdu Laster 的概率
      *
      * @return The delay before a resend
      */
@@ -378,7 +381,7 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
     }
 
     /**
-     * 学习笔记：无法正常工作的 ATM
+     * 学习笔记：重新发送 Pdu Laster 的概率
      *
      * not functional ATM
      * @param resendPduLasterProbability The delay before a resend

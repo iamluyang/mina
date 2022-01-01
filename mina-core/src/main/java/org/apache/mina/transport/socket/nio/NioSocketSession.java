@@ -33,8 +33,8 @@ import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SSLFilter;
-import org.apache.mina.transport.socket.config.impl.AbstractSocketSessionConfig;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
 
 /**
  * 学习笔记：创建一个nio socket会话

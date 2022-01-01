@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.future.api.WriteFuture;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 
 /**

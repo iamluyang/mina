@@ -44,10 +44,13 @@ public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
     /** The default maximum data length */ 
     public static final int DEFAULT_MAX_DATA_LENGTH = 2048;
 
+    // 用于字符编码的字符集
     private final Charset charset;
 
+    // 用多少个字节表示数据长度
     private int prefixLength = DEFAULT_PREFIX_LENGTH;
 
+    // 数据的最大长度
     private int maxDataLength = DEFAULT_MAX_DATA_LENGTH;
 
     /**
@@ -140,12 +143,17 @@ public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         String value = (String) message;
+
+        // 分配一个数据缓冲区
         IoBuffer buffer = IoBuffer.allocate(value.length()).setAutoExpand(true);
-        // 给数据填充指定长度的前缀
+
+        // 将字符串放进缓冲区，并指定字符集的编码器
         buffer.putPrefixedString(value, prefixLength, charset.newEncoder());
         if (buffer.position() > maxDataLength) {
             throw new IllegalArgumentException("Data length: " + buffer.position());
         }
+
+        // 翻转操作
         buffer.flip();
         // 将编码后的数据丢到编码输出器中的消息队列
         out.write(buffer);

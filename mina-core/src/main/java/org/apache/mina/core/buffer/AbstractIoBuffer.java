@@ -2826,13 +2826,13 @@ public abstract class AbstractIoBuffer extends IoBuffer {
                                       CharsetEncoder encoder) throws CharacterCodingException {
         int maxLength;
         switch (prefixLength) {
-            case 1:
+            case 1: // 表示用1个字节表示字符串数据长度
                 maxLength = 255;
                 break;
-            case 2:
+            case 2: // 表示用2个字节short表示字符串数据长度
                 maxLength = 65535;
                 break;
-            case 4:
+            case 4: // 表示用4个字节int表示字符串数据长度
                 maxLength = Integer.MAX_VALUE;
                 break;
             default:
@@ -2842,6 +2842,7 @@ public abstract class AbstractIoBuffer extends IoBuffer {
         if (val.length() > maxLength) {
             throw new IllegalArgumentException("The specified string is too long.");
         }
+
         if (val.length() == 0) {
             switch (prefixLength) {
                 case 1:

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 学习笔记：这个队列使用字节总数作为访问限制，每次只能够塞入限定字节数的对象
  * 默认为65536个字节，装满后就不能再放入新的事件对象了。
  * 这不是一个与事件对象个数作为阈值的限制器，而是以对象字节数作为阈值的限制器。
- * 因为如果对象太大，可能即便很少的事件也会难以处理。
+ * 因为如果对象太大，可能即便很少的事件也会堆积大量的数据。
  *
  * Throttles incoming or outgoing events.
  *
@@ -40,7 +40,7 @@ public class IoEventQueueThrottle implements IoEventQueueHandler {
     /** A logger for this class */
     private static final Logger LOGGER = LoggerFactory.getLogger(IoEventQueueThrottle.class);
 
-    // 事件对象大小估计器实例
+    // 估计事件对象大小的工具
     /** The event size estimator instance */
     private final IoEventSizeEstimator eventSizeEstimator;
 
@@ -51,7 +51,7 @@ public class IoEventQueueThrottle implements IoEventQueueHandler {
     private final Object lock = new Object();
 
     /** The number of events we hold */
-    // 持有的事件数量
+    // 当前持有的事件字节数
     private final AtomicInteger counter = new AtomicInteger();
 
     // 等待者的数量
@@ -78,7 +78,7 @@ public class IoEventQueueThrottle implements IoEventQueueHandler {
     }
 
     /**
-     * 指定对象估计器和临界点
+     * 学习笔记：指定对象估计器和临界点
      *
      * Creates a new IoEventQueueThrottle instance
      *
@@ -110,7 +110,7 @@ public class IoEventQueueThrottle implements IoEventQueueHandler {
     }
 
     /**
-     * 学习笔记：当前持有的事件数量
+     * 学习笔记：当前持有的字节数量
      *
      * @return The number of events currently held
      */
@@ -133,7 +133,7 @@ public class IoEventQueueThrottle implements IoEventQueueHandler {
     }
 
     /**
-     * 学习笔记：所有事件都能接收
+     * 学习笔记：事件是否都能接收
      * {@inheritDoc}
      */
     @Override

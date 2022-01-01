@@ -22,7 +22,6 @@ package org.apache.mina.transport.socket;
 import java.net.InetSocketAddress;
 
 import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.transport.socket.config.api.SocketSessionConfig;
 
 /**
  * 学习笔记 用于TCP/IP套接字传输的连接器。

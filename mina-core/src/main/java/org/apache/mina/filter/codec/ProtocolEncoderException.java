@@ -21,7 +21,7 @@ package org.apache.mina.filter.codec;
 
 /**
  * 学习笔记：协议编码器产生的异常
- *
+ * 
  * An exception that is thrown when {@link ProtocolEncoder}
  * cannot understand or failed to validate the specified message object.
  *

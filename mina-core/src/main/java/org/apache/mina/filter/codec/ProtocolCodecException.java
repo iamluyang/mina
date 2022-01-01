@@ -60,7 +60,7 @@ public class ProtocolCodecException extends Exception {
     /**
      * Constructs a new instance with the specified message and the specified
      * cause.
-     * 
+     *
      * @param message The detail message
      * @param cause The Exception's cause
      */
