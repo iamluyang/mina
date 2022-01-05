@@ -22,6 +22,7 @@ package org.apache.mina.core.session;
 /**
  * 学习笔记：当无法确定消息的类型时引发的异常。
  *
+ *
  * An exception that is thrown when the type of the message cannot be determined.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

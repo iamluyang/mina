@@ -32,7 +32,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 
 /**
- * 学习笔记：基于数据报的会话实现。
+ * 学习笔记：基于UDP的会话实现。
  *
  *
  * An {@link IoSession} for datagram transport (UDP/IP).
@@ -41,29 +41,39 @@ import org.apache.mina.transport.socket.DatagramSessionConfig;
  */
 class NioDatagramSession extends NioSession {
 
+    // 学习笔记：数据报会话的METADATA
     static final TransportMetadata METADATA =
             new DefaultTransportMetadata(
                     "nio", // nio
                     "datagram", // 数据报
                     true,  // 无连接的协议
                     false, // 数据报不分片
-                    InetSocketAddress.class, // 地址类型
+                    InetSocketAddress.class, // 网络地址类型
                     DatagramSessionConfig.class, // 数据报会话配置
-                    IoBuffer.class); // Io缓冲区类型
+                    IoBuffer.class); // 支持传输的数据类型
 
+    // 学习笔记：当前会话的本地地址
     private final InetSocketAddress localAddress;
 
+    // 学习笔记：与会话通讯的对端地址，由于UDP无需建立连接，这里显示的传入目标地址
     private final InetSocketAddress remoteAddress;
 
     /**
+     * 学习笔记：会话需要一个宿主服务（即连接器或接收器），本地数据报通道，以及底层IoProcessor，并显示的指定对端的地址。
+     *
      * Creates a new acceptor-side session instance.
      */
-    NioDatagramSession(IoService service, DatagramChannel channel, IoProcessor<NioSession> processor,
-            SocketAddress remoteAddress) {
+    NioDatagramSession(IoService service, DatagramChannel channel, IoProcessor<NioSession> processor, SocketAddress remoteAddress) {
         super(processor, service, channel);
+
+        // 学习笔记：数据报的会话配置
         config = new NioDatagramSessionConfig(channel);
         config.setAll(service.getSessionConfig());
+
+        // 学习笔记：与当前数据报通讯的对端网络地址
         this.remoteAddress = (InetSocketAddress) remoteAddress;
+
+        // 学习笔记：获取当前数据报通道的本地地址
         this.localAddress = (InetSocketAddress) channel.socket().getLocalSocketAddress();
     }
 
@@ -74,14 +84,17 @@ class NioDatagramSession extends NioSession {
         this(service, channel, processor, channel.socket().getRemoteSocketAddress());
     }
 
+    // -----------------------------------------------------------
+    // 与UDP会话关联的METADATA和会话配置
+    // -----------------------------------------------------------
+
     /**
-     * 学习笔记：获取会话底层的数据报通道
-     *
+     * 学习笔记：获取会话的协议属性
      * {@inheritDoc}
      */
     @Override
-    DatagramChannel getChannel() {
-        return (DatagramChannel) channel;
+    public TransportMetadata getTransportMetadata() {
+        return METADATA;
     }
 
     /**
@@ -93,26 +106,26 @@ class NioDatagramSession extends NioSession {
         return (DatagramSessionConfig) config;
     }
 
+    // -----------------------------------------------------------
+    // UDP会话底层封装的数据报通道
+    // -----------------------------------------------------------
+
     /**
-     * 学习笔记：获取协议属性
+     * 学习笔记：获取会话的数据报通道
+     *
      * {@inheritDoc}
      */
     @Override
-    public TransportMetadata getTransportMetadata() {
-        return METADATA;
+    DatagramChannel getChannel() {
+        return (DatagramChannel) channel;
     }
 
-    /**
-     * 学习笔记：即会话的对端会话地址
-     * {@inheritDoc}
-     */
-    @Override
-    public InetSocketAddress getRemoteAddress() {
-        return remoteAddress;
-    }
+    // -----------------------------------------------------------
+    // UDP会话底层封装的本地地址和远程地址，还有服务器地址。
+    // -----------------------------------------------------------
 
     /**
-     * 学习笔记：即会话的本地地址
+     * 学习笔记：获取会话的本地地址
      * {@inheritDoc}
      */
     @Override
@@ -121,8 +134,17 @@ class NioDatagramSession extends NioSession {
     }
 
     /**
-     * 学习笔记：获取服务地址，如果会话的宿主是连接器，则为远程服务器的地址。
-     * 如果会话的宿主为接收器，则为接收器bind绑定的地址。
+     * 学习笔记：获取会话的对端地址
+     * {@inheritDoc}
+     */
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    /**
+     * 学习笔记：获取服务器地址，如果会话的宿主是客户端，则为远程服务器的地址。
+     * 如果会话的宿主为服务器，则为服务器bind绑定的地址。
      *
      * {@inheritDoc}
      */

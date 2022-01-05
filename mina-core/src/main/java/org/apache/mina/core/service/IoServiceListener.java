@@ -33,7 +33,6 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoServiceListener extends EventListener {
-
     /**
      * 学习笔记：服务自身的激活事件
      *

@@ -35,6 +35,23 @@ import org.apache.mina.core.service.IoAcceptor;
  */
 public interface SocketAcceptor extends IoAcceptor {
 
+    // -----------------------------------------------------------------------------
+    // 基于TCP协议的会话配置信息
+    // -----------------------------------------------------------------------------
+
+    /**
+     * 学习笔记：此接受器服务创建的新 SocketSessions 的默认配置。
+     *
+     * @return the default configuration of the new SocketSessions created by
+     * this acceptor service.
+     */
+    @Override
+    SocketSessionConfig getSessionConfig();
+
+    // -----------------------------------------------------------------------------
+    // 返回TCP服务器已经绑定的地址。只返回其中之一。
+    // -----------------------------------------------------------------------------
+
     /**
      * 学习笔记：当前绑定的本地 InetSocketAddress。
      * 如果绑定了多个地址，则只返回其中一个，但不一定是第一个绑定的地址。
@@ -46,6 +63,10 @@ public interface SocketAcceptor extends IoAcceptor {
      */
     @Override
     InetSocketAddress getLocalAddress();
+
+    // -----------------------------------------------------------------------------
+    // TCP服务器启动时默认绑定的本地地址
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：默认的绑定地址。
@@ -71,6 +92,10 @@ public interface SocketAcceptor extends IoAcceptor {
      */
     void setDefaultLocalAddress(InetSocketAddress localAddress);
 
+    // -----------------------------------------------------------------------------
+    // TCP服务器的两个配置：地址重用和等待队列
+    // -----------------------------------------------------------------------------
+
     /**
      * 学习笔记：是否使用地址重用
      *
@@ -90,14 +115,14 @@ public interface SocketAcceptor extends IoAcceptor {
     void setReuseAddress(boolean reuseAddress);
 
     /**
-     * 学习笔记：设置积压的大小。
+     * 学习笔记：设置等待队列的大小。
      *
      * @return the size of the backlog.
      */
     int getBacklog();
 
     /**
-     * 学习笔记：设置积压的大小。只有当这个接收器没有绑定本地前才能这样做
+     * 学习笔记：设置等待队列的大小。只有当这个接收器没有绑定本地前才能这样做
      *
      * Sets the size of the backlog.  This can only be done when this
      * class is not bound
@@ -106,12 +131,4 @@ public interface SocketAcceptor extends IoAcceptor {
      */
     void setBacklog(int backlog);
 
-    /**
-     * 学习笔记：此接受器服务创建的新 SocketSessions 的默认配置。
-     *
-     * @return the default configuration of the new SocketSessions created by 
-     * this acceptor service.
-     */
-    @Override
-    SocketSessionConfig getSessionConfig();
 }

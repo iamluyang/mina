@@ -35,6 +35,10 @@ import org.apache.mina.core.session.IoSessionRecycler;
  */
 public interface DatagramAcceptor extends IoAcceptor {
 
+    // -----------------------------------------------------------------------------
+    // 基于UDP协议的会话配置信息
+    // -----------------------------------------------------------------------------
+
     /**
      * 学习笔记：设置UDP会话配置类
      *
@@ -43,6 +47,10 @@ public interface DatagramAcceptor extends IoAcceptor {
      */
     @Override
     DatagramSessionConfig getSessionConfig();
+
+    // -----------------------------------------------------------------------------
+    // 返回UDP服务器已经绑定的地址。只返回其中之一。
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：当前绑定的本地 InetSocketAddress。如果绑定了多个地址，则只返回其中一个，但不一定是第一个绑定的地址。
@@ -54,6 +62,10 @@ public interface DatagramAcceptor extends IoAcceptor {
      */
     @Override
     InetSocketAddress getLocalAddress();
+
+    // -----------------------------------------------------------------------------
+    // UDP服务器启动时默认绑定的本地地址
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：返回默认要绑定的地址
@@ -75,6 +87,10 @@ public interface DatagramAcceptor extends IoAcceptor {
      * @param localAddress The local address
      */
     void setDefaultLocalAddress(InetSocketAddress localAddress);
+
+    // -----------------------------------------------------------------------------
+    // UDP需要一个特定的会话回收器来回收和管理会话
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：UDP通过这个会话回收器来管理会话

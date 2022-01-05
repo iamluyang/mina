@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 /**
  * 根据类名和属性名创建一个 Key。生成的 Key 将存储在会话 Map 中。
- * 例如，我们可以通过这种方式创建一个“处理器”AttributeKey：
+ * 例如，我们可以通过这种方式创建一个“处理器的”AttributeKey：
  *
  * Creates a Key from a class name and an attribute name. The resulting Key will
  * be stored in the session Map.<br>
@@ -96,7 +96,6 @@ public final class AttributeKey implements Serializable {
         }
 
         AttributeKey other = (AttributeKey) obj;
-
         return name.equals(other.name);
     }
 }

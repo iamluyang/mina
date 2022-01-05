@@ -24,13 +24,17 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.IoConnector;
 
 /**
- * 学习笔记：基于UDP传输的连接器
+ * 学习笔记：基于UDP协议的连接器
  *
  * {@link IoConnector} for datagram transport (UDP/IP).
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface DatagramConnector extends IoConnector {
+
+    // -----------------------------------------------------------------------------
+    // UDP会话的配置信息
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：数据报会话配置
@@ -40,6 +44,10 @@ public interface DatagramConnector extends IoConnector {
      */
     @Override
     DatagramSessionConfig getSessionConfig();
+
+    // -----------------------------------------------------------------------------
+    // 客户端连接的默认远程服务器地址
+    // -----------------------------------------------------------------------------
 
     /**
      * 学习笔记：默认的远程地址

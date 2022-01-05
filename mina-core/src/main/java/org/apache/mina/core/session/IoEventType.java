@@ -40,18 +40,15 @@ public enum IoEventType {
     /** The session has been closed */
     SESSION_CLOSED,
 
-    // --------------------------------------------------
     /** A message has been received */
     MESSAGE_RECEIVED, 
     
     /** A message has been sent */
     MESSAGE_SENT,
 
-    // --------------------------------------------------
     /** The session is idle */
     SESSION_IDLE,
 
-    // --------------------------------------------------
     /** An exception has been caught */ 
     EXCEPTION_CAUGHT,
 
@@ -59,14 +56,14 @@ public enum IoEventType {
     /** A write has pccired */
     WRITE,
 
-    // --------------------------------------------------
     /** A close has occured */
     CLOSE,
+
+    // --------------------------------------------------
 
     /** The Input part of the socket has been closed */
     INPUT_CLOSED,
 
-    // --------------------------------------------------
     /** A generic event has been generated */
     EVENT
 }

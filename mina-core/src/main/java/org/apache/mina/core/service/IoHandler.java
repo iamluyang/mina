@@ -30,6 +30,7 @@ import org.apache.mina.filter.FilterEvent;
  *
  * Handles all I/O events fired by MINA.
  *
+ *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  *
  * @see IoHandlerAdapter

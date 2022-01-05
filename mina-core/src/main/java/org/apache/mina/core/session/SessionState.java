@@ -33,15 +33,15 @@ package org.apache.mina.core.session;
  */
 public enum SessionState {
 
-    // 会话尚未完全创建
+    // 会话尚未完全创建，连接尚未建立
     /** Session being created, not yet completed */
     OPENING, 
 
-    // 会话已打开
+    // 会话已打开，连接已经建立
     /** Opened session */
     OPENED, 
 
-    // 会议即将结束
+    // 会议即将结束，连接正在关闭
     /** A session being closed */
     CLOSING
 }

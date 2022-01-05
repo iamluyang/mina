@@ -43,6 +43,7 @@ import org.apache.mina.core.write.WriteRequestQueue;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultIoSessionDataStructureFactory implements IoSessionDataStructureFactory {
+
     /**
      * {@inheritDoc}
      */
@@ -59,9 +60,13 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         return new DefaultWriteRequestQueue();
     }
 
-    // 默认的属性集合
+    // ------------------------------------------------------------------------
+    // 默认的会话属性容器
+    // ------------------------------------------------------------------------
+
     private static class DefaultIoSessionAttributeMap implements IoSessionAttributeMap {
 
+        // 学习笔记：使用一个并发映射容器
         private final ConcurrentHashMap<Object, Object> attributes = new ConcurrentHashMap<>(4);
 
         /**
@@ -197,8 +202,13 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         }
     }
 
+    // ------------------------------------------------------------------------
+    // 默认的写请求队列
+    // ------------------------------------------------------------------------
+
     private static class DefaultWriteRequestQueue implements WriteRequestQueue {
 
+        // 学习笔记：写请求队列使用了一个基于并发的链表队列
         /** A queue to store incoming write requests */
         private final Queue<WriteRequest> q = new ConcurrentLinkedQueue<>();
 
@@ -235,6 +245,8 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         }
 
         /**
+         * 学习笔记：将写请求放入队列
+         *
          * {@inheritDoc}
          */
         @Override
@@ -243,12 +255,15 @@ public class DefaultIoSessionDataStructureFactory implements IoSessionDataStruct
         }
 
         /**
+         * 学习笔记：弹出会话写出队列中的写请求，交给IoProcessor写出数据
+         *
          * {@inheritDoc}
          */
         @Override
         public WriteRequest poll(IoSession session) {
             WriteRequest answer = q.poll();
 
+            // 学习笔记：如果写请求中混入来一个关闭请求，则立即关闭会话，并释放会话
             if (answer == AbstractIoSession.CLOSE_REQUEST) {
                 session.closeNow();
                 dispose(session);

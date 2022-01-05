@@ -66,8 +66,11 @@ import org.slf4j.LoggerFactory;
  *            the type of the {@link IoSession} this processor can handle
  */
 public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> implements IoProcessor<S> {
+
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger(IoProcessor.class);
+
+    // -------------------------------------------------------------------------
 
     /**
      * 学习笔记：用于选择的超时，因为我们需要出去处理空闲会话
@@ -77,9 +80,11 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      */
     private static final long SELECT_TIMEOUT = 1000L;
 
-    // 学习笔记：
+    // 学习笔记：包含每个类的最后一个线程ID的映射
     /** A map containing the last Thread ID for each class */
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> threadIds = new ConcurrentHashMap<>();
+
+    // -------------------------------------------------------------------------
 
     // 学习笔记：给IO处理器生成一个线程名字
     /** This IoProcessor instance name */
@@ -89,32 +94,34 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     /** The executor to use when we need to start the inner Processor */
     private final Executor executor;
 
+    // -------------------------------------------------------------------------
+
     // 学习笔记：包含新创建的会话的会话队列
     /** A Session queue containing the newly created sessions */
     private final Queue<S> newSessions = new ConcurrentLinkedQueue<>();
 
-    // 学习笔记：用于存储要删除的会话的队列
+    // 学习笔记：用于存储要删除的会话队列
     /** A queue used to store the sessions to be removed */
     private final Queue<S> removingSessions = new ConcurrentLinkedQueue<>();
 
-    // 学习笔记：用于存储要刷新的会话的队列
+    // 学习笔记：用于存储要刷出数据的会话队列
     /** A queue used to store the sessions to be flushed */
     private final Queue<S> flushingSessions = new ConcurrentLinkedQueue<>();
 
     /**
-     * 学习笔记：用于存储具有要更新流量控制（读写挂起）的会话的队列
+     * 学习笔记：用于存储具有要切换流量控制（读写挂起）的会话的队列
      *
      * A queue used to store the sessions which have a trafficControl to be
      * updated
      */
     private final Queue<S> trafficControllingSessions = new ConcurrentLinkedQueue<>();
 
-    // 学习笔记：IO处理器内部的线程启动或关闭标记
-    /** The processor thread : it handles the incoming messages */
-    private final AtomicReference<Processor> processorRef = new AtomicReference<>();
+    // -------------------------------------------------------------------------
 
     // 学习笔记：IO处理器最近一次检查会话闲置的时间
     private long lastIdleCheckTime;
+
+    // -------------------------------------------------------------------------
 
     // 学习笔记：释放IO处理器的并发互斥锁
     private final Object disposalLock = new Object();
@@ -128,8 +135,16 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     // 学习笔记：IO处理器的异步结果，可以认为是一个关闭与否的状态
     private final DefaultIoFuture disposalFuture = new DefaultIoFuture(null);
 
+    // -------------------------------------------------------------------------
+
     // 学习笔记：唤醒是否被调用
     protected AtomicBoolean wakeupCalled = new AtomicBoolean(false);
+
+    // ----------------------------------------------------------------------------
+
+    // 学习笔记：IO处理器内部的线程启动或关闭标记
+    /** The processor thread : it handles the incoming messages */
+    private final AtomicReference<Processor> processorRef = new AtomicReference<>();
 
     // ----------------------------------------------------------------------------
 
@@ -154,7 +169,8 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     // ----------------------------------------------------------------------------
 
     /**
-     * 学习笔记：基于类的实例计算出一个线程Id
+     * 学习笔记：基于类的实例计算出一个线程Id，使用类名和一个线程安全的自增整数
+     *
      * Compute the thread ID for this class instance. As we may have different
      * classes, we store the last ID number into a Map associating the class
      * name to the last assigned ID.
@@ -163,9 +179,9 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      *         incremental value, starting at 1.
      */
     private String nextThreadName() {
+
         Class<?> cls = getClass();
         int newThreadId;
-
         AtomicInteger threadId = threadIds.putIfAbsent(cls, new AtomicInteger(1));
 
         if (threadId == null) {
@@ -204,7 +220,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     }
 
     /**
-     * 学习笔记：释放IO处理器，实际上停止一个内部的IO处理器线程
+     * 学习笔记：释放IO处理器，实际上是通过IoProcessor内部的IO处理器线程来处理dispose任务。
      *
      * {@inheritDoc}
      */
@@ -218,16 +234,18 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
         synchronized (disposalLock) {
             // 学习笔记：设置一个释放的标记
             disposing = true;
-            // 启动IO处理器线程和关闭线程都是由线程自身判断
+            // 学习笔记：启动IO处理器线程和关闭线程都是由startupProcessor中的逻辑统一检查和处理
             startupProcessor();
         }
 
-        // 学习笔记：让释放的异步结果阻塞，直到IO处理器结束，并设置回调结果
+        // 学习笔记：释放请求被阻塞，直到IO处理器结束，并回调设置结果
         disposalFuture.awaitUninterruptibly();
         disposed = true;
     }
 
     /**
+     * 学习笔记：释放IoProcessor，实际上就是释放IoProcessor关联的选择器
+     *
      * Dispose the resources used by this {@link IoProcessor} for polling the
      * client connections. The implementing class doDispose method will be
      * called.
@@ -237,6 +255,8 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      */
     protected abstract void doDispose() throws Exception;
 
+    // ----------------------------------------------------------------------------
+    // 选择器相关：获取读写事件就绪通道的数量，并唤醒选择器
     // ----------------------------------------------------------------------------
 
     /**
@@ -271,7 +291,51 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract void wakeup();
 
     // ----------------------------------------------------------------------------
-    // 初始化会话和销毁会话
+    // 选择器内部的键集相关
+    // ----------------------------------------------------------------------------
+
+    /**
+     * 学习笔记：判断是否有socket通道注册到了这个选择器，使用读锁，因为读取keys的状态
+     *
+     * Say if the list of {@link IoSession} polled by this {@link IoProcessor}
+     * is empty
+     *
+     * @return <tt>true</tt> if at least a session is managed by this
+     *         {@link IoProcessor}
+     */
+    protected abstract boolean isSelectorEmpty();
+
+    /**
+     * 学习笔记：判断有多少会话的socket通道注册到了选择器
+     *
+     * Get the number of {@link IoSession} polled by this {@link IoProcessor}
+     *
+     * @return the number of sessions attached to this {@link IoProcessor}
+     */
+    protected abstract int allSessionsCount();
+
+    /**
+     * 学习笔记：获取所有注册到选择器的会话socket通道，并将key关联的会话返回
+     *
+     * Get an {@link Iterator} for the list of {@link IoSession} polled by this
+     * {@link IoProcessor}
+     *
+     * @return {@link Iterator} of {@link IoSession}
+     */
+    protected abstract Iterator<S> allSessions();
+
+    /**
+     * 学习笔记：获取触发了监听事件的会话socket通道关联的key，并将key关联的会话返回
+     *
+     * Get an {@link Iterator} for the list of {@link IoSession} found selected
+     * by the last call of {@link #select(long)}
+     *
+     * @return {@link Iterator} of {@link IoSession} read for I/Os operation
+     */
+    protected abstract Iterator<S> selectedSessions();
+
+    // ----------------------------------------------------------------------------
+    // 会话相关：初始化会话和销毁会话，和获取会话的状态（OPENING，OPEN，CLOSING）
     // ----------------------------------------------------------------------------
 
     /**
@@ -314,51 +378,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract SessionState getState(S session);
 
     // ----------------------------------------------------------------------------
-    // 检查会话底层的socket channel关联的选择key的读写事件是否准备好了
-    // ----------------------------------------------------------------------------
-
-    /**
-     * 学习笔记：判断是否有socket通道注册到了这个选择器，使用读锁，因为读取keys的状态
-     *
-     * Say if the list of {@link IoSession} polled by this {@link IoProcessor}
-     * is empty
-     *
-     * @return <tt>true</tt> if at least a session is managed by this
-     *         {@link IoProcessor}
-     */
-    protected abstract boolean isSelectorEmpty();
-
-    /**
-     * 学习笔记：判断有多少socket通道注册到了选择器
-     *
-     * Get the number of {@link IoSession} polled by this {@link IoProcessor}
-     *
-     * @return the number of sessions attached to this {@link IoProcessor}
-     */
-    protected abstract int allSessionsCount();
-
-    /**
-     * 学习笔记：获取所有注册到选择器的socket通道，再封装成会话对象
-     *
-     * Get an {@link Iterator} for the list of {@link IoSession} polled by this
-     * {@link IoProcessor}
-     *
-     * @return {@link Iterator} of {@link IoSession}
-     */
-    protected abstract Iterator<S> allSessions();
-
-    /**
-     * 学习笔记：获取触发了监听事件的socket通道关联的key，并将key封装成会话对象
-     *
-     * Get an {@link Iterator} for the list of {@link IoSession} found selected
-     * by the last call of {@link #select(long)}
-     *
-     * @return {@link Iterator} of {@link IoSession} read for I/Os operation
-     */
-    protected abstract Iterator<S> selectedSessions();
-
-    // ----------------------------------------------------------------------------
-    // 检查会话底层的socket channel关联的选择key的读写事件是否准备好了
+    // 会话通道的键相关：检查会话底层的socket channel关联的选择key的读写事件是否准备好了
     // ----------------------------------------------------------------------------
 
     /**
@@ -383,7 +403,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract boolean isReadable(S session);
 
     // ----------------------------------------------------------------------------
-    // 设置会话的底层channel的读/写事件注册到选择器上
+    // 会话通道的感兴趣事件集合相关：设置会话的底层channel的读/写事件注册到选择器上
     // ----------------------------------------------------------------------------
 
     /**
@@ -415,7 +435,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract void setInterestedInRead(S session, boolean isInterested) throws Exception;
 
     // ----------------------------------------------------------------------------
-    // 查询会话的底层channel是否注册了读/写事件到选择器上
+    // 会话通道的感兴趣事件集合相关：查询会话的底层channel是否注册了读/写事件到选择器上
     // ----------------------------------------------------------------------------
 
     /**
@@ -441,7 +461,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract boolean isInterestedInWrite(S session);
 
     // ----------------------------------------------------------------------------
-    // 会话的读写操作，以及大文件的写出
+    // 会话通道的底层读写操作，以及会话通道对文件的写出
     // ----------------------------------------------------------------------------
 
     /**
@@ -500,6 +520,10 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      */
     protected abstract int transferFile(S session, FileRegion region, int length) throws Exception;
 
+    // ----------------------------------------------------------------------------
+    // 会话的写操作调度相关
+    // ----------------------------------------------------------------------------
+
     /**
      * 学习笔记：写操作并不是立即由会话底层的socket channel写出数据，而是先将数据扔进
      * 当前会话关联的写请求队列中。并且当前的会话没有将写操作挂起，则通过会话的刷新操作
@@ -513,6 +537,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         writeRequestQueue.offer(session, writeRequest);
 
+        // 如果会话写操作没有挂起，将当前会话加入写出调度队列
         if (!session.isWriteSuspended()) {
             this.flush(session);
         }
@@ -530,15 +555,20 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     public final void flush(S session) {
         // add the session to the queue if it's not already
         // in the queue, then wake up the select()
-        // 如果会话不在队列中，则将会话添加到队列中，因为会话有可能已经存在与待写出队列
+        // 学习笔记：如果会话不在写调度队列中，则将会话添加到队列中，因为会话有可能已经存在与待写出队列，
+        // 如果设置成功，表示当前会话之前还不处于写调度状态。
         if (session.setScheduledForFlush(true)) {
+
+            // 学习笔记：将当前会话添加到写调度会话
             flushingSessions.add(session);
 
-            // 有数据写出时候立即唤醒阻塞中的选择器，因为马上就有数据要写出，先尝试写出数据
+            // 学习笔记：当会话的写请求队列有数据写出时，立即唤醒阻塞中的选择器，先尝试写出会话中数据
             wakeup();
         }
     }
 
+    // ----------------------------------------------------------------------------
+    // 选择器的故障恢复策略
     // ----------------------------------------------------------------------------
 
     /**
@@ -570,7 +600,8 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     protected abstract boolean isBrokenConnection() throws IOException;
 
     // ----------------------------------------------------------------------------
-    // 控制会话的读写监听事件
+    // 控制会话的读写挂起操作，反应到会话底层还涉及通道读/写监听事件的绑定和解绑
+    // 写挂起在应用层还通过是否将会话立即加入到会话写出调度队列。
     // ----------------------------------------------------------------------------
 
     /**
@@ -581,7 +612,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      */
     @Override
     public void updateTrafficControl(S session) {
-        // 学习笔记：如果会话的读操作没有挂起，则打开socket channel的读监听事件，否则不监听通道的读数据事件
+        // 学习笔记：如果会话的读操作没有挂起，则打开socket channel的读就绪监听事件，否则不监听通道的读数据事件。
         try {
             setInterestedInRead(session, !session.isReadSuspended());
         } catch (Exception e) {
@@ -589,8 +620,8 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
             filterChain.fireExceptionCaught(e);
         }
 
-        // 学习笔记：如果会话的写操作没有挂起，则打开socket channel的写监听事件，否则不监听通道的写数据事件
-        // 并且会话的写请求队列中有数据，即会话的写请求队列不能为空。
+        // 学习笔记：如果会话的写操作没有挂起，则打开socket channel的写就绪监听事件，否则不监听通道的写数据事件。
+        // 如果会话的写出队列为空，则忽略修改会话通道感兴趣事件集合中的写监听事件。
         try {
             setInterestedInWrite(session,
                     !session.getWriteRequestQueue().isEmpty(session) && !session.isWriteSuspended());
@@ -602,7 +633,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
 
     /**
      * 学习笔记：当一个会话需要更新IO读写挂起的状态，则先将要更新挂起状态的会话加入trafficControllingSessions队列。
-     * 每次要更新会话的socket channel的读写事件的开关时，需要唤醒监听io读写的选择器。
+     * 并且需要唤醒选择器，优先处理trafficControllingSessions中的会话。
      *
      * 目前这这个方法不会被主动调用，而是由
      *
@@ -617,7 +648,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
     }
 
     // ----------------------------------------------------------------------------
-    // IO处理器管理会话的操作
+    // IO处理器管理会话的操作：向IoProcessor添加刚刚创建的会话对象
     // ----------------------------------------------------------------------------
 
     /**
@@ -627,27 +658,28 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      */
     @Override
     public final void add(S session) {
-        // IO处理器关闭了，则无法添加新的会话
+        // 学习笔记：IO处理器关闭了，则无法添加新的会话
         if (disposed || disposing) {
             throw new IllegalStateException("Already disposed.");
         }
 
-        // 添加会话到io处理器中的newSessions队列中
+        // 学习笔记：添加会话到io处理器中的newSessions队列中
         // Adds the session to the newSession queue and starts the worker
         newSessions.add(session);
-        // 每当有新会话添加到新会话队列中，则立即触发Io处理器中的线程池处理IO读写
+
+        // 学习笔记：每当有新会话添加到新会话队列中，则立即触发Io处理器中的线程处理会话的IO读写
         startupProcessor();
     }
 
     /**
-     * 学习笔记：从io处理器中移除会话，但不是立即删除，而是放在删除会话但调度计划中，删除会话的
-     * 操作同样有io处理器底层的线程处理。
+     * 学习笔记：从io处理器中移除会话，但不是立即删除，而是放在删除会话的调度队列中，删除会话的
+     * 操作同样由io处理器的线程处理。
      *
      * {@inheritDoc}
      */
     @Override
     public final void remove(S session) {
-        // 要删除的会话先加入一个removingSessions队列，同样由IO处理器线程处理
+        // 学习笔记：要删除的会话先加入一个removingSessions队列，同样由IO处理器线程处理
         scheduleRemove(session);
         startupProcessor();
     }
@@ -671,30 +703,36 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
      * pool. The Runnable will be renamed
      */
     private void startupProcessor() {
-        // processorRef是一个标记字段，用来判断io处理线程的是否启动
+
+        // processorRef是一个标记字段，用来判断io处理线程的是否已经启动
         Processor processor = processorRef.get();
+
         if (processor == null) {
             processor = new Processor();
             if (processorRef.compareAndSet(null, processor)) {
                 executor.execute(new NamePreservingRunnable(processor, threadName));
             }
         }
+
         // Just stop the select() and start it again, so that the processor
         // can be activated immediately.
+        // 学习笔记：从选择器的阻塞中唤醒，并立即去处理IoProcessor中的调度队列中的会话
         wakeup();
     }
 
     // --------------------------------------------------------------
-    // 会话底层通道的读缓冲区就绪可以读取数据时触发该方法
+    // 会话通过的读就绪事件相关：会话底层通道的读缓冲区就绪可以读取数据时触发该方法
     // --------------------------------------------------------------
     private void read(S session) {
-        // 学习笔记：获取会话的读缓冲区大小
+
+        // 学习笔记：获取会话的读缓冲区大小，这个是应用层的字节缓冲区对象，不是通道的读写缓冲区大小
         IoSessionConfig config = session.getConfig();
         int bufferSize = config.getReadBufferSize();
-        // 根据读缓冲区大小创建一个IO缓冲区来存储读取到的数据
+
+        // 学习笔记：根据会话的读缓冲区大小在应用层创建一个IO缓冲区存储读取到的数据
         IoBuffer buf = IoBuffer.allocate(bufferSize);
 
-        // 获取数据是否分片
+        // 学习笔记：会话传输协议的数据是否支持分片
         final boolean hasFragmentation = session.getTransportMetadata().hasFragmentation();
 
         try {
@@ -707,12 +745,12 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
                 // 学习笔记：数据分片则多次读取
                 if (hasFragmentation) {
 
-                    // 学习笔记：将会话通道中的数据读取到io缓冲区中
+                    // 学习笔记：将会话通道中的数据读取到io缓冲区中，直到会话通道无法读到数据后停止
                     while ((ret = read(session, buf)) > 0) {
                         // 学习笔记：累计读取的数据
                         readBytes += ret;
 
-                        // 学习笔记：如果缓冲区已经满了则退出读取，否则继续读取会话通道中的数据
+                        // 学习笔记：如果缓冲区已经满也会退出会话通道的数据读取，否则继续读取会话通道中的数据
                         if (!buf.hasRemaining()) {
                             break;
                         }
@@ -734,10 +772,14 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
             // 学习笔记：如果从通道底层缓冲区读取到了数据，则将数据丢给过滤器链的fireMessageReceived事件
             if (readBytes > 0) {
                 IoFilterChain filterChain = session.getFilterChain();
-                // 过滤器链从head想过滤器链的尾部前进处理数据
+                // 过滤器链从过滤器头部head向过滤器尾部tail前进，并到达IoHandler
+                // 注意：实际上每次从会话通道中读取到的数据不一样能支持消息的解码，因此一般需要一个可以累积数据的过滤器（实际是是累积数据的
+                // 消息解码器，直到数据累积到能解码消息）
                 filterChain.fireMessageReceived(buf);
                 buf = null;
 
+                // 学习笔记：如果是分片数据，则会根据当前读取到的数据长度，动态的修改会话的读缓冲区大小，这样可以避免由于网络
+                // 繁忙，每次从底层通道只能读取到很少的数据，却在应用层分配过大的IoBuffer对象。
                 if (hasFragmentation) {
                     if (readBytes << 1 < config.getReadBufferSize()) {
                         // 学习笔记：如果当前读到的数据远远小于读取到的数据，则减小读取缓冲区的大小，下次不用尝试读那么多的数据
@@ -753,7 +795,7 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
                 buf.free();
             }
 
-            // 学习笔记：如果读到的数据为负数，说明进入关闭状态，即输入被关闭了，触发输入关闭过滤器链的事件
+            // 学习笔记：如果读到的数据为负数，说明会话处于输入关闭状态，触发输入关闭过滤器链的事件
             if (ret < 0) {
                 IoFilterChain filterChain = session.getFilterChain();
                 filterChain.fireInputClosed();
@@ -771,6 +813,10 @@ public abstract class AbstractPollingIoProcessor<S extends AbstractIoSession> im
             filterChain.fireExceptionCaught(e);
         }
     }
+
+    // ------------------------------------------------------------------
+    // Processor任务
+    // ------------------------------------------------------------------
 
     /**
      * 学习笔记：主循环。这是负责轮询选择器和处理活动会话的地方。

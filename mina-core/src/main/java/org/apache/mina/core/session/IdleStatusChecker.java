@@ -29,10 +29,10 @@ import org.apache.mina.core.service.IoService;
 import org.apache.mina.util.ConcurrentHashSet;
 
 /**
- * 学习笔记：检测空闲会话并向它们触发 sessionIdle 事件的检测器。用于无法单独触发空闲事件的服务，
+ * 学习笔记：检测会话是否空闲，并向它们触发 sessionIdle 事件的检测器。用于无法单独触发空闲事件的服务，
  * 如 VmPipe 或 SerialTransport。
  *
- * 这是一个扩展的闲置状态检测器和线程，因此建议轮询基础传输单独触发空闲事件，使用 poll/select 的超时。
+ * 这是一个扩展的闲置状态检测器和线程，因此建议基于轮询的传输的 poll/select 超时来触发会话的闲置事件。
  *
  * Detects idle sessions and fires <tt>sessionIdle</tt> events to them.
  * To be used for service unable to trigger idle events alone, like VmPipe
@@ -167,6 +167,7 @@ public class IdleStatusChecker {
 
     // 学习笔记：这个一个默认的会话关闭监听器
     private class SessionCloseListener implements IoFutureListener<IoFuture> {
+
         /**
          * Default constructor
          */

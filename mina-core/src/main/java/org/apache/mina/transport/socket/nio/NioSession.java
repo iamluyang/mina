@@ -39,21 +39,21 @@ import org.apache.mina.core.session.IoSession;
  */
 public abstract class NioSession extends AbstractIoSession {
 
-    /** The NioSession processor */
-    // 学习笔记：nio会话需要一个Io处理器
-    protected final IoProcessor<NioSession> processor;
-
     /** The communication channel */
-    // 学习笔记：底层的通信通道
+    // 学习笔记：会话关联的底层网络通道
     protected final Channel channel;
 
     /** The SelectionKey used for this session */
-    // 学习笔记：socket通道注册到选择器的选择key
+    // 学习笔记：会话通道关联的选择key
     private SelectionKey key;
 
     /** The FilterChain created for this session */
-    // 学习笔记：会话的过滤器链
+    // 学习笔记：会话关联的过滤器链
     private final IoFilterChain filterChain;
+
+    /** The NioSession processor */
+    // 学习笔记：会话关联的IoProcessor
+    protected final IoProcessor<NioSession> processor;
 
     /**
      * 
@@ -72,12 +72,56 @@ public abstract class NioSession extends AbstractIoSession {
         filterChain = new DefaultIoFilterChain(this);
     }
 
+    // -----------------------------------------------------------------------
+    // 会话关联的底层网络通道
+    // -----------------------------------------------------------------------
+
     /**
-     * 学习笔记：会话的底层通信通道
+     * 学习笔记：会话关联的底层网络通道
      *
      * @return The ByteChannel associated with this {@link IoSession} 
      */
     abstract ByteChannel getChannel();
+
+    // -----------------------------------------------------------------------
+    // 会话通道关联的选择key
+    // -----------------------------------------------------------------------
+
+    /**
+     * 学习笔记：会话通道关联的选择key
+     *
+     * @return The {@link SelectionKey} associated with this {@link IoSession}
+     */
+    /* No qualifier*/
+    SelectionKey getSelectionKey() {
+        return key;
+    }
+
+    /**
+     * 学习笔记：会话通道关联的选择key
+     * Sets the {@link SelectionKey} for this {@link IoSession}
+     *
+     * @param key The new {@link SelectionKey}
+     */
+    /* No qualifier*/
+    void setSelectionKey(SelectionKey key) {
+        this.key = key;
+    }
+
+    /**
+     * 学习笔记：会话通道关联的选择key还是否有效。
+     * 通道关联的选择键在创建时有效，并一直保持到它被取消、它的通道关闭或它的选择器关闭为止。
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isActive() {
+        return key.isValid();
+    }
+
+    // -----------------------------------------------------------------------
+    // 会话的过滤器链
+    // -----------------------------------------------------------------------
 
     /**
      * 学习笔记：会话的过滤器链
@@ -88,24 +132,9 @@ public abstract class NioSession extends AbstractIoSession {
         return filterChain;
     }
 
-    /**
-     * 学习笔记：会话相关的nio选择key
-     *
-     * @return The {@link SelectionKey} associated with this {@link IoSession}
-     */
-    /* No qualifier*/SelectionKey getSelectionKey() {
-        return key;
-    }
-
-    /**
-     * 学习笔记：会话相关的nio选择key
-     * Sets the {@link SelectionKey} for this {@link IoSession}
-     *
-     * @param key The new {@link SelectionKey}
-     */
-    /* No qualifier*/void setSelectionKey(SelectionKey key) {
-        this.key = key;
-    }
+    // -----------------------------------------------------------------------
+    // 会话的IoProcessor
+    // -----------------------------------------------------------------------
 
     /**
      * 学习笔记：会话内部的Io处理器
@@ -114,14 +143,5 @@ public abstract class NioSession extends AbstractIoSession {
     @Override
     public IoProcessor<NioSession> getProcessor() {
         return processor;
-    }
-
-    /**
-     * 学习笔记：会话是否处于活跃状态
-     * {@inheritDoc}
-     */
-    @Override
-    public final boolean isActive() {
-        return key.isValid();
     }
 }

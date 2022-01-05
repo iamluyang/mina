@@ -22,7 +22,7 @@ package org.apache.mina.transport.socket;
 import java.net.DatagramSocket;
 
 /**
- * 默认的基于UDP特性的会话配置类
+ * 学习笔记：默认的基于UDP特性的会话配置类
  *
  * A default implementation of {@link DatagramSessionConfig}.
  *

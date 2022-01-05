@@ -26,7 +26,13 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 
 /**
- * 学习笔记：连接器终端，于服务器通信的一端。
+ * 学习笔记：连接器终端，于服务器通信的一端。连接到所需的套接字地址以开始通信，然后
+ * 传入连接的事件将发送到指定的IoHandler。当调用 connect(SocketAddress) 时，连
+ * 接到端点的线程会自动启动，并在连接尝试完成后结束该方法。
+ *
+ * 注意：连接器实际是就是客户端，负责发起连接，接收器就是服务器端，负责接收连接。客户端
+ * 和服务器端的通信实际上是依靠内部会话底层的socket进行通信的，而不是连接器和接收器本身。
+ *
  * Connects to endpoint, communicates with the server, and fires events to
  * {@link IoHandler}s.
  * <p>
@@ -34,13 +40,11 @@ import org.apache.mina.core.session.IoSessionInitializer;
  * <a href="../../../../../xref-examples/org/apache/mina/examples/netcat/Main.html">NetCat</a>
  * example.
  * <p>
- * 学习笔记：连接到所需的套接字地址以开始通信，然后传入连接的事件将发送到指定的IoHandler。
  *
  * You should connect to the desired socket address to start communication,
  * and then events for incoming connections will be sent to the specified
  * default {@link IoHandler}.
  * <p>
- * 学习笔记：当调用 connect(SocketAddress) 时，线程连接到端点会自动启动，并在连接尝试完成后结束该方法。
  *
  * Threads connect to endpoint start automatically when
  * {@link #connect(SocketAddress)} is invoked, and stop when all
@@ -50,8 +54,13 @@ import org.apache.mina.core.session.IoSessionInitializer;
  */
 public interface IoConnector extends IoService {
 
+    // --------------------------------------------------------------------
+    // 客户端连接服务器端的连接超时时长
+    // --------------------------------------------------------------------
+
     /**
-     * 学习笔记：连接的超时时间，默认为一分钟
+     * 学习笔记：客户端连接服务器端的连接超时时间，默认为一分钟
+     *
      * @return the connect timeout in seconds.  The default value is 1 minute.
      * 
      * @deprecated
@@ -60,14 +69,7 @@ public interface IoConnector extends IoService {
     int getConnectTimeout();
 
     /**
-     * 学习笔记：连接的超时时间，默认为一分钟
-     *
-     * @return the connect timeout in milliseconds.  The default value is 1 minute.
-     */
-    long getConnectTimeoutMillis();
-
-    /**
-     * 学习笔记：连接的超时时间，默认为一分钟
+     * 学习笔记：设置客户端连接服务器端的连接超时时间，默认为一分钟
      *
      * Sets the connect timeout in seconds.  The default value is 1 minute.
      * 
@@ -78,13 +80,44 @@ public interface IoConnector extends IoService {
     void setConnectTimeout(int connectTimeout);
 
     /**
-     * 学习笔记：连接的超时时间，默认为一分钟
+     * 学习笔记：客户端连接服务器端的连接超时时间，默认为一分钟
+     *
+     * @return the connect timeout in milliseconds.  The default value is 1 minute.
+     */
+    long getConnectTimeoutMillis();
+
+    /**
+     * 学习笔记：设置客户端连接服务器端的连接超时时间，默认为一分钟
      *
      * Sets the connect timeout in milliseconds.  The default value is 1 minute.
      * 
      * @param connectTimeoutInMillis The time out for the connection
      */
     void setConnectTimeoutMillis(long connectTimeoutInMillis);
+
+    // --------------------------------------------------------------------
+    // 客户端绑定的本地地址
+    // --------------------------------------------------------------------
+
+    /**
+     * 学习笔记：默认的本地地址
+     *
+     * @return the default local address
+     */
+    SocketAddress getDefaultLocalAddress();
+
+    /**
+     * 学习笔记：默认的本地地址
+     *
+     * Sets the default local address
+     *
+     * @param defaultLocalAddress The default local address
+     */
+    void setDefaultLocalAddress(SocketAddress defaultLocalAddress);
+
+    // --------------------------------------------------------------------
+    // 连接器连接的默认服务器的地址
+    // --------------------------------------------------------------------
 
     /**
      * @return the default remote address to connect to when no argument
@@ -102,21 +135,9 @@ public interface IoConnector extends IoService {
      */
     void setDefaultRemoteAddress(SocketAddress defaultRemoteAddress);
 
-    /**
-     * 学习笔记：默认的本地地址
-     *
-     * @return the default local address
-     */
-    SocketAddress getDefaultLocalAddress();
-
-    /**
-     * 学习笔记：默认的本地地址
-     *
-     * Sets the default local address
-     * 
-     * @param defaultLocalAddress The default local address
-     */
-    void setDefaultLocalAddress(SocketAddress defaultLocalAddress);
+    // --------------------------------------------------------------------
+    // 客户端的连接操作
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：连接到默认的远程地址
@@ -149,10 +170,12 @@ public interface IoConnector extends IoService {
      */
     ConnectFuture connect(IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
 
+    // --------------------------------------------------------------------
+
     /**
      * 学习笔记：连接到指定的远程地址。
      * Connects to the specified remote address.
-     * 
+     *
      * @param remoteAddress The remote address to connect to
      * @return the {@link ConnectFuture} instance which is completed when the
      *         connection attempt initiated by this call succeeds or fails.
@@ -176,6 +199,8 @@ public interface IoConnector extends IoService {
      *         connection attempt initiated by this call succeeds or fails.
      */
     ConnectFuture connect(SocketAddress remoteAddress, IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
+
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：连接到指定的远程地址并绑定到指定的本地地址上
@@ -206,6 +231,5 @@ public interface IoConnector extends IoService {
      * @return the {@link ConnectFuture} instance which is completed when the
      *         connection attempt initiated by this call succeeds or fails.
      */
-    ConnectFuture connect(SocketAddress remoteAddress, SocketAddress localAddress,
-            IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
+    ConnectFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
 }

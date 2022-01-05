@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * 学习笔记：服务的统计信息类。包含读写字节的吞吐量，读写消息的吞吐量，读写最大字节吞吐量，读写最大消息吞吐量。
  * 读写字节合计，读写消息合计，最近一次的读写时间，调度的写字节和消息，最近一次计算吞吐量的时间
  *
- *
  * Provides usage statistics for an {@link AbstractIoService} instance.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

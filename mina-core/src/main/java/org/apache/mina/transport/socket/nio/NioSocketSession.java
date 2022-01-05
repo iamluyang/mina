@@ -44,11 +44,21 @@ import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 class NioSocketSession extends NioSession {
-	static final TransportMetadata METADATA = new DefaultTransportMetadata("nio", "socket", false, true,
-			InetSocketAddress.class, SocketSessionConfig.class, IoBuffer.class, FileRegion.class);
+
+	// 学习笔记：Socket会话的METADATA
+	static final TransportMetadata METADATA =
+			new DefaultTransportMetadata(
+					"nio", // nio机制
+					"socket", // socket
+					false, // 长连接的协议
+					true, // 支持数据分片
+					InetSocketAddress.class, // 地址类型
+					SocketSessionConfig.class, // Socket会话配置
+					IoBuffer.class,  // 支持的数据类型
+					FileRegion.class);
 
 	/**
-	 * 基于NIO的socket会话，需要一个IO服务宿主，一个Io处理器，Socket通道
+	 * 学习笔记：会话需要一个宿主服务（即连接器和接收器），当前socket通道，以及底层IoProcesso，这里不需要指定远程对端的地址
 	 *
 	 * Creates a new instance of NioSocketSession.
 	 *
@@ -58,17 +68,17 @@ class NioSocketSession extends NioSession {
 	 */
 	public NioSocketSession(IoService service, IoProcessor<NioSession> processor, SocketChannel channel) {
 		super(processor, service, channel);
+		// 学习笔记：设置socket的会话配置
 		config = new SessionConfigImpl();
 		config.setAll(service.getSessionConfig());
 	}
 
-	// 学习笔记：从会话底层的channel中获取对应的socket
-	private Socket getSocket() {
-		return ((SocketChannel) channel).socket();
-	}
+	// -----------------------------------------------------------
+	// TCP会话关联的METADATA和会话配置
+	// -----------------------------------------------------------
 
 	/**
-	 * 学习笔记：会话的传输元数据
+	 * 学习笔记：socket会话的元数据
 	 *
 	 * {@inheritDoc}
 	 */
@@ -78,7 +88,7 @@ class NioSocketSession extends NioSession {
 	}
 
 	/**
-	 * 学习笔记：获取会话的配置
+	 * 学习笔记：socket会话的配置信息
 	 *
 	 * {@inheritDoc}
 	 */
@@ -86,6 +96,20 @@ class NioSocketSession extends NioSession {
 	public SocketSessionConfig getConfig() {
 		return (SocketSessionConfig) config;
 	}
+
+	/**
+	 * 学习笔记：如果会话属性中存在SSL_SECURED属性，表示使用了SSL过滤器
+	 *
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isSecured() {
+		return (this.getAttribute(SSLFilter.SSL_SECURED) != null);
+	}
+
+	// -----------------------------------------------------------
+	// TCP会话底层封装的数据报通道
+	// -----------------------------------------------------------
 
 	/**
 	 * 学习笔记：获取会话的底层socket通道
@@ -97,8 +121,31 @@ class NioSocketSession extends NioSession {
 		return (SocketChannel) channel;
 	}
 
+	// -----------------------------------------------------------
+	// TCP会话底层封装的本地地址和远程地址
+	// -----------------------------------------------------------
+
 	/**
-	 * 学习笔记：获取当前socket的对端socket
+	 * 学习笔记：获取会话的本地地址
+	 *
+	 * {@inheritDoc}
+	 */
+	@Override
+	public InetSocketAddress getLocalAddress() {
+		if (channel == null) {
+			return null;
+		}
+
+		Socket socket = getSocket();
+		if (socket == null) {
+			return null;
+		}
+		return (InetSocketAddress) socket.getLocalSocketAddress();
+	}
+
+	/**
+	 * 学习笔记：获取当前socket的对端socket的地址，因为本地socket与对端已经建立的长连接，
+	 * 因此可以通过当前socket获取远程socket地址。
 	 *
 	 * {@inheritDoc}
 	 */
@@ -114,28 +161,21 @@ class NioSocketSession extends NioSession {
 		return (InetSocketAddress) socket.getRemoteSocketAddress();
 	}
 
-	/**
-	 * 学习笔记：获取会话的本地地址
-	 *
-	 * {@inheritDoc}
-	 */
-	@Override
-	public InetSocketAddress getLocalAddress() {
-		if (channel == null) {
-			return null;
-		}
-		Socket socket = getSocket();
-		if (socket == null) {
-			return null;
-		}
-		return (InetSocketAddress) socket.getLocalSocketAddress();
-	}
-
-	// 学习笔记：获取服务地址
+	// 学习笔记：如果当前是连接器的会话，这个地址就是远程服务器端的地址。
+	// 如果当前会话是接收器的会话， 则这个地址就是接收器在绑定时指定的地址。
 	@Override
 	public InetSocketAddress getServiceAddress() {
 		return (InetSocketAddress) super.getServiceAddress();
 	}
+
+	// 学习笔记：从会话底层的channel中获取对应的socket
+	private Socket getSocket() {
+		return ((SocketChannel) channel).socket();
+	}
+
+	// -----------------------------------------------------------
+	// TCP会话依赖的会话配置
+	// -----------------------------------------------------------
 
 	/**
 	 * 学习笔记：创建 IoSession 时存储 IoService 配置副本的私有类。
@@ -345,15 +385,5 @@ class NioSocketSession extends NioSession {
 				throw new RuntimeIoException(e);
 			}
 		}
-	}
-
-	/**
-	 * 学习笔记：如果会话中存在SSL_SECURED属性，表示使用了SSL
-	 *
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean isSecured() {
-		return (this.getAttribute(SSLFilter.SSL_SECURED) != null);
 	}
 }

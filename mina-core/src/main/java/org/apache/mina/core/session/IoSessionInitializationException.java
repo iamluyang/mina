@@ -22,6 +22,7 @@ package org.apache.mina.core.session;
 /**
  * 学习笔记：当初始化一个IoSession失败时抛出的RuntimeException
  *
+ *
  * A {@link RuntimeException} that is thrown when the initialization of
  * an {@link IoSession} fails.
  * 

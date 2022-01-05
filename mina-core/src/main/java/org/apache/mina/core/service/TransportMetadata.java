@@ -33,7 +33,6 @@ import org.apache.mina.core.session.IoSessionConfig;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface TransportMetadata {
-
     /**
      * 学习笔记：即网络协议的类型nio，或者apr，rxtx
      * @return the name of the service provider (e.g. "nio", "apr" and "rxtx").

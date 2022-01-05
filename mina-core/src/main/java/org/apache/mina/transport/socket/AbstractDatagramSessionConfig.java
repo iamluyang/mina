@@ -23,7 +23,8 @@ import org.apache.mina.core.session.AbstractIoSessionConfig;
 import org.apache.mina.core.session.IoSessionConfig;
 
 /**
- * 数据报传输会话配置。
+ * 学习笔记：数据报传输会话配置。
+ *
  * The Datagram transport session configuration.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

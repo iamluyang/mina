@@ -25,6 +25,7 @@ import java.util.Set;
  * 学习笔记：存储每个 {@link IoSession} 提供的用户自定义的属性。操作是原子的。
  * {@link IoSession} 中所有用户定义的属性访问都转发到 {@link IoSessionAttributeMap} 的实例。
  *
+ *
  * Stores the user-defined attributes which is provided per {@link IoSession}.
  * All user-defined attribute accesses in {@link IoSession} are forwarded to
  * the instance of {@link IoSessionAttributeMap}. 

@@ -89,7 +89,7 @@ public abstract class AbstractIoService implements IoService {
     private final Executor executor;
 
     /**
-     * 学习笔记：用于指示本地执行器已在此实例中创建的标志，而不是由调用者传递的。
+     * 学习笔记：用于指示执行器已在此实例中创建的标志，而不是由调用者传递的。
      * 如果执行器是本地创建的，那么它将是 ThreadPoolExecutor 类的一个实例。
      *
      * A flag used to indicate that the local executor has been created
@@ -115,7 +115,7 @@ public abstract class AbstractIoService implements IoService {
     protected final IoSessionConfig sessionConfig;
 
     // --------------------------------------------------
-    // 默认的服务监听器
+    // 默认的服务激活的监听器
     // --------------------------------------------------
 
     private final IoServiceListener serviceActivationListener = new IoServiceListener() {
@@ -176,15 +176,16 @@ public abstract class AbstractIoService implements IoService {
         }
     };
 
-    /**
-     * 学习笔记：过滤器链构造器
-     *
-     * Current filter chain builder.
-     */
-    private IoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
+    // --------------------------------------------------
+    // 服务的统计状态对象
+    // --------------------------------------------------
 
-    // 学习笔记：给会话创建初始化数据的工厂类
-    private IoSessionDataStructureFactory sessionDataStructureFactory = new DefaultIoSessionDataStructureFactory();
+    // 学习笔记：服务的统计信息实体
+    private IoServiceStatistics stats = new IoServiceStatistics(this);
+
+    // --------------------------------------------------
+    // 服务监听器的提供者
+    // --------------------------------------------------
 
     /**
      * 学习笔记：服务的监听器提供者
@@ -193,26 +194,49 @@ public abstract class AbstractIoService implements IoService {
      */
     private final IoServiceListenerSupport listeners;
 
+    // --------------------------------------------------
+    // 会话的过滤器链建造器
+    // --------------------------------------------------
+
     /**
-     * 学习笔记：销毁服务相关资源时必须获取的锁对象。
+     * 学习笔记：过滤器链构造器
+     *
+     * Current filter chain builder.
+     */
+    private IoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
+
+    // --------------------------------------------------
+    // 会话的数据结构工厂
+    // --------------------------------------------------
+
+    // 学习笔记：给会话创建初始化数据的工厂类
+    private IoSessionDataStructureFactory sessionDataStructureFactory = new DefaultIoSessionDataStructureFactory();
+
+    // --------------------------------------------------
+    // 服务的释放状态
+    // --------------------------------------------------
+
+    /**
+     * 学习笔记：销毁服务相关资源时必须获取的锁对象，避免并发问题。
      *
      * A lock object which must be acquired when related resources are
      * destroyed.
      */
     protected final Object disposalLock = new Object();
 
-    // 学习笔记：释放资源的状态
+    // 学习笔记：释放资源的状态，正在释放中。
     private volatile boolean disposing;
 
-    // 学习笔记：已经释放了资源
+    // 学习笔记：已经释放了资源，资源释放完。
     private volatile boolean disposed;
 
-    // 学习笔记：服务的统计信息实体
-    private IoServiceStatistics stats = new IoServiceStatistics(this);
+    // --------------------------------------------------
+    // 服务的构造函数
+    // --------------------------------------------------
 
     /**
-     * 学习笔记：服务类型。构造器需要一个会话配置类和一个线程执行器。如果没有指定指定执行器，
-     * 则使用JDK内置的执行器
+     * 学习笔记：服务类型。构造器需要一个会话配置类和一个线程执行器。如果没有指定指定线程执行器，
+     * 则使用JDK内置的执行器。这个线程池用来处理连接器的连接操作和接收器的绑定操作。
      *
      * Constructor for {@link AbstractIoService}. You need to provide a default
      * session configuration and an {@link Executor} for handling I/O events. If
@@ -243,13 +267,13 @@ public abstract class AbstractIoService implements IoService {
                     + getTransportMetadata().getSessionConfigType() + ")");
         }
 
-        // 学习笔记：创建侦听器提供者。并添加第一个侦听器：此服务的激活侦听器，它将提供有关服务状态的信息。
+        // 学习笔记：创建侦听器提供者。并添加第一个侦听器：此服务的激活时候的侦听器，它将提供有关服务状态的信息。
         // Create the listeners, and add a first listener : a activation listener
         // for this service, which will give information on the service state.
         listeners = new IoServiceListenerSupport(this);
         listeners.add(serviceActivationListener);
 
-        // 学习笔记：给会话的配置类
+        // 学习笔记：会话的配置类
         // Stores the given session configuration
         this.sessionConfig = sessionConfig;
 
@@ -258,7 +282,7 @@ public abstract class AbstractIoService implements IoService {
         // change the thread context class loader.
         ExceptionMonitor.getInstance();
 
-        // 学习笔记：默认的执行器为缓存线程池，createdExecutor表示释放是自定义线程池还是内置线程池
+        // 学习笔记：默认的执行器为缓存线程池，createdExecutor表示该线程池是服务内部创建的，不是外部设置的
         if (executor == null) {
             this.executor = Executors.newCachedThreadPool();
             createdExecutor = true;
@@ -267,66 +291,47 @@ public abstract class AbstractIoService implements IoService {
             createdExecutor = false;
         }
 
-        // 学习笔记：服务线程的名字
+        // 学习笔记：创建服务线程的名字
         threadName = getClass().getSimpleName() + '-' + id.incrementAndGet();
     }
 
+    // -------------------------------------------------------------
+    // 服务的统计数据对象
+    //--------------------------------------------------------------
+
     /**
-     * 学习笔记：过滤器构建器为过滤器链服务
+     * 学习笔记：获取服务的统计信息状态类
      *
      * {@inheritDoc}
      */
     @Override
-    public final IoFilterChainBuilder getFilterChainBuilder() {
-        return filterChainBuilder;
+    public IoServiceStatistics getStatistics() {
+        return stats;
     }
 
     /**
-     * 学习笔记：过滤器构建器为过滤器链服务
+     * 学习笔记：获取要调度写出的数据字节数量
      *
      * {@inheritDoc}
      */
     @Override
-    public final void setFilterChainBuilder(IoFilterChainBuilder builder) {
-        if (builder == null) {
-            filterChainBuilder = new DefaultIoFilterChainBuilder();
-        } else {
-            filterChainBuilder = builder;
-        }
+    public int getScheduledWriteBytes() {
+        return stats.getScheduledWriteBytes();
     }
 
     /**
-     * 学习笔记：过滤器构建器为过滤器链服务
+     * 学习笔记：获取要调度写出的消息数量
      *
      * {@inheritDoc}
      */
     @Override
-    public final DefaultIoFilterChainBuilder getFilterChain() {
-        if (filterChainBuilder instanceof DefaultIoFilterChainBuilder) {
-            return (DefaultIoFilterChainBuilder) filterChainBuilder;
-        }
-        throw new IllegalStateException("Current filter chain builder is not a DefaultIoFilterChainBuilder.");
+    public int getScheduledWriteMessages() {
+        return stats.getScheduledWriteMessages();
     }
 
-    /**
-     * 学习笔记：添加服务的监听器
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public final void addListener(IoServiceListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * 学习笔记：移除服务的监听器
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public final void removeListener(IoServiceListener listener) {
-        listeners.remove(listener);
-    }
+    // -------------------------------------------------------------
+    // 服务的活跃状态
+    //--------------------------------------------------------------
 
     /**
      * 学习笔记：服务是否激活
@@ -337,6 +342,29 @@ public abstract class AbstractIoService implements IoService {
     public final boolean isActive() {
         return listeners.isActive();
     }
+
+    /**
+     * 学习笔记：获取服务的启动时间
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final long getActivationTime() {
+        return listeners.getActivationTime();
+    }
+
+    /**
+     * 学习笔记：获取监听器的提供者
+     *
+     * @return The {@link IoServiceListenerSupport} attached to this service
+     */
+    public final IoServiceListenerSupport getListeners() {
+        return listeners;
+    }
+
+    // -------------------------------------------------------------
+    // 服务的关闭状态
+    //--------------------------------------------------------------
 
     /**
      * 学习笔记：服务资源是否在释放中
@@ -357,6 +385,10 @@ public abstract class AbstractIoService implements IoService {
     public final boolean isDisposed() {
         return disposed;
     }
+
+    // -------------------------------------------------------------
+    // 服务的关闭操作
+    //--------------------------------------------------------------
 
     /**
      * 学习笔记：释放服务资源，且不阻塞等待整个资源释放接收就立即返回
@@ -387,7 +419,7 @@ public abstract class AbstractIoService implements IoService {
                 disposing = true;
 
                 try {
-                    // 学习笔记：释放资源
+                    // 学习笔记：由子类实现的释放资源的方法
                     dispose0();
                 } catch (Exception e) {
                     ExceptionMonitor.getInstance().exceptionCaught(e);
@@ -395,11 +427,12 @@ public abstract class AbstractIoService implements IoService {
             }
         }
 
-        // 学习笔记：如果使用的是默认的JDK线程池
+        // 学习笔记：如果使用的是服务自己创建的线程池，则调用JDK内置线程池的停止方法。
         if (createdExecutor) {
             // 学习笔记：立即停用线程池
             ExecutorService e = (ExecutorService) executor;
             e.shutdownNow();
+
             // 学习笔记：是否要等待线程池结束才返回
             if (awaitTermination) {
 
@@ -410,7 +443,7 @@ public abstract class AbstractIoService implements IoService {
 
                     // 学习笔记：一直等待线程池结束
                     e.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
-                    
+
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("awaitTermination on {} finished", this);
                     }
@@ -431,10 +464,38 @@ public abstract class AbstractIoService implements IoService {
      *
      * Implement this method to release any acquired resources.  This method
      * is invoked only once by {@link #dispose()}.
-     * 
+     *
      * @throws Exception If the dispose failed
      */
     protected abstract void dispose0() throws Exception;
+
+    // -------------------------------------------------------------
+    // 服务运行时需要的监听器
+    //--------------------------------------------------------------
+
+    /**
+     * 学习笔记：添加服务的监听器
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final void addListener(IoServiceListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * 学习笔记：移除服务的监听器
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final void removeListener(IoServiceListener listener) {
+        listeners.remove(listener);
+    }
+
+    // -------------------------------------------------------------
+    // 服务管理的会话，如果是接收器一般会管理更多的会话，连接器一般只会有一个会话
+    //--------------------------------------------------------------
 
     /**
      * 学习笔记：获取当前服务管理的会话
@@ -456,6 +517,51 @@ public abstract class AbstractIoService implements IoService {
         return listeners.getManagedSessionCount();
     }
 
+    // -------------------------------------------------------------
+    // 服务的过滤器链建造
+    //--------------------------------------------------------------
+
+    /**
+     * 学习笔记：获取过滤器链的过滤器建造者
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final IoFilterChainBuilder getFilterChainBuilder() {
+        return filterChainBuilder;
+    }
+
+    /**
+     * 学习笔记：设置创建过滤器链的过滤器建造者
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final void setFilterChainBuilder(IoFilterChainBuilder builder) {
+        if (builder == null) {
+            filterChainBuilder = new DefaultIoFilterChainBuilder();
+        } else {
+            filterChainBuilder = builder;
+        }
+    }
+
+    /**
+     * 学习笔记：返回过滤器链的默认过滤器建造者（如果不是默认的过滤器链构造者则抛异常），这个方面的命名非常不好。
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final DefaultIoFilterChainBuilder getFilterChain() {
+        if (filterChainBuilder instanceof DefaultIoFilterChainBuilder) {
+            return (DefaultIoFilterChainBuilder) filterChainBuilder;
+        }
+        throw new IllegalStateException("Current filter chain builder is not a DefaultIoFilterChainBuilder.");
+    }
+
+    // -------------------------------------------------------------
+    // 服务的业务处理器
+    //--------------------------------------------------------------
+
     /**
      * 学习笔记：获取当前服务处理器
      *
@@ -467,7 +573,7 @@ public abstract class AbstractIoService implements IoService {
     }
 
     /**
-     * 学习笔记：设置当前服务处理器
+     * 学习笔记：设置当前服务处理器，如果服务已经启动了，则无法重新设置了。
      *
      * {@inheritDoc}
      */
@@ -482,6 +588,10 @@ public abstract class AbstractIoService implements IoService {
         this.handler = handler;
     }
 
+    // -------------------------------------------------------------
+    // 服务给会话提供的配置类和为会话绑定的数据工厂
+    //--------------------------------------------------------------
+
     /**
      * 学习笔记：获取会话的数据结构工厂
      *
@@ -493,7 +603,7 @@ public abstract class AbstractIoService implements IoService {
     }
 
     /**
-     * 学习笔记：获取会话的数据结构工厂
+     * 学习笔记：设置会话的数据结构工厂
      *
      * {@inheritDoc}
      */
@@ -508,25 +618,9 @@ public abstract class AbstractIoService implements IoService {
         this.sessionDataStructureFactory = sessionDataStructureFactory;
     }
 
-    /**
-     * 学习笔记：获取服务的统计信息状态类
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public IoServiceStatistics getStatistics() {
-        return stats;
-    }
-
-    /**
-     * 学习笔记：获取服务的启动时间
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public final long getActivationTime() {
-        return listeners.getActivationTime();
-    }
+    // -------------------------------------------------------------
+    // 服务的工具方法，向管理的所有会话的对端广播消息
+    //--------------------------------------------------------------
 
     /**
      * 学习笔记：向当前服务管理的所有的会话对端发送消息。这不是真正意义上的广播。
@@ -552,35 +646,13 @@ public abstract class AbstractIoService implements IoService {
         };
     }
 
-    /**
-     * 学习笔记：获取监听器的提供者
-     *
-     * @return The {@link IoServiceListenerSupport} attached to this service
-     */
-    public final IoServiceListenerSupport getListeners() {
-        return listeners;
-    }
-
     // --------------------------------------------------
-    // 学习笔记：执行异步任务
+    // 学习笔记：给子类调用的用来初始化会话的方法
     // --------------------------------------------------
-
-    protected final void executeWorker(Runnable worker) {
-        executeWorker(worker, null);
-    }
-
-    protected final void executeWorker(Runnable worker, String suffix) {
-        String actualThreadName = threadName;
-        if (suffix != null) {
-            actualThreadName = actualThreadName + '-' + suffix;
-        }
-        // 学习笔记：运行一个会动态修改线程名的runnable包装器。默认为服务名，这样方便在监控工具中查看线程的状态。
-        executor.execute(new NamePreservingRunnable(worker, actualThreadName));
-    }
 
     // 学习笔记：初始化会话的方法
     protected final void initSession(IoSession session, IoFuture future, IoSessionInitializer sessionInitializer) {
-        // 初始化会话的时候，设置一下服务的最近读写时间
+        // 学习笔记：当会话初始化的时候，服务的状态信息中的最后读写时间为0，则初始化一下服务的最近读写时间
         // Update lastIoTime if needed.
         if (stats.getLastReadTime() == 0) {
             stats.setLastReadTime(getActivationTime());
@@ -594,8 +666,7 @@ public abstract class AbstractIoService implements IoService {
         // Now initialize the attributeMap.  The reason why we initialize
         // the attributeMap at last is to make sure all session properties
         // such as remoteAddress are provided to IoSessionDataStructureFactory.
-        // 会话数据结构工厂提供会话属性工厂和写请求队列两个实例的创建
-        // 在使用会话属性工厂时，会话的基本属性都有了，比如远程地址。
+        // 学习笔记：会话数据结构工厂为会话提供一个属性工厂和写请求队列两个实例。
         try {
             ((AbstractIoSession) session).setAttributeMap(session.getService().getSessionDataStructureFactory()
                     .getAttributeMap(session));
@@ -605,7 +676,7 @@ public abstract class AbstractIoService implements IoService {
             throw new IoSessionInitializationException("Failed to initialize an attributeMap.", e);
         }
 
-        // 每个会话内部都有一个独立的写请求队列
+        // 学习笔记：会话数据结构工厂为会话提供一个属性工厂和写请求队列两个实例。
         try {
             ((AbstractIoSession) session).setWriteRequestQueue(session.getService().getSessionDataStructureFactory()
                     .getWriteRequestQueue(session));
@@ -622,12 +693,13 @@ public abstract class AbstractIoService implements IoService {
             session.setAttribute(DefaultIoFilterChain.SESSION_CREATED_FUTURE, future);
         }
 
-        // 学习笔记：会话的初始化器于初始化会话
+        // 学习笔记：上面的逻辑可以认为是Io服务默认的会话初始化逻辑。
+        // sessionInitializer则是外部的会话初始化器，这样更灵活，动态的扩展了IoService初始化会话的逻辑。
         if (sessionInitializer != null) {
             sessionInitializer.initializeSession(session, future);
         }
 
-        // 学习笔记：会话初始化器的后置操作
+        // 学习笔记：会话初始化器的后置操作，可以在子类中继续扩展会话的初始化流程。
         finishSessionInitialization0(session, future);
     }
 
@@ -650,11 +722,28 @@ public abstract class AbstractIoService implements IoService {
     }
 
     // --------------------------------------------------
+    // 学习笔记：用来执行服务的异步请求的工具方法，在子类中调用
+    // --------------------------------------------------
+
+    protected final void executeWorker(Runnable worker) {
+        executeWorker(worker, null);
+    }
+
+    protected final void executeWorker(Runnable worker, String suffix) {
+        String actualThreadName = threadName;
+        if (suffix != null) {
+            actualThreadName = actualThreadName + '-' + suffix;
+        }
+        // 学习笔记：运行一个会动态修改线程名的runnable包装器。默认为服务名，这样方便在监控工具中查看线程的状态。
+        executor.execute(new NamePreservingRunnable(worker, actualThreadName));
+    }
+
+    // --------------------------------------------------
     // ServiceOperationFuture
     // --------------------------------------------------
 
     /**
-     * 学习笔记：默认的服务异步结果
+     * 学习笔记：默认的异步服务操作future
      *
      * A  {@link IoFuture} dedicated class for 
      *
@@ -690,29 +779,5 @@ public abstract class AbstractIoService implements IoService {
             }
             setValue(exception);
         }
-    }
-
-    // --------------------------------------------------
-    // 调度统计
-    // --------------------------------------------------
-
-    /**
-     * 学习笔记：获取要调度写出的数据字节数量
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public int getScheduledWriteBytes() {
-        return stats.getScheduledWriteBytes();
-    }
-
-    /**
-     * 学习笔记：获取要调度写出的消息数量
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public int getScheduledWriteMessages() {
-        return stats.getScheduledWriteMessages();
     }
 }

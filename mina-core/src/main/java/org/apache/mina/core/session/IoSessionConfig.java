@@ -23,7 +23,13 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * 学习笔记：IoSession的配置，封装了一些底层socket的配置和会话层抽象session的配置。
- * 默认9个配置
+ * 默认9个配置。
+ *
+ * 读缓冲区最大最小值，
+ * 读写操作的闲置间隔，
+ * 写请求的超时时间，
+ * 是否挂起读取操作，
+ * 计算吞吐量的间隔。
  *
  * The configuration of {@link IoSession}.
  *

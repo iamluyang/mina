@@ -58,6 +58,9 @@ import org.apache.mina.util.ExceptionMonitor;
  * {@link Executor} 将用于运行客户端接受，{@link AbstractPollingIoProcessor} 将用于处理客户端 IO 操作，如读取、写入和关闭。
  * 所有用于绑定、接受、关闭的低级方法都需要由子类实现提供。
  *
+ * 简单来说：接收器可以认为是服务器端（但服务器内部是使用会话与客户端会话进行通讯的），接收器只负责绑定本地地址来启动服务器的监听，
+ * 而具体与客户端进行数据读写操作的依然是会话。接收器内部有一个线程，用来异步处理本地地址的绑定和解除绑定操作。
+ *
  * A base class for implementing transport using a polling strategy. The
  * underlying sockets will be checked in an active loop and woke up when an
  * socket needed to be processed. This class handle the logic behind binding,
@@ -81,11 +84,15 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     /** A lock used to protect the selector to be waked up before it's created */
     private final Semaphore lock = new Semaphore(1);
 
+    // -------------------------------------------------------------------------------
+
     // io处理器，负责会话间的IO读写
     private final IoProcessor<S> processor;
 
     // io处理器的创建模式
     private final boolean createdProcessor;
+
+    // -------------------------------------------------------------------------------
 
     // 保存要绑定本地到任务
     private final Queue<AcceptorOperationFuture> registerQueue = new ConcurrentLinkedQueue<>();
@@ -93,19 +100,27 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     // 保存要解绑本地到任务
     private final Queue<AcceptorOperationFuture> cancelQueue = new ConcurrentLinkedQueue<>();
 
+    // -------------------------------------------------------------------------------
+
     // 接收器绑定的本地地址，可以绑定多个
     private final Map<SocketAddress, H> boundHandles = Collections.synchronizedMap(new HashMap<SocketAddress, H>());
 
     // 释放服务的异步请求结果
     private final ServiceOperationFuture disposalFuture = new ServiceOperationFuture();
 
+    // -------------------------------------------------------------------------------
+
     /** A flag set when the acceptor has been created and initialized */
-    // 选择器是否打开
+    // 接收器的选择器是否打开
     private volatile boolean selectable;
 
+    // -------------------------------------------------------------------------------
+
     /** The thread responsible of accepting incoming requests */
-    // 简单的理解成线程对象的引用
+    // 简单的理解成连接器线程对象的引用
     private AtomicReference<Acceptor> acceptorRef = new AtomicReference<>();
+
+    // -------------------------------------------------------------------------------
 
     // 是否地址重用
     protected boolean reuseAddress = false;
@@ -117,6 +132,8 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      * to 50 (as in the SocketServer default).
      */
     protected int backlog = 50;
+
+    // -------------------------------------------------------------------------------
 
     /**
      * 学习笔记：接收器可以由会话配置，io处理器，线程池，选择器提供者构成
@@ -154,7 +171,7 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      * @param processorCount the amount of processor to instantiate for the pool
      */
     protected AbstractPollingIoAcceptor(IoSessionConfig sessionConfig, Class<? extends IoProcessor<S>> processorClass,
-            int processorCount) {
+                                        int processorCount) {
         this(sessionConfig, null, new SimpleIoProcessorPool<S>(processorClass, processorCount), true, null);
     }
 
@@ -176,9 +193,12 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      * @param selectorProvider The SelectorProvider to use
      */
     protected AbstractPollingIoAcceptor(IoSessionConfig sessionConfig, Class<? extends IoProcessor<S>> processorClass,
-            int processorCount, SelectorProvider selectorProvider ) {
+                                        int processorCount,
+                                        SelectorProvider selectorProvider ) {
         this(sessionConfig, null, new SimpleIoProcessorPool<S>(processorClass, processorCount, selectorProvider), true, selectorProvider);
     }
+
+    // -------------------------------------------------------------------------------
 
     /**
      * 学习笔记：同上
@@ -223,8 +243,12 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
         this(sessionConfig, executor, processor, false, null);
     }
 
+    // -------------------------------------------------------------------------------
+
     /**
-     * 学习笔记：同上
+     * 学习笔记：1.打开连接器的选择器
+     * 学习笔记：2.设置选择器创建成功
+     * 学习笔记：3.失败则关闭连接器的选择器
      *
      * Constructor for {@link AbstractPollingIoAcceptor}. You need to provide a
      * default session configuration and an {@link Executor} for handling I/O
@@ -249,6 +273,7 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      */
     private AbstractPollingIoAcceptor(IoSessionConfig sessionConfig, Executor executor, IoProcessor<S> processor,
             boolean createdProcessor, SelectorProvider selectorProvider) {
+
         super(sessionConfig, executor);
 
         // io处理器
@@ -261,21 +286,22 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
 
         try {
             // Initialize the selector
-            // 初始化选择器，即打开选择器
+            // 学习笔记：1.打开连接器的选择器
             init(selectorProvider);
 
             // The selector is now ready, we can switch the
             // flag to true so that incoming connection can be accepted
+            // 学习笔记：2.设置选择器创建成功
             selectable = true;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeIoException("Failed to initialize.", e);
         } finally {
-            // 如果选择器没有初始化成功
+            // 学习笔记：如果连接器的选择器没有初始化成功
             if (!selectable) {
                 try {
-                    // 则关闭选择器
+                    // 学习笔记：3.则关闭连接器的选择器
                     destroy();
                 } catch (Exception e) {
                     ExceptionMonitor.getInstance().exceptionCaught(e);
@@ -285,8 +311,9 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     }
 
     // --------------------------------------------------
-    // 选择器相关
+    // 接收器选择器的初始化与销毁
     // --------------------------------------------------
+
     /**
      * 学习笔记：打开选择器
      *
@@ -314,12 +341,9 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      */
     protected abstract void destroy() throws Exception;
 
-    /**
-     * 学习笔记：唤醒阻塞的选择器
-     *
-     * Interrupt the {@link #select()} method. Used when the poll set need to be modified.
-     */
-    protected abstract void wakeup();
+    // --------------------------------------------------
+    // 接收器选择器的选择与唤醒
+    // --------------------------------------------------
 
     /**
      * 学习笔记：检查可接受的客户端连接，当至少一个服务器socket准备好接受客户端连接时返回。
@@ -332,6 +356,17 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     protected abstract int select() throws Exception;
 
     /**
+     * 学习笔记：唤醒阻塞的选择器
+     *
+     * Interrupt the {@link #select()} method. Used when the poll set need to be modified.
+     */
+    protected abstract void wakeup();
+
+    // --------------------------------------------------
+    // 接收器选择器中的键集
+    // --------------------------------------------------
+
+    /**
      * 学习笔记：需要返回所有就绪的服务器socket描述符（因为我们注册的是服务器套接字的接收事件）
      *
      * {@link Iterator} for the set of server sockets found with acceptable incoming connections
@@ -341,8 +376,9 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     protected abstract Iterator<H> selectedHandles();
 
     // --------------------------------------------------
-    // 服务器socket相关
+    // 打开或关闭服务器通道与返回服务器通道的socket地址
     // --------------------------------------------------
+
     /**
      * 学习笔记：在绑定的地址打开一个服务器端socket，来接收客户端的请求
      *
@@ -354,7 +390,16 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     protected abstract H open(SocketAddress localAddress) throws Exception;
 
     /**
-     * 学习笔记：获取指定服务器套接字关联的本地地址
+     * 学习笔记：关闭服务器通道
+     *
+     * Close a server socket.
+     * @param handle the server socket
+     * @throws Exception any exception thrown by the underlying systems calls
+     */
+    protected abstract void close(H handle) throws Exception;
+
+    /**
+     * 学习笔记：获取服务器通道绑定的本地地址
      *
      * Get the local address associated with a given server socket
      * @param handle the server socket
@@ -362,6 +407,10 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
      * @throws Exception any exception thrown by the underlying systems calls
      */
     protected abstract SocketAddress localAddress(H handle) throws Exception;
+
+    // --------------------------------------------------
+    // 服务器通道的接收操作
+    // --------------------------------------------------
 
     /**
      * 学习笔记：接收客户端连接的服务器socket返回一个与对端通信的会话
@@ -376,16 +425,7 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     protected abstract S accept(IoProcessor<S> processor, H handle) throws Exception;
 
     /**
-     * 学习笔记：关闭服务器socket
-     *
-     * Close a server socket.
-     * @param handle the server socket
-     * @throws Exception any exception thrown by the underlying systems calls
-     */
-    protected abstract void close(H handle) throws Exception;
-
-    /**
-     * 学习笔记：不支持这个操作
+     * 学习笔记：将接收的连接封装到一个会话中
      *
      * {@inheritDoc}
      */
@@ -398,19 +438,29 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     // 关闭接收器
     // --------------------------------------------------
     /**
-     * 学习笔记：解除绑定，启动接收线程，唤醒选择器
+     * 学习笔记：先解除绑定，启动接收线程，唤醒选择器
      * {@inheritDoc}
      */
     @Override
     protected void dispose0() throws Exception {
-        unbind();
-        startupAcceptor();// 接收线程会检测到所有绑定已经解绑，这时接收线程可以终止
+        unbind();// 学习笔记：关闭接收器先解绑本地地址
+        startupAcceptor();
         wakeup();
     }
 
     // --------------------------------------------------
     // 接收器到配置
     // --------------------------------------------------
+
+    /**
+     * 学习笔记：获取会话配置
+     * {@inheritDoc}
+     */
+    @Override
+    public SocketSessionConfig getSessionConfig() {
+        return (SocketSessionConfig)sessionConfig;
+    }
+
     /**
      * 学习笔记：backlog大小
      *
@@ -433,7 +483,6 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
             if (isActive()) {
                 throw new IllegalStateException("backlog can't be set while the acceptor is bound.");
             }
-
             this.backlog = backlog;
         }
     }
@@ -465,17 +514,8 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
         }
     }
 
-    /**
-     * 学习笔记：获取会话配置
-     * {@inheritDoc}
-     */
-    @Override
-    public SocketSessionConfig getSessionConfig() {
-        return (SocketSessionConfig)sessionConfig;
-    }
-
     // --------------------------------------------------
-    // 绑定本地地址到实现
+    // 连接器绑定本地地址的实现
     // --------------------------------------------------
     /**
      * {@inheritDoc}
@@ -484,21 +524,20 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     protected final Set<SocketAddress> bindInternal(List<? extends SocketAddress> localAddresses) throws Exception {
         // Create a bind request as a Future operation. When the selector
         // have handled the registration, it will signal this future.
-        // 创建一个绑定本地地址的异步请求
+        // 学习笔记：1.创建一个绑定本地地址的注册请求
         AcceptorOperationFuture request = new AcceptorOperationFuture(localAddresses);
 
         // adds the Registration request to the queue for the Workers
         // to handle
-        // 将请求扔到注册队列
+        // 学习笔记：2.将绑定本地地址的注册请求扔到注册队列
         registerQueue.add(request);
 
         // creates the Acceptor instance and has the local
         // executor kick it off.
-        // 启动接收线程，线程会检查那些地址需要绑定
+        // 学习笔记：3.启动接收器线程检查注册队列中的注册请求
         startupAcceptor();
 
-        // 当我们刚刚启动接受器时，我们必须解除对 select() 的阻塞以处理我们刚刚添加到
-        // registerQueue 的绑定请求。
+        // 学习笔记：4.当启动接受器线程时先唤醒接收器的选择器，避免选择器阻塞，可以马上检查注册队列中的请求
         // As we just started the acceptor, we have to unblock the select()
         // in order to process the bind request we just have added to the
         // registerQueue.
@@ -509,11 +548,11 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
             lock.release();
         }
 
-        // 阻塞，直到绑定本地地址完成
+        // 学习笔记：5.阻塞绑定本地地址的注册请求，直到startupAcceptor异步处理完注册队列的中的绑定请求
         // Now, we wait until this request is completed.
         request.awaitUninterruptibly();
 
-        // 查看服务器绑定本地地址的结果
+        // 学习笔记：6.查看服务器绑定本地地址的注册请求是否成功
         if (request.getException() != null) {
             throw request.getException();
         }
@@ -521,7 +560,8 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
         // Update the local addresses.
         // setLocalAddresses() shouldn't be called from the worker thread
         // because of deadlock.
-        // boundHandles用来容纳已经绑定过的地址，用一个newLocalAddresses存储返回值
+
+        // 学习笔记：7.boundHandles用来容纳已经绑定的本地地址，用一个newLocalAddresses存储返回值
         Set<SocketAddress> newLocalAddresses = new HashSet<>();
         for (H handle : boundHandles.values()) {
             newLocalAddresses.add(localAddress(handle));
@@ -531,23 +571,29 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     }
 
     /**
-     * 学习笔记：解绑本地绑定的地址，解绑的地址放在cancelQueue容器中，依然由Acceptor线程去处理
+     * 学习笔记：连接器解绑本地绑定的地址，解绑的地址放在cancelQueue容器中，依然由Acceptor线程去处理
      *
      * {@inheritDoc}
      */
     @Override
     protected final void unbind0(List<? extends SocketAddress> localAddresses) throws Exception {
 
-        // 解除本地绑定的请求结果
+        // 学习笔记：1.创建一个解绑本地地址的注销请求
         AcceptorOperationFuture future = new AcceptorOperationFuture(localAddresses);
 
-        // 将解除绑定的操作放到取消队列中，交给线程慢慢去做
+        // 学习笔记：2.将解绑本地地址的注销请求放到取消队列中
         cancelQueue.add(future);
+
+        // 学习笔记：3.启动接收器线程检查注销队列中的注销请求
         startupAcceptor();
+
+        // 学习笔记：4.当启动接受器线程时先唤醒接收器的选择器，避免选择器阻塞，可以马上检查注销队列中的请求
         wakeup();
 
-        // 阻塞，直到本地地址解绑结束
+        // 学习笔记：5.阻塞解绑本地地址的注销请求，直到startupAcceptor异步处理完注销队列的中的解绑请求
         future.awaitUninterruptibly();
+
+        // 学习笔记：6.查看服务器解绑本地地址的注销请求是否成功
         if (future.getException() != null) {
             throw future.getException();
         }
@@ -571,24 +617,27 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
     private void startupAcceptor() throws InterruptedException {
         // If the acceptor is not ready, clear the queues
         // TODO : they should already be clean : do we have to do that ?
-        // 如果选择器没有打开，则清空一下绑定和解绑任务队列中的数据
+
+        // 学习笔记：如果接收器都未能打开，则无法处理通道注册在选择器上的接收就绪事件，因此清除队列
         if (!selectable) {
             registerQueue.clear();
             cancelQueue.clear();
         }
 
         // start the acceptor if not already started
-        // 检测一下接收线程启动来没有
+        // 学习笔记：检测一下接收线程启动没有
         Acceptor acceptor = acceptorRef.get();
 
         if (acceptor == null) {
             // 抢占信号
             lock.acquire();
+
             // 创建线程任务
             acceptor = new Acceptor();
 
-            // 启动线程，并设置原子引用类型
+            // 在接收器引用中设置接收器Runnable
             if (acceptorRef.compareAndSet(null, acceptor)) {
+                // 执行该Acceptor
                 executeWorker(acceptor);
             } else {
                 // 线程执行接收，释放信号
@@ -621,7 +670,7 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
             // Release the lock
             lock.release();
 
-            // 选择器已经打开
+            // 如果选择器处于打开状态
             while (selectable) {
                 try {
                     // Process the bound sockets to this acceptor.
@@ -630,25 +679,37 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
                     // listen on. We do that before the select because 
                     // the registerQueue containing the new handler is
                     // already updated at this point.
+                    // 学习笔记：1.处理绑定本地地址的注册队列中的请求，创建服务器通道并绑定地址，并注册接收事件
                     nHandles += registerHandles();
 
                     // Detect if we have some keys ready to be processed
                     // The select() will be woke up if some new connection
                     // have occurred, or if the selector has been explicitly
                     // woke up
+                    // 学习笔记：2.阻塞选择器等待是否有连接就绪事件
                     int selected = select();
 
                     // Now, if the number of registered handles is 0, we can
                     // quit the loop: we don't have any socket listening
                     // for incoming connection.
+
+                    // 学习笔记：3.如果注册队列中存在的绑定请求已经完成了接收事件的注册
                     if (nHandles == 0) {
+
+                        // 学习笔记：如果没有返回任何注册成功的接收就绪的通道数量，因此可以释放掉当前接收线程运行器的引用。
                         acceptorRef.set(null);
 
+                        // 学习笔记：如果此刻又刚好发起了一个新绑定，则可能导致acceptorRef又被设置了新的Acceptor对象，
+                        // 并且acceptorRef引用的对象，不等于当前对象，即this。并且注册请求队列中又多了一个绑定请求。
+                        // 这样会影响下面的registerQueue是否为空的判断。
+
+                        // 学习笔记：如果注册队列已经为空，，则立即从当前Acceptor退出
                         if (registerQueue.isEmpty() && cancelQueue.isEmpty()) {
                             assert acceptorRef.get() != this;
                             break;
                         }
 
+                        // 学习笔记：如果acceptorRef被一个新Acceptor对象替代，则立即从当前Acceptor退出
                         if (!acceptorRef.compareAndSet(null, this)) {
                             assert acceptorRef.get() != this;
                             break;
@@ -657,13 +718,17 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
                         assert acceptorRef.get() == this;
                     }
 
+                    // 学习笔记：4.如果接收器返回的就绪通道数量大于0，表示已经有服务器通道的接收事件就绪了
                     if (selected > 0) {
                         // We have some connection request, let's process
                         // them here.
+
+                        // 学习笔记：5.从接收器的就绪键集合中取出已经就绪的服务器通道，并获得选择key中绑定的请求，并回调写入请求结果。
                         processHandles(selectedHandles());
                     }
 
                     // check to see if any cancellation request has been made.
+                    // 学习笔记：6.处理完注册请求队列的中的请求，则继续处理因为绑定失败导致进入注销队列中的解绑请求。
                     nHandles -= unregisterHandles();
                 } catch (ClosedSelectorException cse) {
                     // If the selector has been closed, we can exit the loop
@@ -681,9 +746,11 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
             }
 
             // Cleanup all the processors, and shutdown the acceptor.
+            // 学习笔记：7.当前接收线程逻辑需要检查接收器是否关闭的操作
             if (selectable && isDisposing()) {
                 selectable = false;
                 try {
+                    // 学习笔记：8.如果接收器关闭，则先释放processor
                     if (createdProcessor) {
                         processor.dispose();
                     }
@@ -691,12 +758,14 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
                     try {
                         synchronized (disposalLock) {
                             if (isDisposing()) {
+                                // 学习笔记：9.继续释放选择器对象
                                 destroy();
                             }
                         }
                     } catch (Exception e) {
                         ExceptionMonitor.getInstance().exceptionCaught(e);
                     } finally {
+                        // 学习笔记：10.最后设置接收器的释放结果完成
                         disposalFuture.setDone();
                     }
                 }
@@ -704,6 +773,94 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
         }
 
         /**
+         * 将注册队列中等待绑定的本地地址注册给服务器，完成地址绑定操作
+         *
+         * Sets up the socket communications.  Sets items such as:
+         * <p/>
+         * Blocking
+         * Reuse address
+         * Receive buffer size
+         * Bind to listen port
+         * Registers OP_ACCEPT for selector
+         */
+        private int registerHandles() {
+            for (;;) {
+                // The register queue contains the list of services to manage
+                // in this acceptor.
+                // 学习笔记：A.从注册队列中取出绑定本地地址的注册请求
+                AcceptorOperationFuture future = registerQueue.poll();
+
+                if (future == null) {
+                    return 0;
+                }
+
+                // We create a temporary map to store the bound handles,
+                // as we may have to remove them all if there is an exception
+                // during the sockets opening.
+                // 学习笔记：创建了一个临时映射来存储绑定的句柄，因为如果在套接字打开期间出现异常，我们可能必须将它们全部删除。
+                Map<SocketAddress, H> newHandles = new ConcurrentHashMap<>();
+
+                // 获取等待绑定的地址集合
+                List<SocketAddress> localAddresses = future.getLocalAddresses();
+
+                try {
+                    // Process all the addresses
+                    // 处理每一个等待绑定的地址
+                    for (SocketAddress a : localAddresses) {
+                        // 打开操作包含：
+                        // 打开一个server socket通道ServerSocketChannel.open()，并设置通道为非阻塞模式，
+                        // 从通道获取ServerSocket socket = channel.socket()
+                        // 设置ServerSocket的地址重用选项。
+                        // 设置通道接收缓冲区，发送缓冲区大小（基于会话配置）。
+                        // 最后server socket绑定地址并指定backlog等待队列长度。
+                        // 一切就绪，服务器端通道将自己注册到选择器上，并指定了接收连接的事件。
+                        H handle = open(a);
+
+                        // 临时映射newHandles用来保存每个打开的服务器端地址
+                        newHandles.put(localAddress(handle), handle);
+                    }
+
+                    // 当所有上述需要绑定的地址都绑定好了，将临时映射中的通道放到已经绑定地址容器中
+                    // Everything went ok, we can now update the map storing
+                    // all the bound sockets.
+                    boundHandles.putAll(newHandles);
+
+                    // and notify.
+                    // 通知异步结果，地址绑定结束
+                    future.setDone();
+
+                    // 返回当前绑定的地址数量
+                    return newHandles.size();
+                } catch (Exception e) {
+                    // We store the exception in the future
+                    // 绑定服务器本地地址异常
+                    future.setException(e);
+                } finally {
+                    // Roll back if failed to bind all addresses.
+                    // 绑定地址失败，将导致已绑定地址的回滚，即关闭服务器通道
+                    if (future.getException() != null) {
+                        for (H handle : newHandles.values()) {
+                            try {
+                                close(handle);
+                            } catch (Exception e) {
+                                ExceptionMonitor.getInstance().exceptionCaught(e);
+                            }
+                        }
+
+                        // Wake up the selector to be sure we will process the newly bound handle
+                        // and not block forever in the select()
+                        wakeup();
+                    }
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * 从接收器的就绪键集合中取出接收就绪事件的服务器通道，并调用接收器的accept方法。
+         * 创建接收的通道，并封装成会话对象，再初始化会话。最后将会话和ioprocessor绑定。
+         *
          * This method will process new sessions for the Worker class.  All
          * keys that have had their status updates as per the Selector.selectedKeys()
          * method will be processed here.  Only keys that are ready to accept
@@ -734,88 +891,6 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
         }
 
         /**
-         * 将注册队列中等待绑定的本地地址注册给服务器，完成地址绑定操作
-         *
-         * Sets up the socket communications.  Sets items such as:
-         * <p/>
-         * Blocking
-         * Reuse address
-         * Receive buffer size
-         * Bind to listen port
-         * Registers OP_ACCEPT for selector
-         */
-        private int registerHandles() {
-            for (;;) {
-                // The register queue contains the list of services to manage
-                // in this acceptor.
-                // 注册队列中包含绑定请求，请求中包含等待绑定的本地地址
-                AcceptorOperationFuture future = registerQueue.poll();
-
-                if (future == null) {
-                    return 0;
-                }
-
-                // We create a temporary map to store the bound handles,
-                // as we may have to remove them all if there is an exception
-                // during the sockets opening.
-                // 学习笔记：创建了一个临时映射来存储绑定的句柄，因为如果在套接字打开期间出现异常，我们可能必须将它们全部删除。
-                Map<SocketAddress, H> newHandles = new ConcurrentHashMap<>();
-                // 获取等待绑定的地址
-                List<SocketAddress> localAddresses = future.getLocalAddresses();
-
-                try {
-                    // Process all the addresses
-                    // 处理每一个等待绑定的地址
-                    for (SocketAddress a : localAddresses) {
-                        // 打开操作包含：
-                        // 打开一个server socket通道ServerSocketChannel.open()，并设置通道为非阻塞模式，
-                        // 从通道获取ServerSocket socket = channel.socket()
-                        // 设置ServerSocket的地址重用选项
-                        // 设置通道接收缓冲区，发送缓冲区大小（基于会话配置）
-                        // 最后server socket绑定地址并指定backlog等待队列长度
-                        // 一切就绪，服务器端通道将自己注册到选择器上，并指定了接收连接的事件
-                        H handle = open(a);
-
-                        // 临时映射newHandles用来保存每个打开的服务器端地址
-                        newHandles.put(localAddress(handle), handle);
-                    }
-
-                    // 当所有上述需要绑定的地址都绑定好了，将临时映射中的数据放到已经绑定地址容器中
-                    // Everything went ok, we can now update the map storing
-                    // all the bound sockets.
-                    boundHandles.putAll(newHandles);
-
-                    // and notify.
-                    // 通知异步结果，地址绑定结束
-                    future.setDone();
-
-                    // 返回当前绑定的地址数量
-                    return newHandles.size();
-                } catch (Exception e) {
-                    // We store the exception in the future
-                    // 绑定地址异常
-                    future.setException(e);
-                } finally {
-                    // Roll back if failed to bind all addresses.
-                    // 绑定地址失败，将导致已绑定地址的回滚，即取消选择器的注册和通道的关闭
-                    if (future.getException() != null) {
-                        for (H handle : newHandles.values()) {
-                            try {
-                                close(handle);
-                            } catch (Exception e) {
-                                ExceptionMonitor.getInstance().exceptionCaught(e);
-                            }
-                        }
-
-                        // Wake up the selector to be sure we will process the newly bound handle
-                        // and not block forever in the select()
-                        wakeup();
-                    }
-                }
-            }
-        }
-
-        /**
          * This method just checks to see if anything has been placed into the
          * cancellation queue.  The only thing that should be in the cancelQueue
          * is CancellationRequest objects and the only place this happens is in
@@ -840,7 +915,7 @@ public abstract class AbstractPollingIoAcceptor<S extends AbstractIoSession, H> 
                     }
 
                     try {
-                        // 取消选择器的注册和通道的关闭
+                        // 注销服务器到选择器的注销，再关闭服务器通道
                         close(handle);
                         wakeup(); // wake up again to trigger thread death
                     } catch (Exception e) {

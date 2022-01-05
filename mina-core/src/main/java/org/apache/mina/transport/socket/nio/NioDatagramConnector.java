@@ -46,6 +46,10 @@ import org.apache.mina.transport.socket.DefaultDatagramSessionConfig;
 public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSession, DatagramChannel> implements
         DatagramConnector {
 
+    // ----------------------------------------------
+    // 学习笔记：UDP连接器需要UDP配置，和NioProcessor
+    // ----------------------------------------------
+
     /**
      * Creates a new instance.
      */
@@ -101,6 +105,10 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
         super(new DefaultDatagramSessionConfig(), processorClass, processorCount);
     }
 
+    // ----------------------------------------------
+    // 学习笔记：UDP的TransportMetadata
+    // ----------------------------------------------
+
     /**
      * 学习笔记：协议的元数据
      *
@@ -111,6 +119,10 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
         return NioDatagramSession.METADATA;
     }
 
+    // ----------------------------------------------
+    // 学习笔记：UDP的DatagramSessionConfig
+    // ----------------------------------------------
+
     /**
      * 学习笔记：UDP会话配置类
      *
@@ -120,6 +132,10 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
     public DatagramSessionConfig getSessionConfig() {
         return (DatagramSessionConfig) sessionConfig;
     }
+
+    // ----------------------------------------------
+    // 学习笔记：UDP连接器的默认远程地址
+    // ----------------------------------------------
 
     /**
      * 学习笔记：默认的远程地址
@@ -141,8 +157,12 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
         super.setDefaultRemoteAddress(defaultRemoteAddress);
     }
 
+    // ----------------------------------------------
+    // 学习笔记：UDP连接器无需选择器
+    // ----------------------------------------------
+
     /**
-     * 学习笔记：连接初始化
+     * 学习笔记：UDP连接器没有可注册的NIO选择器，所以不需要打开选择器
      *
      * {@inheritDoc}
      */
@@ -152,84 +172,65 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
     }
 
     /**
-     * 学习笔记：创建UDP底层的socket通道，用于封装到session中
+     * 学习笔记：UDP连接器没有可注册的NIO选择器，所以不需要关闭选择器
      *
      * {@inheritDoc}
      */
     @Override
-    protected DatagramChannel newHandle(SocketAddress localAddress) throws Exception {
-        // 学习笔记：创建一个udp数据报通道
-        DatagramChannel ch = DatagramChannel.open();
-
-        try {
-            if (localAddress != null) {
-                try {
-                    // udp客户端绑定到一个本地地址
-                    ch.socket().bind(localAddress);
-                    // 设置为默认地址，即下次默认的发送地址
-                    setDefaultLocalAddress(localAddress);
-                } catch (IOException ioe) {
-                    // Add some info regarding the address we try to bind to the
-                    // message
-                    String newMessage = "Error while binding on " + localAddress + "\n" + "original message : "
-                            + ioe.getMessage();
-                    Exception e = new IOException(newMessage);
-                    e.initCause(ioe.getCause());
-
-                    // and close the channel
-                    // 发生异常则关闭通道
-                    ch.close();
-
-                    throw e;
-                }
-            }
-
-            return ch;
-        } catch (Exception e) {
-            // If we got an exception while binding the datagram,
-            // we have to close it otherwise we will loose an handle
-            ch.close();
-            throw e;
-        }
+    protected void destroy() throws Exception {
+        // Do nothing
     }
 
     /**
-     * 学习笔记：UDP连接远程地址
+     * 学习笔记：UDP连接器没有可注册的NIO选择器，所以不需要选择选择器
      *
      * {@inheritDoc}
      */
     @Override
-    protected boolean connect(DatagramChannel handle, SocketAddress remoteAddress) throws Exception {
-        handle.connect(remoteAddress);
-        return true;
+    protected int select(int timeout) throws Exception {
+        return 0;
     }
 
     /**
-     * 学习笔记：创建一个客户端的会话，用于跟远端通信的封装类。要有Io处理器，UDP通道，会话的配置类
+     * 学习笔记：UDP连接器没有可注册的NIO选择器，所以不需要唤醒选择器
      *
      * {@inheritDoc}
      */
     @Override
-    protected NioSession newSession(IoProcessor<NioSession> processor, DatagramChannel handle) {
-        NioSession session = new NioDatagramSession(this, handle, processor);
-        session.getConfig().setAll(getSessionConfig());
-        return session;
+    protected void wakeup() {
+        // Do nothing
     }
 
+    // ----------------------------------------------
+    // 学习笔记：UDP没有选择器因此这些方法无效
+    // ----------------------------------------------
+
     /**
-     * 学习笔记：关闭掉UDP数据报通道
-     *
+     * 学习笔记：UDP通道没有可注册的选择器，因此该方法不支持调用。
      *
      * {@inheritDoc}
      */
     @Override
-    protected void close(DatagramChannel handle) throws Exception {
-        handle.disconnect();
-        handle.close();
+    protected void register(DatagramChannel handle, ConnectionRequest request) throws Exception {
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * 学习笔记：不做任何操作
+     * 学习笔记：UDP通道没有可注册的选择器，因此也不会在通道注册到选择器时绑定一个连接请求附件。。
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected ConnectionRequest getConnectionRequest(DatagramChannel handle) {
+        throw new UnsupportedOperationException();
+    }
+
+    // ---------------------------------------
+    // 获取选择器内部的key集合
+    // ---------------------------------------
+
+    /**
+     * 学习笔记：UDP通道没有可注册的选择器，因此该方法没有意义。
      *
      * {@inheritDoc}
      */
@@ -240,27 +241,7 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
     }
 
     /**
-     * 学习笔记：不做任何操作
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected void destroy() throws Exception {
-        // Do nothing
-    }
-
-    /**
-     * 学习笔记：不做任何操作
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected int select(int timeout) throws Exception {
-        return 0;
-    }
-
-    /**
-     * 学习笔记：不做任何操作
+     * 学习笔记：UDP通道没有可注册的选择器，因此该方法没有意义。
      *
      * {@inheritDoc}
      */
@@ -269,8 +250,87 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
         return Collections.emptyIterator();
     }
 
+    // ----------------------------------------------
+    // 学习笔记：创建一个UDP客户端socket通道
+    // ----------------------------------------------
+
     /**
-     * 学习笔记：UDP不支持此操作
+     * 学习笔记：直接创建一个UDP客户端socket通道，可以绑定一个本地地址，也可以不绑定本地地址。
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected DatagramChannel newHandle(SocketAddress localAddress) throws Exception {
+
+        // 学习笔记：创建一个客户端的UDP数据报通道
+        DatagramChannel ch = DatagramChannel.open();
+
+        try {
+            // 学习笔记：如果本地地址不为空，则强行绑定一个本地地址，否则随机绑定
+            if (localAddress != null) {
+                try {
+                    // 学习笔记：UDP客户端绑定到指定的本地地址
+                    ch.socket().bind(localAddress);
+
+                    // 学习笔记：将localAddress设置为默认的本地绑定地址
+                    setDefaultLocalAddress(localAddress);
+
+                } catch (IOException ioe) {
+                    // Add some info regarding the address we try to bind to the
+                    // message
+                    String newMessage = "Error while binding on " + localAddress + "\n" + "original message : "
+                            + ioe.getMessage();
+                    Exception e = new IOException(newMessage);
+                    e.initCause(ioe.getCause());
+
+                    // and close the channel
+                    // 学习笔记：发生异常则关闭通道
+                    ch.close();
+
+                    throw e;
+                }
+            }
+
+            return ch;
+        } catch (Exception e) {
+            // If we got an exception while binding the datagram,
+            // we have to close it otherwise we will loose an handle
+            // 学习笔记：如果我们在绑定数据报时遇到异常，我们必须关闭它，否则我们将失去一个socket句柄。
+            ch.close();
+            throw e;
+        }
+    }
+
+    /**
+     * 学习笔记：封装一个UDP客户端的会话，用于跟远端通信的封装类。需要封装UDP通道，Io处理器，UDP会话的配置类。
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected NioSession newSession(IoProcessor<NioSession> processor, DatagramChannel handle) {
+        NioSession session = new NioDatagramSession(this, handle, processor);
+        session.getConfig().setAll(getSessionConfig());
+        return session;
+    }
+
+    // ----------------------------------------------
+    // 学习笔记：UDP客户端连接远程地址
+    // ----------------------------------------------
+
+    /**
+     * 学习笔记：UDP连接远程地址
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean connect(DatagramChannel handle, SocketAddress remoteAddress) throws Exception {
+        // 学习笔记：连接远程地址
+        handle.connect(remoteAddress);
+        return true;
+    }
+
+    /**
+     * 学习笔记：UDP通道不支持此操作
      *
      * {@inheritDoc}
      */
@@ -279,33 +339,22 @@ public final class NioDatagramConnector extends AbstractPollingIoConnector<NioSe
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * 学习笔记：UDP不支持此操作
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected ConnectionRequest getConnectionRequest(DatagramChannel handle) {
-        throw new UnsupportedOperationException();
-    }
+    // ----------------------------------------------
+    // 学习笔记：关闭UDP通道的技术细节
+    // ----------------------------------------------
 
     /**
-     * 学习笔记：UDP不支持此操作
+     * 学习笔记：关闭UDP数据报通道
+     *
      *
      * {@inheritDoc}
      */
     @Override
-    protected void register(DatagramChannel handle, ConnectionRequest request) throws Exception {
-        throw new UnsupportedOperationException();
+    protected void close(DatagramChannel handle) throws Exception {
+        // 学习笔记：先发起连接断开
+        handle.disconnect();
+        // 学习笔记：再关闭连接通道
+        handle.close();
     }
 
-    /**
-     * 学习笔记：唤醒
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected void wakeup() {
-        // Do nothing
-    }
 }

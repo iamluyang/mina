@@ -27,7 +27,7 @@ import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.transport.socket.AbstractDatagramSessionConfig;
 
 /**
- * 学习笔记：NIO数据报的会话配置类
+ * 学习笔记：NIO数据报的会话配置类。
  *
  * Define the configuration for a Datagram based session. 
  * 

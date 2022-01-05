@@ -42,6 +42,7 @@ import org.apache.mina.core.write.WriteRequestQueue;
 /**
  * 学习笔记：一个虚拟或傀儡的简单实现，一般用于测试目的
  *
+ *
  * A dummy {@link IoSession} for unit-testing or non-network-use of
  * the classes that depends on {@link IoSession}.
  *

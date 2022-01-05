@@ -48,7 +48,7 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
      */
     private long connectTimeoutCheckInterval = 50L;
 
-    // 学习笔记：默认的超时时间，为一分钟。
+    // 学习笔记：默认的连接超时时间，为一分钟。
     private long connectTimeoutInMillis = 60 * 1000L; // 1 minute by default
 
     // 学习笔记：默认的远程连接地址
@@ -58,6 +58,11 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
     // 学习笔记：默认的本地绑定地址
     /** The local address */
     private SocketAddress defaultLocalAddress;
+
+    // ---------------------------------------------------------------------
+    // 简单来说：连接器也是一个Io服务，因此需要会话配置类，内部还需要一个执行异步任务的线
+    // 程池执行远程地址连接操作。
+    // ---------------------------------------------------------------------
 
     /**
      * 学习笔记：Io服务都需要一个会话配置类和执行器
@@ -78,6 +83,10 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
     protected AbstractIoConnector(IoSessionConfig sessionConfig, Executor executor) {
         super(sessionConfig, executor);
     }
+
+    // ---------------------------------------------------------------------
+    // 学习笔记：当前连接器连接远程服务器时，每隔一段时间检查一下是否超时了
+    // ---------------------------------------------------------------------
 
     /**
      * 学习笔记：检测连接超时的间隔
@@ -102,6 +111,10 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
         }
         this.connectTimeoutCheckInterval = minimumConnectTimeout;
     }
+
+    // --------------------------------------------------------------------
+    // 客户端连接服务器端的连接超时时长
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：连接超时的时间，单位为秒数
@@ -146,6 +159,10 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
         this.connectTimeoutInMillis = connectTimeoutInMillis;
     }
 
+    // --------------------------------------------------------------------
+    // 客户端绑定的本地地址
+    // --------------------------------------------------------------------
+
     /**
      * 学习笔记：获取默认的本地绑定地址
      *
@@ -165,6 +182,10 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
     public final void setDefaultLocalAddress(SocketAddress localAddress) {
         defaultLocalAddress = localAddress;
     }
+
+    // --------------------------------------------------------------------
+    // 连接器连接的默认服务器的地址
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：获取默认的远程连接地址
@@ -194,6 +215,10 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
         this.defaultRemoteAddress = defaultRemoteAddress;
     }
 
+    // --------------------------------------------------------------------
+    // 客户端的连接操作
+    // --------------------------------------------------------------------
+
     /**
      * 学习笔记：使用默认的远程地址来连接。且不绑定具体的本地地址，也不指定会话初始化器
      *
@@ -218,13 +243,15 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
     @Override
     public ConnectFuture connect(IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
         SocketAddress remoteAddress = getDefaultRemoteAddress();
-        
+
         if (remoteAddress == null) {
             throw new IllegalStateException("defaultRemoteAddress is not set.");
         }
 
         return connect(remoteAddress, null, sessionInitializer);
     }
+
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：连接指定的远程地址
@@ -242,10 +269,12 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
      * {@inheritDoc}
      */
     @Override
-    public ConnectFuture connect(SocketAddress remoteAddress,
-            IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
+    public ConnectFuture connect(SocketAddress remoteAddress, IoSessionInitializer<? extends ConnectFuture>
+            sessionInitializer) {
         return connect(remoteAddress, null, sessionInitializer);
     }
+
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：设置远程地址和本地绑定地址
@@ -258,13 +287,15 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
     }
 
     /**
-     * 学习笔记：设置远程连接地址，本地绑定定制和会话初始化器
+     * 学习笔记：设置远程连接地址，本地绑定定制和会话初始化器。当前方法中其实并没有真正的
+     * 连接逻辑的代码，都是在做连接参数的校验。
      *
      * {@inheritDoc}
      */
     @Override
-    public final ConnectFuture connect(SocketAddress remoteAddress, SocketAddress localAddress,
-            IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
+    public final ConnectFuture connect(SocketAddress remoteAddress, SocketAddress localAddress, IoSessionInitializer<? extends ConnectFuture>
+            sessionInitializer) {
+
         // 学习笔记：如果连接器处于释放状态，则连接器不能连接远程地址
         if (isDisposing()) {
             throw new IllegalStateException("The connector is being disposed.");
@@ -275,19 +306,20 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
             throw new IllegalArgumentException("remoteAddress");
         }
 
-        // 校验远程地址
+        // 学习笔记：校验远程地址
         if (!getTransportMetadata().getAddressType().isAssignableFrom(remoteAddress.getClass())) {
             throw new IllegalArgumentException("remoteAddress type: " + remoteAddress.getClass() + " (expected: "
                     + getTransportMetadata().getAddressType() + ")");
         }
 
-        // 校验本地地址
+        // 学习笔记：校验本地地址
         if (localAddress != null && !getTransportMetadata().getAddressType().isAssignableFrom(localAddress.getClass())) {
             throw new IllegalArgumentException("localAddress type: " + localAddress.getClass() + " (expected: "
                     + getTransportMetadata().getAddressType() + ")");
         }
 
-        // 学习笔记：如果连接前没有设置处理器，并且开启了读数据，即接收对端的数据，则需要创建一个默认的处理器静默来接收数据
+        // 学习笔记：如果连接前没有设置处理器，并且开启了读数据，即接收对端的数据，则需要创建一个默认的处理器静默来接收数据，
+        // 避免收到数据后没有处理器。
         if (getHandler() == null) {
             if (getSessionConfig().isUseReadOperation()) {
                 setHandler(new IoHandler() {
@@ -372,8 +404,11 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
         return connect0(remoteAddress, localAddress, sessionInitializer);
     }
 
+    // --------------------------------------------------------------------
+
     /**
-     * 实现此方法以执行实际的连接操作。命名为postConnect可能更好。
+     * 实现此方法以执行实际的连接操作。命名为postConnect可能更好。由子类扩展。
+     * 这里才是真正的底层连接操作的实现。
      *
      * Implement this method to perform the actual connect operation.
      *
@@ -385,6 +420,12 @@ public abstract class AbstractIoConnector extends AbstractIoService implements I
      */
     protected abstract ConnectFuture connect0(SocketAddress remoteAddress, SocketAddress localAddress,
             IoSessionInitializer<? extends ConnectFuture> sessionInitializer);
+
+    // --------------------------------------------------------------------
+    // 父类中的抽象服务中initSession的最后一个调用的方法，用来给子类的服务提供扩展
+    // 初始化服务的作用。给当前连接器的连接future的注册一个监听器，当会话完成连接后
+    // 立即关闭会话，因此本质是不是真正的取消连接。
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：将所需的内部属性和与事件通知相关的 {@link IoFutureListener}

@@ -46,11 +46,11 @@ import org.apache.mina.util.ExceptionMonitor;
  */
 public class IoServiceListenerSupport {
 
-    // 事件的源头
+    // 服务事件的宿主
     /** The {@link IoService} that this instance manages. */
     private final IoService service;
 
-    // 监听器容器
+    // 服务监听器的容器
     /** A list of {@link IoServiceListener}s. */
     private final List<IoServiceListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -69,7 +69,7 @@ public class IoServiceListenerSupport {
     /** Time this listenerSupport has been activated */
     private volatile long activationTime;
 
-    // 记录自 listenerSupport 被激活以来，管理的最大会话数的计数器。（包括已经关闭的会话）
+    // 记录自 listenerSupport 被激活以来，服务管理的最大会话数的计数器。（包括已经关闭的会话）
     /** A counter used to store the maximum sessions we managed since the listenerSupport has been activated */
     private volatile int largestManagedSessionCount = 0;
 
@@ -90,6 +90,8 @@ public class IoServiceListenerSupport {
         }
         this.service = service;
     }
+
+    // ---------------------------------------------------------------
 
     /**
      * 学习笔记：添加服务监听器
@@ -117,6 +119,8 @@ public class IoServiceListenerSupport {
         }
     }
 
+    // ---------------------------------------------------------------
+
     /**
      * 学习笔记：此实例已激活的时间（以毫秒为单位）
      *
@@ -125,6 +129,17 @@ public class IoServiceListenerSupport {
     public long getActivationTime() {
         return activationTime;
     }
+
+    /**
+     * 学习笔记：如果实例处于活动状态，则为 true
+     *
+     * @return true if the instance is active
+     */
+    public boolean isActive() {
+        return activated.get();
+    }
+
+    // ---------------------------------------------------------------
 
     /**
      * 学习笔记：获取该服务管理的会话实例（服务器会管理多个与客户端的通信会话）
@@ -164,14 +179,7 @@ public class IoServiceListenerSupport {
         return cumulativeManagedSessionCount.get();
     }
 
-    /**
-     * 学习笔记：如果实例处于活动状态，则为 true
-     *
-     * @return true if the instance is active
-     */
-    public boolean isActive() {
-        return activated.get();
-    }
+    // ---------------------------------------------------------------
 
     /**
      * 学习笔记：当服务被激活时触发所有服务激活事件，该服务只能触发一次.
@@ -202,7 +210,7 @@ public class IoServiceListenerSupport {
 
     /**
      * 学习笔记：当服务被停止时触发所有服务停止事件，该服务只能触发一次。
-     * 接收器取消绑定或连接器的所有会话关闭了，都会触发该方法（这里的设计逻辑有点绕）
+     * 接收器取消绑定或连接器的所有会话关闭了，都会触发该方法。
      *
      * Calls {@link IoServiceListener#serviceDeactivated(IoService)}
      * for all registered listeners.
@@ -228,6 +236,8 @@ public class IoServiceListenerSupport {
             disconnectSessions();
         }
     }
+
+    // ---------------------------------------------------------------
 
     /**
      * 学习笔记：当会话被创建的时候触发该事件，实际上会同时触发fireSessionCreated和fireSessionOpened事件
@@ -341,6 +351,8 @@ public class IoServiceListenerSupport {
         }
     }
 
+    // ---------------------------------------------------------------
+
     /**
      * 学习笔记：该方法只能被服务器释放会话时候调用，不适用于连接器
      *
@@ -355,7 +367,7 @@ public class IoServiceListenerSupport {
         }
 
         // 学习笔记：如果服务是一个接收者，且还没有与所有关联的本地地址解除绑定时（即当服务被停用时）。
-        // 简单来说就是接受者还没有关闭时候立即返回
+        // 简单来说就是接受者还没有关闭时候立即返回。
         if (!((IoAcceptor) service).isCloseOnDeactivation()) {
             return;
         }
@@ -369,9 +381,9 @@ public class IoServiceListenerSupport {
             s.closeNow().addListener(listener);
         }
 
-        // 学习笔记：这个锁会被每个会话的回调逻辑持有，当它们都释放了该锁才会进入会话为空的逻辑，
+        // 学习笔记：这个锁会被每个会话的回调逻辑唤醒，当它们都释放了则会唤醒在改锁上等待的当前线程，
         // 或者主线逻辑运行的更快，先进入while逻辑，但是managedSessions中的会话还没有全部释放了，
-        // 则主线逻辑进入短暂的等待状态，并每隔500毫秒检测一次，但仍然需要竞争lock
+        // 则主线逻辑进入短暂的等待状态，并每隔500毫秒检测一次，但仍然需要竞争lock。
         try {
             synchronized (lock) {
                 while (!managedSessions.isEmpty()) {
@@ -383,12 +395,15 @@ public class IoServiceListenerSupport {
         }
     }
 
+    // ---------------------------------------------------------------
+
     /**
      * 学习笔记：当服务关闭时完成时负责释放锁的侦听器
      *
      * A listener in charge of releasing the lock when the close has been completed
      */
     private static class LockNotifyingListener implements IoFutureListener<IoFuture> {
+
         private final Object lock;
 
         public LockNotifyingListener(Object lock) {

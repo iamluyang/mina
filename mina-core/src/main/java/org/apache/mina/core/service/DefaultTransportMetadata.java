@@ -133,6 +133,22 @@ public class DefaultTransportMetadata implements TransportMetadata {
      * {@inheritDoc}
      */
     @Override
+    public boolean isConnectionless() {
+        return connectionless;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasFragmentation() {
+        return fragmentation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Class<? extends SocketAddress> getAddressType() {
         return addressType;
     }
@@ -151,22 +167,6 @@ public class DefaultTransportMetadata implements TransportMetadata {
     @Override
     public Class<? extends IoSessionConfig> getSessionConfigType() {
         return sessionConfigType;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isConnectionless() {
-        return connectionless;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasFragmentation() {
-        return fragmentation;
     }
 
     @Override

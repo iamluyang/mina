@@ -36,9 +36,11 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 
 /**
- * 学习笔记：会话可以理解成OSI模型中的会话层，它封装了底层的socket，负责与对端连接，关闭连接，与对端交互
- * 一端的会话与另一端的会话通信，看上去就好像是两个电话之间的通信，而底层的通信协议，过滤器组件对他
- * 来说可以是透明的。
+ * 学习笔记：会话可以理解成OSI模型中的会话层，它封装了底层的socket，负责与对端连接，写出数据，读取数据，
+ * 关闭连接，与对端交互。
+ *
+ * 一端的会话与另一端的会话通信，看上去就好像是两个电话之间的通信，而底层的通信通道，过滤器组件对他来说可
+ * 以是透明的。
  *
  * 扩展属性：
  * 会话自身包含一个属性组件，用来绑定与会话相关的扩展信息。它通常包含表示更高级别协议状态的对象，
@@ -61,7 +63,7 @@ import org.apache.mina.core.write.WriteRequestQueue;
  * 连接，关闭中，活跃中，加密
  *
  * 与会话相关的地址：
- * 本地地址，远程地址，服务地址
+ * 本地地址，远程地址，服务器地址
  *
  * <p>
  *   A handle which represents connection between two end-points regardless of
@@ -100,28 +102,48 @@ import org.apache.mina.core.write.WriteRequestQueue;
 public interface IoSession {
 
     // --------------------------------------
-    // 会话的直接状态和属性
+    // 会话的创建事件和Id
     // --------------------------------------
-
-    /**
-     * @return the session's creation time in milliseconds
-     */
-    long getCreationTime();
 
     /**
      * 学习笔记：返回一个标识会话的唯一id，具体要看实现
      *
      * @return a unique identifier for this session.  Every session has its own
      * ID which is different from each other.
-     * 
+     *
      * TODO : The way it's implemented does not guarantee that the contract is
      * respected. It uses the HashCode() method which don't guarantee the key
      * unicity.
      */
     long getId();
 
+    /**
+     * 学习笔记：会话的创建时间
+     *
+     * @return the session's creation time in milliseconds
+     */
+    long getCreationTime();
+
     // --------------------------------------
-    // 会话的相关组件
+    // 会话的Metadata和配置
+    // --------------------------------------
+
+    /**
+     * 学习笔记：会话的协议元数据
+     *
+     * @return the {@link TransportMetadata} that this session runs on.
+     */
+    TransportMetadata getTransportMetadata();
+
+    /**
+     * 学习笔记：会话配置信息
+     *
+     * @return the configuration of this session.
+     */
+    IoSessionConfig getConfig();
+
+    // --------------------------------------
+    // 会话的宿主服务（连接器或接收器）
     // --------------------------------------
 
     /**
@@ -131,50 +153,30 @@ public interface IoSession {
      */
     IoService getService();
 
+    // --------------------------------------
+    // 会话的处理器：作为会话的业务层，处理会话的创建，打开，关闭，闲置，消息发送，消息接收，异常等事件
+    // --------------------------------------
+
     /**
-     * 学习笔记：会话的最终处理器，相当于应用层的逻辑处理了
+     * 学习笔记：会话的最终处理器，相当于会话应用层的逻辑处理。
      *
      * @return the {@link IoHandler} which handles this session.
      */
     IoHandler getHandler();
 
-    /**
-     * 学习笔记：会话配置信息
-     *
-     * @return the configuration of this session.
-     */
-    IoSessionConfig getConfig();
+    // --------------------------------------
+    // 会话的过滤器链，会话在写出数据，或接收数据时进行编码解码操作，也可以做日志操作等
+    // --------------------------------------
 
     /**
-     * 学习笔记：过滤器链实际上是附加在了会话这个宿主上，每个过滤器链对与会话来说都是独立的
+     * 学习笔记：过滤器链实际上是附加在了会话这个宿主上，每个过滤器链对与会话来说都是独立的。
+     *
      * @return the filter chain that only affects this session.
      */
     IoFilterChain getFilterChain();
 
-    /**
-     * 学习笔记：获取包含等待写出消息的队列。由于读者可能还没有准备好，消息没有完全写入，
-     * 或者当新消息到达时一些较旧的消息正在等待写入，这是很常见的。此队列用于管理待写出
-     * 消息的积压。
-     *
-     * Get the queue that contains the message waiting for being written.
-     * As the reader might not be ready, it's frequent that the messages
-     * aren't written completely, or that some older messages are waiting
-     * to be written when a new message arrives. This queue is used to manage
-     * the backlog of messages.
-     * 
-     * @return The queue containing the pending messages.
-     */
-    WriteRequestQueue getWriteRequestQueue();
-
-    /**
-     * 学习笔记：会话的协议元数据
-     *
-     * @return the {@link TransportMetadata} that this session runs on.
-     */
-    TransportMetadata getTransportMetadata();
-
     // --------------------------------------
-    // 会话的状态，已经连接，关闭中，是否加密
+    // 会话的状态，已经连接，关闭中，是否加密。
     // --------------------------------------
 
     /**
@@ -208,7 +210,7 @@ public interface IoSession {
     boolean isSecured();
 
     // --------------------------------------
-    // 会话地址信息：远程或本地地址
+    // 学习笔记：与会话相关的地址，远程或本地地址
     // --------------------------------------
 
     /**
@@ -219,13 +221,6 @@ public interface IoSession {
     boolean isServer();
 
     /**
-     * 学习笔记：获取会话的远程对端地址
-     *
-     * @return the socket address of remote peer.
-     */
-    SocketAddress getRemoteAddress();
-
-    /**
      * 学习笔记：获取会话本地绑定的地址
      *
      * @return the socket address of local machine which is associated with this
@@ -234,7 +229,14 @@ public interface IoSession {
     SocketAddress getLocalAddress();
 
     /**
-     * 学习笔记：如果当前是连接器的会话，这个地址就是服务器端的地址。如果当前会话是接收器的会话，
+     * 学习笔记：获取会话的远程对端地址
+     *
+     * @return the socket address of remote peer.
+     */
+    SocketAddress getRemoteAddress();
+
+    /**
+     * 学习笔记：如果当前是连接器的会话，这个地址就是远程服务器端的地址。如果当前会话是接收器的会话，
      * 则这个地址就是接收器在bind绑定时候指定的地址。
      *
      * @return the socket address of the {@link IoService} listens to to manage
@@ -247,7 +249,7 @@ public interface IoSession {
     SocketAddress getServiceAddress();
 
     // --------------------------------------
-    // 读操作
+    // 学习笔记：会话的读取操作
     // --------------------------------------
 
     /**
@@ -271,12 +273,12 @@ public interface IoSession {
     ReadFuture read();
 
     // --------------------------------------
-    // 写操作
+    // 学习笔记：会话的写出操作
     // --------------------------------------
 
     /**
      * 学习笔记：异步的写出消息到远端。IoHandler#messageSent(IoSession,Object)表示的是
-     * 数据被发write发送出去后触发的事件
+     * 数据被write发送出去后触发的事件。
      *
      * Writes the specified <code>message</code> to remote peer.  This
      * operation is asynchronous; {@link IoHandler#messageSent(IoSession,Object)}
@@ -313,8 +315,31 @@ public interface IoSession {
      */
     WriteFuture write(Object message, SocketAddress destination);
 
+    // --------------------------------------
+    // 会话的写请求队列，写操作需要这个对象
+    // --------------------------------------
+
     /**
-     * 学习笔记：将当前写入请求与会话关联？？？？？
+     * 学习笔记：获取包含等待写出消息的队列。由于读者可能还没有准备好，消息没有完全写入，
+     * 或者当新消息到达时一些较旧的消息正在等待写入，这是很常见的。此队列用于管理待写出
+     * 消息的积压。
+     *
+     * Get the queue that contains the message waiting for being written.
+     * As the reader might not be ready, it's frequent that the messages
+     * aren't written completely, or that some older messages are waiting
+     * to be written when a new message arrives. This queue is used to manage
+     * the backlog of messages.
+     *
+     * @return The queue containing the pending messages.
+     */
+    WriteRequestQueue getWriteRequestQueue();
+
+    // --------------------------------------
+    // 学习笔记：设置会话的当前写请求。即当前正在写还没写出的请求。
+    // --------------------------------------
+
+    /**
+     * 学习笔记：设置当前准备写出的写请求，IoProcessor会向会话设置这个写请求。
      *
      * Associate the current write request with the session
      *
@@ -323,6 +348,8 @@ public interface IoSession {
     void setCurrentWriteRequest(WriteRequest currentWriteRequest);
 
     /**
+     * 学习笔记：返回当前正准备写出的请求
+     *
      * Returns the {@link WriteRequest} which is being processed by
      * {@link IoService}.
      *
@@ -331,7 +358,7 @@ public interface IoSession {
     WriteRequest getCurrentWriteRequest();
 
     /**
-     * 学习笔记：返回 IoService 正在写出的消息
+     * 学习笔记：返回当前正准备写出的请求中的消息
      *
      * Returns the message which is being written by {@link IoService}.
      * @return <tt>null</tt> if and if only no message is being written
@@ -339,8 +366,21 @@ public interface IoSession {
     Object getCurrentWriteMessage();
 
     // --------------------------------------
-    // 关闭操作
+    // 学习笔记：会话的关闭操作
     // --------------------------------------
+
+    /**
+     * 学习笔记：在刷新所有排队的写出请求后关闭此会话。（废弃）
+     *
+     * Closes this session after all queued write requests
+     * are flushed. This operation is asynchronous.  Wait for the returned
+     * {@link CloseFuture} if you want to wait for the session actually closed.
+     * @deprecated use {@link #closeNow()}
+     * 
+     * @return The associated CloseFuture
+     */
+    @Deprecated
+    CloseFuture close();
 
     /**
      * 学习笔记：关闭会话。需要指定是否需要刷出排队中的写入请求后关闭此会话。此操作是异步的。
@@ -364,9 +404,9 @@ public interface IoSession {
     /**
      * 学习笔记：立即关闭此会话。不刷出写出队列即关闭。
      *
-     * Closes this session immediately.  This operation is asynchronous, it 
+     * Closes this session immediately.  This operation is asynchronous, it
      * returns a {@link CloseFuture}.
-     * 
+     *
      * @return The {@link CloseFuture} that can be use to wait for the completion of this operation
      */
     CloseFuture closeNow();
@@ -374,8 +414,8 @@ public interface IoSession {
     /**
      * 学习笔记：在刷新所有排队的写出请求后关闭此会话。
      *
-     * Closes this session after all queued write requests are flushed.  This operation 
-     * is asynchronous.  Wait for the returned {@link CloseFuture} if you want to wait 
+     * Closes this session after all queued write requests are flushed.  This operation
+     * is asynchronous.  Wait for the returned {@link CloseFuture} if you want to wait
      * for the session actually closed.
      *
      * @return The associated CloseFuture
@@ -383,20 +423,7 @@ public interface IoSession {
     CloseFuture closeOnFlush();
 
     /**
-     * 学习笔记：在刷新所有排队的写入请求后关闭此会话。（废弃）
-     *
-     * Closes this session after all queued write requests
-     * are flushed. This operation is asynchronous.  Wait for the returned
-     * {@link CloseFuture} if you want to wait for the session actually closed.
-     * @deprecated use {@link #closeNow()}
-     * 
-     * @return The associated CloseFuture
-     */
-    @Deprecated
-    CloseFuture close();
-
-    /**
-     * 学习笔记：如果会话的关闭异步结果
+     * 学习笔记：获取会话的关闭异步结果
      *
      * @return the {@link CloseFuture} of this session.  This method returns
      * the same instance whenever user calls it.
@@ -404,30 +431,40 @@ public interface IoSession {
     CloseFuture getCloseFuture();
 
     // --------------------------------------
-    // 挂起或恢复读写操作
+    // 学习笔记：会话的读写挂起操作：挂起或恢复读写操作
     // --------------------------------------
 
     /**
+     * 学习笔记：读数据挂起
+     *
      * Suspends read operations for this session.
      */
     void suspendRead();
 
     /**
+     * 学习笔记：写数据挂起
+     *
      * Suspends write operations for this session.
      */
     void suspendWrite();
 
     /**
+     * 学习笔记：恢复读数据挂起
+     *
      * Resumes read operations for this session.
      */
     void resumeRead();
 
     /**
+     * 学习笔记：恢复写数据挂起
+     *
      * Resumes write operations for this session.
      */
     void resumeWrite();
 
     /**
+     * 学习笔记：是否读数据挂起
+     *
      * Is read operation is suspended for this session.
      *
      * @return <tt>true</tt> if suspended
@@ -435,6 +472,8 @@ public interface IoSession {
     boolean isReadSuspended();
 
     /**
+     * 学习笔记：是否写数据挂起
+     *
      * Is write operation is suspended for this session.
      *
      * @return <tt>true</tt> if suspended
@@ -442,26 +481,32 @@ public interface IoSession {
     boolean isWriteSuspended();
 
     // --------------------------------------
-    // 与最后读写时间相关的属性
+    // 学习笔记：会话的最后读写时间状态
     // --------------------------------------
 
     /**
+     * 学习笔记：会话网络通道最后一次读写的时间
+     *
      * @return the time in millis when I/O occurred lastly.
      */
     long getLastIoTime();
 
     /**
+     * 学习笔记：会话网络通道最后一次读数据的时间
+     *
      * @return the time in millis when read operation occurred lastly.
      */
     long getLastReadTime();
 
     /**
+     * 学习笔记：会话网络通道最后一次写数据的时间
+     *
      * @return the time in millis when write operation occurred lastly.
      */
     long getLastWriteTime();
 
     // --------------------------------------
-    // 与吞吐量和统计相关的属性
+    // 学习笔记：与会话吞吐量和统计相关的属性
     // --------------------------------------
 
     /**
@@ -530,7 +575,7 @@ public interface IoSession {
     long getScheduledWriteBytes();
 
     // --------------------------------------
-    // 与闲置相关属性，读闲置，写闲置，或两者
+    // 学习笔记：与会话闲置相关的属性，读闲置，写闲置，或两者
     // --------------------------------------
 
     /**
@@ -621,7 +666,7 @@ public interface IoSession {
     long getLastBothIdleTime();
 
     // --------------------------------------
-    // 属性
+    // 学习笔记：与会话相关的属性
     // --------------------------------------
 
     /**

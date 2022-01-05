@@ -25,7 +25,8 @@ import java.net.PortUnreachableException;
 import org.apache.mina.core.session.IoSessionConfig;
 
 /**
- * UDP Socket的配置选项
+ * 学习笔记：UDP Socket的配置选项
+ *
  *
  * An {@link IoSessionConfig} for datagram transport type.
  *

@@ -32,7 +32,10 @@ import org.apache.mina.core.future.IoFuture;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public interface IoSessionInitializer<T extends IoFuture> {
+
     /**
+     * 学习笔记：初始化会话的方法
+     *
      * Initialize a session
      * 
      * @param session The IoSession to initialize

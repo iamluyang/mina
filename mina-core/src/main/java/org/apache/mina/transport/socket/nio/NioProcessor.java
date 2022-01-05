@@ -171,12 +171,8 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
     //----------------------------------------------------
 
     //----------------------------------------------------
-    // 学习笔记：IO处理器关联的选择器，负责读写I/O事件的监听
+    // 学习笔记：IO处理器关联的选择器，负责读写I/O就绪事件的监听
     //----------------------------------------------------
-    /**
-     * The selector associated with this processor
-     */
-    protected Selector selector;
 
     // 学习笔记：用于保护对选择器的并发访问的锁，对于大部分读取选择器状态的接口获取读锁
     /**
@@ -184,8 +180,18 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
      */
     protected ReadWriteLock selectorLock = new ReentrantReadWriteLock();
 
+    /**
+     * 与IO读写就绪监听相关的选择器
+     * The selector associated with this processor
+     */
+    protected Selector selector;
+
     // 学习笔记：选择器的提供者
     protected SelectorProvider selectorProvider = null;
+
+    //----------------------------------------------------
+    // 学习笔记：创建一个IoProcessor
+    //----------------------------------------------------
 
     /**
      * Creates a new instance of NioProcessor.
@@ -196,8 +202,8 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         super(executor);
         try {
             // Open a new selector
-            // 如果没有选择器提供者，则打开一个选择器，连接器有自己的选择器来监听连接，接收器也有自己独立的选择器监听连接请求
-            // 而Io处理器使用一个独立的选择器监听io会话之间的读写操作
+            // 如果没有选择器提供者，则打开一个选择器，连接器有自己独立的选择器来监听连接就绪事件，接收器也有自己独立的选择器监听接收就绪事件，
+            // 而Io处理器也使用一个独立的选择器监听io会话之间的读写就绪操作。
             selector = Selector.open();
         } catch (IOException e) {
             throw new RuntimeIoException("Failed to open a selector.", e);
@@ -228,16 +234,9 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         }
     }
 
-    // 学习笔记：关闭处理器时需要关闭选择器
-    @Override
-    protected void doDispose() throws Exception {
-        selectorLock.readLock().lock();
-        try {
-            selector.close();
-        } finally {
-            selectorLock.readLock().unlock();
-        }
-    }
+    //----------------------------------------------------
+    // 选择器相关：等待读写就绪事件
+    //----------------------------------------------------
 
     // 学习笔记：调用选择器获取是否有监听的事件发生，使用读锁，说明可以有多个线程并发读取这个监听状态
     @Override
@@ -261,6 +260,10 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         }
     }
 
+    //----------------------------------------------------
+    // 选择器相关：选择器的唤醒和关闭
+    //----------------------------------------------------
+
     // 学习笔记：唤醒选择器，基于读锁的操作不会被阻塞
     @Override
     protected void wakeup() {
@@ -272,6 +275,21 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
             selectorLock.readLock().unlock();
         }
     }
+
+    // 学习笔记：关闭处理器时需要关闭选择器
+    @Override
+    protected void doDispose() throws Exception {
+        selectorLock.readLock().lock();
+        try {
+            selector.close();
+        } finally {
+            selectorLock.readLock().unlock();
+        }
+    }
+
+    //----------------------------------------------------
+    // 选择器键集合相关：获取选择器的键集合
+    //----------------------------------------------------
 
     // 学习笔记：判断是否有socket通道注册到了这个选择器，使用读锁，因为读取keys的状态
     @Override
@@ -289,6 +307,10 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
     protected int allSessionsCount() {
         return selector.keys().size();
     }
+
+    //----------------------------------------------------
+    // 选择器键集合相关：选择器的键集合迭代器
+    //----------------------------------------------------
 
     // 学习笔记：使用读锁，获取所有注册到该选择器的socket通道，再封装成会话对象
     @Override
@@ -309,13 +331,19 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
     }
 
     // ----------------------------------------------------------------
-    // 初始化会话和释放会话
+    // 会话选择键相关：初始化会话和释放会话
     // ----------------------------------------------------------------
 
+    // 学习笔记：初始化会话的逻辑：
+    // 1.将会话内部的通道设置为非阻塞模式。
+    // 2.将会话内部的通道注册到选择器，并绑定了读数据就绪事件。
+    // 3.将会话内部的通道注册到选择器返回的选择键关联到会话上。
     @Override
     protected void init(NioSession session) throws Exception {
+
         SelectableChannel ch = (SelectableChannel) session.getChannel();
-        // 设置此非阻塞模式
+
+        // 学习笔记：设置此通道为非阻塞模式
         ch.configureBlocking(false);
         selectorLock.readLock().lock();
         try {
@@ -326,16 +354,20 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         }
     }
 
-    // 学习笔记：释放会话即取消会话关联的选择key，以及关闭key对应的socket channel
+    // 学习笔记：销毁会话的逻辑：
+    // 1.先注销掉会话key到选择器的注册
+    // 2.再关闭掉会话通道
     @Override
     protected void destroy(NioSession session) throws Exception {
+
         ByteChannel ch = session.getChannel();
+
         // 返回会话通道在选择器中注册关联的选择key
         SelectionKey key = session.getSelectionKey();
 
         // 注销key到选择器的注册
         if (key != null) {
-            key.cancel();
+            key.isConnectable();
         }
 
         // 关闭key的宿主通道，key此刻也失效了
@@ -345,108 +377,7 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
     }
 
     // ----------------------------------------------------------------
-    // 当选择器发生故障的时候转移已经注册的通道，重新注册到一个新的选择器的策略
-    // ----------------------------------------------------------------
-
-    /**
-     * 在我们使用 java select() 方法的情况下，此方法用于删除有问题
-     * 的选择器并创建一个新的选择器，在其上重新注册所有套接字。
-     *
-     * In the case we are using the java select() method, this method is used to
-     * trash the buggy selector and create a new one, registering all the
-     * sockets on it.
-     */
-    @Override
-    protected void registerNewSelector() throws IOException {
-
-        // 读写锁此刻可以避免并发问题
-        selectorLock.writeLock().lock();
-
-        try {
-            // 获取当前选择器中注册的所有socket通道
-            Set<SelectionKey> keys = selector.keys();
-            Selector newSelector;
-
-            // Open a new selector
-            // 创建一个新的选择器
-            if (selectorProvider == null) {
-                newSelector = Selector.open();
-            } else {
-                newSelector = selectorProvider.openSelector();
-            }
-
-            // Loop on all the registered keys, and register them on the new selector
-            // 将之前的socket通道重新注册到新的的选择器上
-            for (SelectionKey key : keys) {
-                SelectableChannel ch = key.channel();
-
-                // Don't forget to attache the session, and back !
-                // 重新注册socket channel，并重新绑定会话
-                NioSession session = (NioSession) key.attachment();
-                SelectionKey newKey = ch.register(newSelector, key.interestOps(), session);
-                // 会话再重新关联新的选择key
-                session.setSelectionKey(newKey);
-            }
-
-            // Now we can close the old selector and switch it
-            // 学习笔记：关闭旧的选择器，将新的选择器替代老的选择器
-            selector.close();
-            selector = newSelector;
-        } finally {
-            selectorLock.writeLock().unlock();
-        }
-
-    }
-
-    /**
-     * 学习笔记：检查选择器上注册的所有选择key，检查key的状态和key关联的socket channel的连接性。
-     * 实际上是想这个当前主机是否意外断开了连接。
-     *
-     * 检测当前服务的IO读写选择器中是否有断开连接的通道，并手动注销掉通道的注册
-     * 这个方法是用来判断是否需要重新注册选择器的依据
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isBrokenConnection() throws IOException {
-        // A flag set to true if we find a broken session
-        boolean brokenSession = false;
-        selectorLock.readLock().lock();
-
-        try {
-            // Get the selector keys
-            // 学习笔记：获取所有注册的通道对应的选择key
-            Set<SelectionKey> keys = selector.keys();
-
-            // 循环所有键以查看其中是否具有关闭的通道
-            // Loop on all the keys to see if one of them
-            // has a closed channel
-            for (SelectionKey key : keys) {
-                SelectableChannel channel = key.channel();
-
-                // upd通道或者tcp通道是否已经断开了连接
-                // 告知此通道的套接字是否已连接。当且仅当此通道的套接字已打开并已连接时才为真
-                if (((channel instanceof DatagramChannel) && !((DatagramChannel) channel).isConnected())
-                        || ((channel instanceof SocketChannel) && !((SocketChannel) channel).isConnected())) {
-                    // The channel is not connected anymore. Cancel
-                    // the associated key then.
-                    // 如果连接因为非正常原因断开，导致key没有正常从选择器中取消，因此在这个检测逻辑中手动注销通道到这个选择器
-                    key.cancel();
-
-                    // 将标志设置为 true 以避免选择器切换
-                    // Set the flag to true to avoid a selector switch
-                    brokenSession = true;
-                }
-            }
-        } finally {
-            selectorLock.readLock().unlock();
-        }
-
-        return brokenSession;
-    }
-
-    // ----------------------------------------------------------------
-    // 会话的读写操作
+    // 会话通道读写相关：会话通道的读写操作的真正实现
     // ----------------------------------------------------------------
 
     @Override
@@ -537,21 +468,11 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         }
     }
 
-    // ----------------------------------------------------------------
-    // interestOps
-    // 检索此键的兴趣集。保证返回的集合将只包含对这个key的通道有效的操作位。可以随时调用此方法。
-    // 它是否阻塞以及阻塞多长时间取决于实现。返回：此键的兴趣集
-    // 抛出：CancelledKeyException – 如果此键已被取消
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------------------
+    // 检查当前通道key注册的读/写就绪事件是否触发了
+    //----------------------------------------------------------------------------
 
-    // ----------------------------------------------------------------
-    // interestOps
-    // 检索此键的兴趣集。保证返回的集合将只包含对这个key的通道有效的操作位。可以随时调用此方法。
-    // 它是否阻塞以及阻塞多长时间取决于实现。返回：此键的兴趣集
-    // 抛出：CancelledKeyException – 如果此键已被取消
-    // ----------------------------------------------------------------
-
-    // 检查当前通道注册的key是否还有效，并且key读就绪事件触发了
+    // 检查当前通道key注册的读就绪事件是否触发了
     @Override
     protected boolean isReadable(NioSession session) {
         SelectionKey key = session.getSelectionKey();
@@ -563,7 +484,7 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         return (key != null) && key.isValid() && key.isReadable();
     }
 
-    // 检查当前通道注册的key是否还有效，并且key写就绪事件触发了
+    // 检查当前通道key注册的写就绪事件是否触发了
     @Override
     protected boolean isWritable(NioSession session) {
         SelectionKey key = session.getSelectionKey();
@@ -573,6 +494,15 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         // 抛出：CancelledKeyException – 如果该键已被取消
         return (key != null) && key.isValid() && key.isWritable();
     }
+
+    //----------------------------------------------------------------------------
+    // 检查通道是否注册了感兴趣的读写就绪监听事件
+    //
+    // interestOps
+    // 检索此键的兴趣集。保证返回的集合将只包含对这个key的通道有效的操作位。可以随时调用此方法。
+    // 它是否阻塞以及阻塞多长时间取决于实现。返回：此键的兴趣集
+    // 抛出：CancelledKeyException – 如果此键已被取消
+    // ---------------------------------------------------------------------------
 
     // 学习笔记：当前会话开启了读监听事件吗
     @Override
@@ -596,6 +526,10 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
         // 则它将 OP_WRITE 添加到key的就绪集合（key's ready set）中并将该key添加到其选定键的集合中（selected-key set）。
         return (key != null) && key.isValid() && ((key.interestOps() & SelectionKey.OP_WRITE) != 0);
     }
+
+    //----------------------------------------------------------------------------
+    // 动态设置通道感兴趣的就绪事件的监听
+    //----------------------------------------------------------------------------
 
     /**
      * 学习笔记：打开或关闭socket channel的读就绪监听事件
@@ -653,16 +587,116 @@ public class NioProcessor extends AbstractPollingIoProcessor<NioSession> {
             return SessionState.OPENING;
         }
 
-        // 当socket channel注册到选择器，且选择器没有关闭，channel没有关闭，key也没有取消，则key有效
-        // 即key关联的channel被选择器监听
+        // 当socket channel注册到选择器，且选择器没有关闭，channel没有关闭，
+        // key也没有取消，则key有效，即key关联的channel仍然在被选择器监听。
         if (key.isValid()) {
             // The session is opened
             return SessionState.OPENED;
         } else {
-            // key可能从选择器取消了，选择器不再监听key关联的channel
+            // 学习笔记：key可能从选择器取消了，选择器不再监听key关联的channel
             // The session still as to be closed
             return SessionState.CLOSING;
         }
+    }
+
+    // ----------------------------------------------------------------
+    // 当选择器发生故障的时候转移已经注册的通道，重新注册到一个新的选择器的策略
+    // ----------------------------------------------------------------
+
+    /**
+     * 在我们使用 java select() 方法的情况下，此方法用于删除有问题
+     * 的选择器并创建一个新的选择器，在其上重新注册所有套接字。
+     *
+     * In the case we are using the java select() method, this method is used to
+     * trash the buggy selector and create a new one, registering all the
+     * sockets on it.
+     */
+    @Override
+    protected void registerNewSelector() throws IOException {
+
+        // 学习笔记：读写锁此刻可以避免并发问题
+        selectorLock.writeLock().lock();
+
+        try {
+            // 学习笔记：获取当前选择器中注册的所有socket通道
+            Set<SelectionKey> keys = selector.keys();
+            Selector newSelector;
+
+            // Open a new selector
+            // 学习笔记：创建一个新的选择器
+            if (selectorProvider == null) {
+                newSelector = Selector.open();
+            } else {
+                newSelector = selectorProvider.openSelector();
+            }
+
+            // Loop on all the registered keys, and register them on the new selector
+            // 学习笔记：将之前注册到到老选择器上的通道重新注册到新的选择器上
+            for (SelectionKey key : keys) {
+                SelectableChannel ch = key.channel();
+
+                // Don't forget to attache the session, and back !
+                // 学习笔记：重新注册会话通道，并注册之前通道的感兴趣就绪事件，再绑定会话对象
+                NioSession session = (NioSession) key.attachment();
+                SelectionKey newKey = ch.register(newSelector, key.interestOps(), session);
+
+                // 学习笔记：会话重新关联新的选择键
+                session.setSelectionKey(newKey);
+            }
+
+            // Now we can close the old selector and switch it
+            // 学习笔记：关闭旧的选择器，将新的选择器替代老的选择器
+            selector.close();
+            selector = newSelector;
+        } finally {
+            selectorLock.writeLock().unlock();
+        }
+
+    }
+
+    /**
+     * 学习笔记：检查选择器上注册的所有选择key，检查key的状态和key关联的socket channel的连接性。
+     * 实际上是检测这个当前主机是否意外断开了连接（比如网线断开了）。
+     *
+     * 检测当前服务的IO读写选择器中是否有断开连接的通道，并手动注销掉通道的注册
+     * 这个方法是用来判断是否需要重新注册选择器的依据
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isBrokenConnection() throws IOException {
+        // A flag set to true if we find a broken session
+        boolean brokenSession = false;
+        selectorLock.readLock().lock();
+
+        try {
+            // Get the selector keys
+            // 学习笔记：获取所有注册到选择器上的键集
+            Set<SelectionKey> keys = selector.keys();
+
+            // 学习笔记：循环键集并查看其中是否具有关闭的通道
+            // Loop on all the keys to see if one of them
+            // has a closed channel
+            for (SelectionKey key : keys) {
+                SelectableChannel channel = key.channel();
+
+                // 学习笔记：UDP通道或者TCP通道是否已经断开了连接
+                // 告知此通道的套接字是否已连接。当且仅当此通道的套接字已打开并已连接时才为真
+                if (((channel instanceof DatagramChannel) && !((DatagramChannel) channel).isConnected()) ||
+                    ((channel instanceof SocketChannel)   && !((SocketChannel)   channel).isConnected())) {
+                    // The channel is not connected anymore. Cancel the associated key then.
+                    // 如果连接因为非正常原因断开，导致key没有正常从选择器中取消，因此在这个检测逻辑中手动注销通道到这个选择器
+                    key.cancel();
+
+                    // 将标志设置为 true 以避免选择器切换
+                    // Set the flag to true to avoid a selector switch
+                    brokenSession = true;
+                }
+            }
+        } finally {
+            selectorLock.readLock().unlock();
+        }
+        return brokenSession;
     }
 
     // ----------------------------------------------------------------

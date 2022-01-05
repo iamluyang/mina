@@ -52,6 +52,10 @@ import org.apache.mina.core.session.IoSession;
  */
 public interface IoAcceptor extends IoService {
 
+    // --------------------------------------------------------------------
+    // 学习笔记：返回当前服务器已经绑定的监听地址。如果有多个绑定的地址，则返回其中之一。
+    // --------------------------------------------------------------------
+
     /**
      * 学习笔记：返回当前绑定的本地地址。如果绑定了多个地址，则只返回其中一个，但不一定是第一个绑定的地址。
      *
@@ -71,6 +75,10 @@ public interface IoAcceptor extends IoService {
      * @return The Set of bound LocalAddresses
      */
     Set<SocketAddress> getLocalAddresses();
+
+    // --------------------------------------------------------------------
+    // 学习笔记：服务器将要绑定的默认本地地址。
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：当 bind() 方法中没有指定参数时，返回要绑定的默认本地地址。
@@ -118,18 +126,6 @@ public interface IoAcceptor extends IoService {
      * Sets the default local addresses to bind when no argument is specified
      * in {@link #bind()} method.  Please note that the default will not be
      * used if any local address is specified.
-     * @param firstLocalAddress The first local address to bind the acceptor on
-     * @param otherLocalAddresses The other local addresses to bind the acceptor on
-     */
-    void setDefaultLocalAddresses(SocketAddress firstLocalAddress, SocketAddress... otherLocalAddresses);
-
-    /**
-     * 学习笔记：当 bind() 方法中没有指定参数时，设置要绑定的默认本地地址。
-     * 请注意，如果指定了任何本地地址，则不会使用默认值。
-     *
-     * Sets the default local addresses to bind when no argument is specified
-     * in {@link #bind()} method.  Please note that the default will not be
-     * used if any local address is specified.
      * 
      * @param localAddresses The local addresses to bind the acceptor on
      */
@@ -148,27 +144,20 @@ public interface IoAcceptor extends IoService {
     void setDefaultLocalAddresses(List<? extends SocketAddress> localAddresses);
 
     /**
-     * 学习笔记：返回 true。当且仅当此接受器与所有相关本地地址解除绑定时（即当服务被停用时）所有客户端都关闭时。
+     * 学习笔记：当 bind() 方法中没有指定参数时，设置要绑定的默认本地地址。
+     * 请注意，如果指定了任何本地地址，则不会使用默认值。
      *
-     * Returns <tt>true</tt> if and only if all clients are closed when this
-     * acceptor unbinds from all the related local address (i.e. when the
-     * service is deactivated).
-     * 
-     * @return <tt>true</tt> if the service sets the closeOnDeactivation flag
+     * Sets the default local addresses to bind when no argument is specified
+     * in {@link #bind()} method.  Please note that the default will not be
+     * used if any local address is specified.
+     * @param firstLocalAddress The first local address to bind the acceptor on
+     * @param otherLocalAddresses The other local addresses to bind the acceptor on
      */
-    boolean isCloseOnDeactivation();
+    void setDefaultLocalAddresses(SocketAddress firstLocalAddress, SocketAddress... otherLocalAddresses);
 
-    /**
-     * 学习笔记：设置当这个接受者从所有相关的本地地址解除绑定时（即当服务被停用时）是否关闭所有客户端会话。
-     * 默认值为 <tt>true<tt>。
-     *
-     * Sets whether all client sessions are closed when this acceptor unbinds
-     * from all the related local addresses (i.e. when the service is
-     * deactivated).  The default value is <tt>true</tt>.
-     * 
-     * @param closeOnDeactivation <tt>true</tt> if we should close on deactivation
-     */
-    void setCloseOnDeactivation(boolean closeOnDeactivation);
+    // --------------------------------------------------------------------
+    // 启动一个服务器需要绑定一个本地监听的地址和端口号
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：绑定到默认本地地址并开始接受传入连接。
@@ -197,20 +186,7 @@ public interface IoAcceptor extends IoService {
      *
      * Binds to the specified local addresses and start to accept incoming
      * connections. If no address is given, bind on the default local address.
-     * 
-     * @param firstLocalAddress The first address to bind to
-     * @param addresses The SocketAddresses to bind to
-     * 
-     * @throws IOException if failed to bind
-     */
-    void bind(SocketAddress firstLocalAddress, SocketAddress... addresses) throws IOException;
-
-    /**
-     * 学习笔记：绑定到指定的本地地址并开始接受传入连接。如果没有给出地址，则绑定默认本地地址。
      *
-     * Binds to the specified local addresses and start to accept incoming
-     * connections. If no address is given, bind on the default local address.
-     * 
      * @param addresses The SocketAddresses to bind to
      *
      * @throws IOException if failed to bind
@@ -227,6 +203,23 @@ public interface IoAcceptor extends IoService {
      * @throws IOException if failed to bind
      */
     void bind(Iterable<? extends SocketAddress> localAddresses) throws IOException;
+
+    /**
+     * 学习笔记：绑定到指定的本地地址并开始接受传入连接。如果没有给出地址，则绑定默认本地地址。
+     *
+     * Binds to the specified local addresses and start to accept incoming
+     * connections. If no address is given, bind on the default local address.
+     * 
+     * @param firstLocalAddress The first address to bind to
+     * @param addresses The SocketAddresses to bind to
+     * 
+     * @throws IOException if failed to bind
+     */
+    void bind(SocketAddress firstLocalAddress, SocketAddress... addresses) throws IOException;
+
+    // --------------------------------------------------------------------
+    // 关闭一个服务器需要解绑一个本地监听的地址和端口号
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：解除与此服务绑定的所有本地地址的绑定并停止接受传入连接。如果 setCloseOnDeactivation(boolean) disconnectOnUnbind}
@@ -255,6 +248,20 @@ public interface IoAcceptor extends IoService {
     void unbind(SocketAddress localAddress);
 
     /**
+     * 学习笔记：从指定的本地地址解除绑定并停止接受传入连接。如果 setCloseOnDeactivation(boolean) disconnectOnUnbind
+     * 属性为 <tt>true<tt>，所有托管连接都将关闭。如果尚未绑定默认本地地址，则此方法会静默返回。
+     *
+     * Unbinds from the specified local addresses and stop to accept incoming
+     * connections.  All managed connections will be closed if
+     * {@link #setCloseOnDeactivation(boolean) disconnectOnUnbind} property is
+     * <tt>true</tt>.  This method returns silently if the default local
+     * addresses are not bound yet.
+     *
+     * @param localAddresses The local address we will be unbound from
+     */
+    void unbind(Iterable<? extends SocketAddress> localAddresses);
+
+    /**
      * 学习笔记：从指定的本地地址解除绑定并停止接受传入连接。如果  setCloseOnDeactivation(boolean) disconnectOnUnbind
      * 属性为 <tt>true<tt>，所有托管连接都将关闭。如果尚未绑定默认本地地址，则此方法会静默返回。
      *
@@ -269,19 +276,36 @@ public interface IoAcceptor extends IoService {
      */
     void unbind(SocketAddress firstLocalAddress, SocketAddress... otherLocalAddresses);
 
+    // --------------------------------------------------------------------
+    // 解除绑定时候的判断
+    // --------------------------------------------------------------------
+
     /**
-     * 学习笔记：从指定的本地地址解除绑定并停止接受传入连接。如果 setCloseOnDeactivation(boolean) disconnectOnUnbind
-     * 属性为 <tt>true<tt>，所有托管连接都将关闭。如果尚未绑定默认本地地址，则此方法会静默返回。
+     * 学习笔记：返回 true。当且仅当此接受器与所有相关本地地址解除绑定时（即当服务被停用时）所有客户端都关闭时。
      *
-     * Unbinds from the specified local addresses and stop to accept incoming
-     * connections.  All managed connections will be closed if
-     * {@link #setCloseOnDeactivation(boolean) disconnectOnUnbind} property is
-     * <tt>true</tt>.  This method returns silently if the default local
-     * addresses are not bound yet.
-     * 
-     * @param localAddresses The local address we will be unbound from
+     * Returns <tt>true</tt> if and only if all clients are closed when this
+     * acceptor unbinds from all the related local address (i.e. when the
+     * service is deactivated).
+     *
+     * @return <tt>true</tt> if the service sets the closeOnDeactivation flag
      */
-    void unbind(Iterable<? extends SocketAddress> localAddresses);
+    boolean isCloseOnDeactivation();
+
+    /**
+     * 学习笔记：设置当这个接受者从所有相关的本地地址解除绑定时（即当服务被停用时）是否关闭所有客户端会话。
+     * 默认值为 <tt>true<tt>。
+     *
+     * Sets whether all client sessions are closed when this acceptor unbinds
+     * from all the related local addresses (i.e. when the service is
+     * deactivated).  The default value is <tt>true</tt>.
+     *
+     * @param closeOnDeactivation <tt>true</tt> if we should close on deactivation
+     */
+    void setCloseOnDeactivation(boolean closeOnDeactivation);
+
+    // --------------------------------------------------------------------
+    // 创建一个和对端通信的会话
+    // --------------------------------------------------------------------
 
     /**
      * 学习笔记：注意这是一个可选的操作，一般用于UDP的会话创建。

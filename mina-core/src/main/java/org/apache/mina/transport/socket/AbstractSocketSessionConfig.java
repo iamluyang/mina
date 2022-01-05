@@ -23,7 +23,8 @@ import org.apache.mina.core.session.AbstractIoSessionConfig;
 import org.apache.mina.core.session.IoSessionConfig;
 
 /**
- * 针对TCP Socket的会话配置
+ * 学习笔记：针对TCP Socket的会话配置
+ *
  * The TCP transport session configuration.
  * 
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>

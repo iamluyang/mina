@@ -21,7 +21,7 @@ package org.apache.mina.core.session;
 
 /**
  * 表示丢失或丢失的空闲类型。懒惰有三种类型:
- * READER_IDLE - 没有收到来自远程对等体的数据。
+ * READER_IDLE - 没有收到来自远程对端的数据。
  * WRITER_IDLE - 当前Session没有写出任何数据。
  * BOTH_IDLE—READER_IDLE和WRITER_IDLE。
  * 默认情况下，空闲时间设置都是禁用的。你可以使用IoSessionConfig来启用它们

@@ -36,15 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 学习笔记：即会话可以被分配到多个Io处理器处理的处理器池处理，根据会话Id取模来负载均衡io处理器
+ * 学习笔记：即会话可以被分配到有多个Io处理器处理的处理器池处理，根据会话Id取模来负载均衡io处理器
  *
- * 一个 IoProcessor池，将 {@link IoSession} 分发到一个或多个 {@link IoProcessor}。
- * 大多数当前传输实现在内部使用此处理器池，以在多核环境中更好地执行，因此，除非您在同一个
- * JVM 中运行多个 {@link IoService}，否则不需要直接使用此池。
- *
- * 服务之间如果希望共享io处理器：
- * 如果您正在运行多个 {@link IoService}，您可能希望在所有服务之间共享池。
- * 为此，您可以自己创建一个新的 {@link SimpleIoProcessorPool} 实例，并在创建服务时将池作为构造函数参数提供。
  *
  * 该池使用 Java 反射 API 创建多个 {@link IoProcessor} 实例。它尝试按以下顺序实例化处理器：
  * <li>一个带有一个 {@link ExecutorService} 参数的公共构造函数。<li>
@@ -70,6 +63,9 @@ import org.slf4j.LoggerFactory;
  * <li>A public constructor with one {@link Executor} parameter.</li>
  * <li>A public default constructor</li>
  * </ol>
+ *
+ * 学习笔记：如果你希望在多个服务之间共享IoProcessor池，可以手动创建一个处理器池，并传递给多个服务。
+ *
  * The following is an example for the NIO socket transport:
  * <pre><code>
  * // Create a shared pool.
@@ -98,17 +94,33 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     /** A logger for this class */
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleIoProcessorPool.class);
 
+    // -------------------------------------------------------
+    // 简单来说：本机CPU有多少个核，则默认的IoProcessor的池对象就有多少个（这里加多了1个）
+    // -------------------------------------------------------
+
     /** The default pool size, when no size is provided. */
     // 默认的IO处理器池的大小，默认为处理器的个数加+1
     private static final int DEFAULT_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+
+    // -------------------------------------------------------
+    // IoProcessor绑定到会话的关联属性键
+    // -------------------------------------------------------
 
     /** A key used to store the processor pool in the session's Attributes */
     // 在会话上绑定处理器池的属性key
     private static final AttributeKey PROCESSOR = new AttributeKey(SimpleIoProcessorPool.class, "processor");
 
+    // -------------------------------------------------------
+    // IoProcessor池的容器
+    // -------------------------------------------------------
+
     /** The pool table */
     // 对象池的容器
     private final IoProcessor<S>[] pool;
+
+    // -------------------------------------------------------
+    // IoProcessor池内部的线程池
+    // -------------------------------------------------------
 
     /** The contained  which is passed to the IoProcessor when they are created */
     // io处理器的线程池
@@ -117,6 +129,10 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     /** A flag set to true if we had to create an executor */
     // 创建线程池的方式，是外部传递进了的还是内部创建的
     private final boolean createdExecutor;
+
+    // -------------------------------------------------------
+    // 释放操作的状态
+    // -------------------------------------------------------
 
     /** A lock to protect the disposal against concurrent calls */
     // 用于保护释放资源免受并发调用的锁
@@ -129,6 +145,8 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     /** A flag set to true if all the IoProcessor contained in the pool have been disposed */
     // 如果池中包含的所有 IoProcessor 都已被释放，则标志设置为 true
     private volatile boolean disposed;
+
+    // -------------------------------------------------------
 
     /**
      * 学习笔记：创建一个 SimpleIoProcessorPool 的新实例，默认大小为 CPUs核心数量 +1。
@@ -181,6 +199,14 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
         this(processorType, executor, DEFAULT_SIZE, null);
     }
 
+    // -------------------------------------------------------
+    // 简单来说：
+    // SimpleIoProcessorPool需要一个指定一个IoProcessor类作为池内
+    // 对象的反射生成实例的模版。还需要指定一个线程池，一个池对象的大小，
+    // SimpleIoProcessorPool内部的多个IoProcessor会共享一个线程池。
+    // 但是每个IoProcessor内部都有自己独立的nio选择器对象。
+    // -------------------------------------------------------
+
     /**
      * 学习笔记：使用线程执行器创建 SimpleIoProcessorPool 的新实例。
      * 需要一个Io处理器，一个线程执行器，io处理器池的大小，选择器提供者
@@ -204,16 +230,20 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
             throw new IllegalArgumentException("size: " + size + " (expected: positive integer)");
         }
 
+        // 学习笔记：executor为空表示外部没有传递线程池对象，需要自己在IoProcessorPool
+        // 内部自己创建一个默认的newCachedThreadPool线程池。这是内部创建线程池的标记。
         // Create the executor if none is provided
         createdExecutor = executor == null;
 
-        // 默认使用的是缓冲线程池，即每一个请求创建一个线程
+        // 学习笔记：创建一个内部默认的线程池，即每一个请求创建一个线程
         if (createdExecutor) {
             this.executor = Executors.newCachedThreadPool();
             // Set a default reject handler
-            // 它直接在执行方法的调用线程中运行被拒绝的任务，除非执行程序已关闭，在这种情况下任务将被丢弃。
+            // 学习笔记：设置线程池的任务拒绝策略。它直接在执行方法的调用线程中
+            // 运行被拒绝的任务，除非执行程序已关闭，在这种情况下任务将被丢弃。
             ((ThreadPoolExecutor) this.executor).setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         } else {
+            // 学习笔记：从IoProcessor外部传递进来的线程池
             this.executor = executor;
         }
 
@@ -222,7 +252,7 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
 
         boolean success = false;
 
-        // Io处理器的构造函数，io处理器需要一个线程池或者选择提供者作为构造函数的参数，在内部处理并发任务
+        // 学习笔记：Io处理器的构造函数，用来反射创建IoProcessor实例，并构造出完整的IoProcessor池。
         Constructor<? extends IoProcessor<S>> processorConstructor = null;
         boolean usesExecutorArg = true;
 
@@ -230,12 +260,13 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
             // We create at least one processor
             try {
                 try {
-                    // 需要ExecutorService的构造器，创建实例
+                    // 学习笔记：需要ExecutorService的构造器，即带线程池的IoProcessor。
                     processorConstructor = processorType.getConstructor(ExecutorService.class);
                     pool[0] = processorConstructor.newInstance(this.executor);
                 } catch (NoSuchMethodException e1) {
                     // To the next step...
                     try {
+                        // 学习笔记：带线程池和NIO选择器提供者的IoProcessor
                         if(selectorProvider==null) {
                             // 需要线程池的构造器，创建实例
                             processorConstructor = processorType.getConstructor(Executor.class);
@@ -248,7 +279,7 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
                     } catch (NoSuchMethodException e2) {
                         // To the next step...
                         try {
-                            // 没有任何参数的构造器，创建实例
+                            // 学习笔记：不带线程池的IoProcessor
                             processorConstructor = processorType.getConstructor();
                             usesExecutorArg = false;
                             pool[0] = processorConstructor.newInstance();
@@ -266,7 +297,7 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
                 throw new RuntimeIoException(msg, e);
             }
 
-            // 如果不能获得Io处理器的构造器，则无法继续创建Io处理器池
+            // 学习笔记：如果不能获得Io处理器的构造器，则无法继续创建Io处理器池
             if (processorConstructor == null) {
                 // Raise an exception if no proper constructor is found.
                 String msg = String.valueOf(processorType) + " must have a public constructor with one "
@@ -303,6 +334,8 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
         }
     }
 
+    // -------------------------------------------------------
+
     /**
      * 学习笔记：添加要处理的会话
      *
@@ -312,6 +345,18 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     public final void add(S session) {
         getProcessor(session).add(session);
     }
+
+    /**
+     * 学习笔记：移除管理的会话
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public final void remove(S session) {
+        getProcessor(session).remove(session);
+    }
+
+    // -------------------------------------------------------
 
     /**
      * 学习笔记：刷出会话的数据
@@ -333,15 +378,7 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
         getProcessor(session).write(session, writeRequest);
     }
 
-    /**
-     * 学习笔记：移除管理的会话
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public final void remove(S session) {
-        getProcessor(session).remove(session);
-    }
+    // -------------------------------------------------------
 
     /**
      * 学习笔记：更新会话的传输控制，挂起读/写操作
@@ -352,6 +389,8 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     public final void updateTrafficControl(S session) {
         getProcessor(session).updateTrafficControl(session);
     }
+
+    // -------------------------------------------------------
 
     /**
      * 学习笔记：释放状态
@@ -374,6 +413,9 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
     }
 
     /**
+     * 简单来说：释放IoProcessor池的过程就是逐个释放内部每个IoProcessor的过程。
+     * 释放完IoProcessor之后还要释放与IoProcessor相关的线程池。
+     *
      * {@inheritDoc}
      */
     @Override
@@ -383,16 +425,16 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
             return;
         }
 
-        // 学习笔记：使用释放池的锁
+        // 学习笔记：使用释放池的锁，避免同一个线程多次请求这个接口
         synchronized (disposalLock) {
 
-            // 避免同一个线程多次请求这个接口，因为synchronized (disposalLock)是一个可重入锁
             if (!disposing) {
                 // 标记正在释放
                 disposing = true;
 
                 // 遍历每一个io处理器
                 for (IoProcessor<S> ioProcessor : pool) {
+                    // 保险其间做一下null检测
                     if (ioProcessor == null) {
                         // Special case if the pool has not been initialized properly
                         continue;
@@ -423,9 +465,14 @@ public class SimpleIoProcessorPool<S extends AbstractIoSession> implements IoPro
         }
     }
 
+    // -------------------------------------------------------
+
     /**
-     * 学习笔记：查找与会话关联的Io处理器。如果它没有被存储到会话的属性中，选择一个新的处理器并存储它。
+     * 学习笔记：查找与会话关联的Io处理器。如果它没有被存储到会话的属性中，选择一个新的处理器并关联它。
      * 使用会话属性来绑定会话与Io处理器。
+     *
+     * 简单来说：这里就是负责处理会话到IoProcessor的负载均衡，并将会话与IoProcessor通过会话属性进行
+     * 关联。
      *
      * Find the processor associated to a session. If it hasen't be stored into
      * the session's attributes, pick a new processor and stores it.

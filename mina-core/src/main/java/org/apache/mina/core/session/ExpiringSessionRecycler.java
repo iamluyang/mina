@@ -79,8 +79,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     }
 
     /**
-     * 学习笔记：如果会话过期回收线程没有启动，则启动过期回收线程
-     * 获取会话对端的远程地址，对于服务器端是多个远程客户端的地址
+     * 学习笔记：如果会话过期回收线程没有启动，则启动过期回收线程。
      *
      * {@inheritDoc}
      */
@@ -94,7 +93,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     }
 
     /**
-     * 学习笔记：获取远程对端地址对应的相户通信的会话
+     * 学习笔记：获取远程对端地址对应的相互通信的会话
      *
      * {@inheritDoc}
      */
@@ -114,13 +113,17 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     }
 
     /**
-     * 学习笔记：停止线程监视
+     * 学习笔记：停止线程的监视
      *
      * Stop the thread from monitoring the map
      */
     public void stopExpiring() {
         mapExpirer.stopExpiring();
     }
+
+    // --------------------------------------------------------------------------
+    // 学习笔记：检测会话过期的间隔时间
+    // --------------------------------------------------------------------------
 
     /**
      * 学习笔记：返回以秒为单位的会话过期时间
@@ -142,6 +145,10 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
         sessionMap.setExpirationInterval(expirationInterval);
     }
 
+    // --------------------------------------------------------------------------
+    // 学习笔记：会话生存时间
+    // --------------------------------------------------------------------------
+
     /**
      * 学习笔记：会话生存时间以秒为单位
      *
@@ -161,6 +168,10 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     public void setTimeToLive(int timeToLive) {
         sessionMap.setTimeToLive(timeToLive);
     }
+
+    // --------------------------------------------------------------------------
+    // 默认过期监听器实现，会话过期的时候立即关闭过期的会话
+    // --------------------------------------------------------------------------
 
     private class DefaultExpirationListener implements ExpirationListener<IoSession> {
         @Override

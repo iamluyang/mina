@@ -28,6 +28,7 @@ import org.apache.mina.filter.FilterEvent;
  * 学习笔记：该Io事件实例封装事件的宿主即会话，事件的类型，事件的额外参数，这一般是事件的几个重要
  * 元素。并且内部的fire方法会委托事件的宿主会话的过滤器链执行对应的事件。
  *
+ *
  * 相比IoFilterEvent，IoFilterEvent内置下一个过滤器
  *
  * An I/O event or an I/O request that MINA provides.

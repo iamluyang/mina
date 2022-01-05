@@ -24,7 +24,7 @@ import java.net.Socket;
 import org.apache.mina.core.session.IoSessionConfig;
 
 /**
- * TCP Socket的配置选项
+ * 学习笔记：TCP Socket的配置选项
  * An {@link IoSessionConfig} for socket transport type.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
